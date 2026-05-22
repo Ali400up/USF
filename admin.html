@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B5ED7" />
+  <title>لوحة تحكم ملتقى الطالب الجامعي</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root{
+      --primary:#0B5ED7;
+      --primary-dark:#063B8F;
+      --primary-soft:#1E88E5;
+      --primary-light:#64B5F6;
+      --bg:#EEF7FF;
+      --bg2:#DDEEFF;
+      --white:#FFFFFF;
+      --text:#07213F;
+      --muted:#58728F;
+      --border:rgba(11,94,215,.14);
+      --border2:rgba(11,94,215,.26);
+      --glass:rgba(255,255,255,.82);
+      --glass2:rgba(255,255,255,.96);
+      --shadow:0 22px 70px rgba(11,94,215,.14);
+      --shadow2:0 35px 95px rgba(11,94,215,.24);
+      --danger:#D32F2F;
+      --success:#00897B;
+      --warning:#F9A825;
+      --ease:cubic-bezier(.2,.8,.2,1);
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{
+      min-height:100vh;
+      font-family:"Cairo","Tajawal",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 8% 0%,rgba(11,94,215,.18),transparent 32%),
+        radial-gradient(circle at 90% 12%,rgba(100,181,246,.20),transparent 34%),
+        linear-gradient(135deg,#EEF7FF,#FFFFFF 48%,#DDEEFF);
+      overflow-x:hidden;
+    }
+
+    body.dark{
+      --bg:#061525;
+      --bg2:#0A1F35;
+      --white:#0E2A45;
+      --text:#EAF6FF;
+      --muted:#A8C7E8;
+      --border:rgba(234,246,255,.13);
+      --border2:rgba(234,246,255,.24);
+      --glass:rgba(8,27,47,.78);
+      --glass2:rgba(8,27,47,.95);
+      --shadow:0 22px 70px rgba(0,0,0,.34);
+      --shadow2:0 35px 95px rgba(0,0,0,.50);
+      background:
+        radial-gradient(circle at 8% 0%,rgba(30,136,229,.18),transparent 32%),
+        radial-gradient(circle at 90% 12%,rgba(100,181,246,.12),transparent 34%),
+        linear-gradient(135deg,#04111F,#081B2F 48%,#061525);
+    }
+
+    button,input,textarea,select{font-family:inherit}
+    button{cursor:pointer}
+    a{text-decoration:none;color:inherit}
+    .container{width:min(1320px,calc(100% - 28px));margin:auto}
+
+    .bg-orb{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+    .bg-orb span{
+      position:absolute;width:360px;height:360px;border-radius:50%;
+      filter:blur(30px);opacity:.20;background:var(--primary-soft);
+      animation:orb 14s var(--ease) infinite alternate;
+    }
+    .bg-orb span:nth-child(1){right:-120px;top:110px}
+    .bg-orb span:nth-child(2){left:-120px;bottom:120px;background:var(--primary-light);animation-delay:1.4s}
+    @keyframes orb{to{transform:translate3d(38px,-28px,0) scale(1.12)}}
+
+    .login-wrap{min-height:100vh;display:grid;place-items:center;padding:24px}
+    .login-card{
+      width:min(480px,100%);
+      padding:30px;
+      border:1px solid var(--border);
+      border-radius:32px;
+      background:var(--glass);
+      box-shadow:var(--shadow2);
+      backdrop-filter:blur(22px);
+    }
+    .login-icon{
+      width:72px;height:72px;border-radius:26px;display:grid;place-items:center;
+      color:var(--bg);font-size:28px;margin-bottom:16px;
+      background:linear-gradient(135deg,var(--primary-soft),var(--primary),var(--primary-dark));
+      box-shadow:0 16px 36px rgba(11,94,215,.24);
+    }
+    .login-card h1{font-size:29px;font-weight:900;margin-bottom:8px}
+    .login-card p{color:var(--muted);font-weight:800;line-height:1.9;margin-bottom:18px}
+
+    .app{display:none}
+    .topbar{
+      position:sticky;top:0;z-index:1200;
+      background:rgba(238,247,255,.76);
+      backdrop-filter:blur(20px);
+      border-bottom:1px solid var(--border);
+    }
+    .dark .topbar{background:rgba(6,21,37,.76)}
+    .top-inner{
+      min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0;
+    }
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}
+    .brand-icon{
+      width:56px;height:56px;border-radius:20px;display:grid;place-items:center;flex:0 0 auto;
+      color:var(--bg);font-size:23px;background:linear-gradient(135deg,var(--primary-soft),var(--primary),var(--primary-dark));
+      box-shadow:0 14px 34px rgba(11,94,215,.22);
+    }
+    .brand h1{font-size:22px;font-weight:900;line-height:1.35}
+    .brand p{font-size:12px;color:var(--muted);font-weight:850;line-height:1.7}
+    .top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      padding:11px 15px;border:0;border-radius:15px;font-size:13px;font-weight:900;
+      transition:.25s var(--ease);white-space:nowrap;
+    }
+    .btn:hover{transform:translateY(-3px)}
+    .btn-primary{background:linear-gradient(135deg,var(--primary-soft),var(--primary),var(--primary-dark));color:var(--bg);box-shadow:0 14px 34px rgba(11,94,215,.20)}
+    .btn-soft{background:rgba(11,94,215,.08);color:var(--primary);border:1px solid rgba(11,94,215,.16)}
+    .btn-danger{background:rgba(211,47,47,.10);color:var(--danger);border:1px solid rgba(211,47,47,.20)}
+    .btn-success{background:rgba(0,137,123,.10);color:var(--success);border:1px solid rgba(0,137,123,.20)}
+    .btn-warning{background:rgba(249,168,37,.12);color:#9A6500;border:1px solid rgba(249,168,37,.25)}
+
+    .layout{
+      display:grid;
+      grid-template-columns:300px minmax(0,1fr);
+      gap:18px;
+      padding:22px 0 28px;
+    }
+
+    .sidebar{
+      position:sticky;top:104px;align-self:start;
+      border:1px solid var(--border);border-radius:30px;background:var(--glass);
+      box-shadow:var(--shadow);backdrop-filter:blur(20px);padding:14px;
+    }
+    .mobile-tabs-head{display:none}
+    .tabs{display:grid;gap:8px}
+    .tab{
+      width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:13px 14px;border:0;border-radius:18px;background:transparent;color:var(--muted);
+      text-align:right;font-weight:900;transition:.25s var(--ease);
+    }
+    .tab span{display:inline-flex;align-items:center;gap:9px}
+    .tab small{min-width:26px;height:24px;display:grid;place-items:center;border-radius:999px;background:rgba(11,94,215,.08);color:var(--primary);font-size:11px}
+    .tab.active,.tab:hover{background:rgba(11,94,215,.10);color:var(--primary)}
+
+    .panel{display:grid;gap:18px;min-width:0}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    .stat-card{
+      min-height:118px;padding:17px;border:1px solid var(--border);border-radius:24px;
+      background:var(--glass);box-shadow:var(--shadow);backdrop-filter:blur(18px);display:grid;gap:8px;position:relative;overflow:hidden;
+    }
+    .stat-card:before{
+      content:"";position:absolute;left:-40px;bottom:-50px;width:140px;height:140px;border-radius:50%;
+      background:radial-gradient(circle,rgba(11,94,215,.13),transparent 70%);
+    }
+    .stat-card i{font-size:22px;color:var(--primary)}
+    .stat-card strong{font-size:28px;font-weight:900;line-height:1;color:var(--text)}
+    .stat-card span{font-size:12px;color:var(--muted);font-weight:900}
+
+    .card{
+      border:1px solid var(--border);border-radius:30px;background:var(--glass);
+      box-shadow:var(--shadow);backdrop-filter:blur(20px);padding:20px;min-width:0;
+    }
+    .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:16px}
+    .section-head h2{font-size:26px;font-weight:900;line-height:1.35}
+    .section-head p{color:var(--muted);font-weight:800;line-height:1.8;font-size:13px}
+    .head-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+    .field{display:grid;gap:7px;margin-bottom:12px}
+    .field label{font-size:13px;font-weight:900;color:var(--muted)}
+    .field input,.field textarea,.field select{
+      width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:17px;
+      background:rgba(255,255,255,.72);outline:none;color:var(--text);font-size:14px;font-weight:800;transition:.25s var(--ease);
+    }
+    .dark .field input,.dark .field textarea,.dark .field select{background:rgba(241,247,251,.07)}
+    .field input:focus,.field textarea:focus,.field select:focus{border-color:rgba(11,94,215,.55);box-shadow:0 0 0 4px rgba(11,94,215,.12)}
+    .field textarea{min-height:112px;resize:vertical}
+    .grid-form{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .field.full{grid-column:1/-1}
+    .check-row{
+      display:flex;align-items:center;gap:8px;padding:12px 13px;border:1px solid var(--border);
+      border-radius:17px;background:rgba(255,255,255,.55);color:var(--muted);font-weight:900;
+    }
+    .dark .check-row{background:rgba(241,247,251,.05)}
+    .check-row input{width:18px;height:18px}
+    .form-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}
+
+    .tools-card{display:grid;gap:12px}
+    .tools-row{
+      display:grid;grid-template-columns:1.1fr 190px auto;gap:10px;align-items:center;
+    }
+    .search-box{position:relative}
+    .search-box i{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--muted)}
+    .search-box input{padding-right:40px}
+
+    .export-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .table-wrap{
+      overflow:auto;border:1px solid var(--border);border-radius:24px;background:rgba(255,255,255,.48);
+    }
+    .dark .table-wrap{background:rgba(241,247,251,.04)}
+    table{width:100%;border-collapse:collapse;min-width:920px}
+    th,td{padding:12px;border-bottom:1px solid var(--border);text-align:right;vertical-align:top;font-size:13px}
+    th{color:var(--primary);font-weight:900;background:rgba(11,94,215,.07);position:sticky;top:0;z-index:1}
+    td{color:var(--text);font-weight:760;line-height:1.7}
+    .row-actions{display:flex;gap:7px;flex-wrap:wrap}
+    .row-actions .btn{padding:8px 10px;font-size:12px}
+
+    .record-cards{display:none;gap:12px}
+    .record-card{
+      padding:15px;border:1px solid var(--border);border-radius:22px;background:rgba(255,255,255,.54);
+      box-shadow:0 12px 35px rgba(11,94,215,.08);
+    }
+    .dark .record-card{background:rgba(241,247,251,.05)}
+    .record-card h3{font-size:17px;font-weight:900;margin-bottom:8px;color:var(--primary)}
+    .record-meta{display:grid;gap:6px;margin-bottom:12px}
+    .record-meta div{font-size:12.5px;color:var(--muted);font-weight:800;line-height:1.7}
+    .record-meta b{color:var(--text)}
+
+    .badge{
+      display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;
+      background:rgba(11,94,215,.08);color:var(--primary);
+    }
+    .badge.off{background:rgba(211,47,47,.08);color:var(--danger)}
+    .empty{
+      padding:22px;text-align:center;color:var(--muted);font-weight:900;line-height:1.9;border:1px dashed var(--border2);border-radius:22px;
+    }
+    .warning{
+      padding:13px 14px;border-radius:18px;background:rgba(249,168,37,.12);border:1px solid rgba(249,168,37,.25);
+      color:#8A5A00;font-weight:900;line-height:1.8;margin-bottom:14px;
+    }
+    .danger-note{
+      padding:13px 14px;border-radius:18px;background:rgba(211,47,47,.08);border:1px solid rgba(211,47,47,.18);
+      color:var(--danger);font-weight:900;line-height:1.8;margin-bottom:14px;
+    }
+
+    .toast{
+      position:fixed;left:18px;bottom:18px;z-index:3000;max-width:calc(100% - 36px);
+      padding:14px 16px;border-radius:18px;color:var(--bg);
+      background:linear-gradient(135deg,var(--primary-soft),var(--primary),var(--primary-dark));
+      box-shadow:0 18px 50px rgba(11,94,215,.26);font-weight:900;
+      transform:translateY(120px);opacity:0;transition:.35s var(--ease);
+    }
+    .toast.show{transform:translateY(0);opacity:1}
+
+    .quick-modal{
+      position:fixed;inset:0;display:none;place-items:center;padding:18px;z-index:2500;
+      background:rgba(4,17,31,.45);backdrop-filter:blur(13px);
+    }
+    .quick-modal.show{display:grid}
+    .quick-box{
+      width:min(720px,100%);max-height:86vh;overflow:auto;padding:22px;
+      border:1px solid var(--border2);border-radius:28px;background:var(--glass2);box-shadow:var(--shadow2);
+    }
+    .quick-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+    .quick-head h3{font-size:23px;font-weight:900}
+    .close-btn{width:42px;height:42px;border:1px solid var(--border);border-radius:15px;background:var(--glass);color:var(--text)}
+
+    @media(max-width:1100px){
+      .layout{grid-template-columns:1fr}
+      .sidebar{position:static}
+      .mobile-tabs-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+      .tabs{grid-template-columns:repeat(2,1fr)}
+      .stats-grid{grid-template-columns:repeat(2,1fr)}
+      .tools-row{grid-template-columns:1fr 170px}
+      .export-actions{grid-column:1/-1}
+    }
+
+    @media(max-width:720px){
+      .container{width:min(100% - 18px,1320px)}
+      .top-inner{align-items:flex-start}
+      .brand-icon{width:48px;height:48px;border-radius:18px}
+      .brand h1{font-size:17px}
+      .brand p{font-size:11px}
+      .top-actions .btn{padding:10px 11px;font-size:12px}
+      .layout{padding-top:12px}
+      .sidebar,.card{border-radius:24px;padding:14px}
+      .tabs{grid-template-columns:1fr}
+      .tab{padding:12px}
+      .stats-grid{grid-template-columns:1fr 1fr;gap:9px}
+      .stat-card{min-height:96px;padding:13px;border-radius:20px}
+      .stat-card strong{font-size:23px}
+      .section-head{display:grid;gap:10px}
+      .section-head h2{font-size:22px}
+      .grid-form{grid-template-columns:1fr}
+      .tools-row{grid-template-columns:1fr}
+      .export-actions .btn,.form-actions .btn,.head-actions .btn{flex:1 1 130px}
+      .table-wrap{display:none}
+      .record-cards{display:grid}
+      .toast{bottom:12px}
+      .btn:hover{transform:none}
+    }
+
+    @media print{
+      body{background:#fff;color:#000}
+      .topbar,.sidebar,.card.form-card,.tools-card,.toast,.quick-modal{display:none!important}
+      .layout{display:block;padding:0}
+      .card{box-shadow:none;border:0;background:#fff;padding:0}
+      .section-head{display:block;margin-bottom:12px}
+      .table-wrap{display:block;border:0}
+      table{min-width:0;width:100%;font-size:11px}
+      th,td{border:1px solid #999;padding:6px;color:#000}
+      th{background:#eee!important;color:#000}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="bg-orb"><span></span><span></span></div>
+
+  <div class="login-wrap" id="loginWrap">
+    <form class="login-card" id="loginForm">
+      <div class="login-icon"><i class="fa-solid fa-user-shield"></i></div>
+      <h1>لوحة تحكم الأدمن</h1>
+      <p>سجّل الدخول بإيميل الأدمن. تستطيع من هنا إدارة محتوى الموقع، اللجان، الروابط، الدورات، الشكاوى، وتصدير الجداول.</p>
+
+      <div class="danger-note">
+        لا تضع Secret key داخل HTML. استخدم فقط Project URL و Publishable key.
+      </div>
+
+      <div class="field">
+        <label>البريد الإلكتروني</label>
+        <input type="email" id="email" required placeholder="admin@example.com" />
+      </div>
+
+      <div class="field">
+        <label>كلمة المرور</label>
+        <input type="password" id="password" required placeholder="••••••••" />
+      </div>
+
+      <button class="btn btn-primary" type="submit"><i class="fa-solid fa-right-to-bracket"></i> دخول</button>
+    </form>
+  </div>
+
+  <div class="app" id="app">
+    <header class="topbar">
+      <div class="container top-inner">
+        <div class="brand">
+          <div class="brand-icon"><i class="fa-solid fa-gauge-high"></i></div>
+          <div>
+            <h1>إدارة ملتقى الطالب الجامعي</h1>
+            <p id="userEmail">...</p>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <a href="index.html" class="btn btn-soft"><i class="fa-solid fa-eye"></i> عرض الموقع</a>
+          <button class="btn btn-soft" id="themeBtn" type="button"><i class="fa-solid fa-moon"></i></button>
+          <button class="btn btn-danger" id="logoutBtn" type="button"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="container layout">
+      <aside class="sidebar">
+        <div class="mobile-tabs-head">
+          <strong><i class="fa-solid fa-table-list"></i> الأقسام</strong>
+          <button class="btn btn-soft" id="reloadAllBtn" type="button"><i class="fa-solid fa-rotate"></i></button>
+        </div>
+        <div class="tabs" id="tabs"></div>
+      </aside>
+
+      <main class="panel">
+        <section class="stats-grid" id="statsGrid"></section>
+
+        <section class="card form-card">
+          <div class="section-head">
+            <div>
+              <h2 id="tableTitle">...</h2>
+              <p id="tableDesc">...</p>
+            </div>
+            <div class="head-actions">
+              <button class="btn btn-soft" id="refreshBtn" type="button"><i class="fa-solid fa-rotate"></i> تحديث</button>
+              <button class="btn btn-success" id="quickAddBtn" type="button"><i class="fa-solid fa-bolt"></i> إضافة سريعة</button>
+            </div>
+          </div>
+
+          <form id="dataForm">
+            <input type="hidden" id="recordId" />
+            <div class="grid-form" id="formFields"></div>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> حفظ</button>
+              <button class="btn btn-soft" type="button" id="newBtn"><i class="fa-solid fa-plus"></i> جديد</button>
+              <button class="btn btn-danger hidden" type="button" id="deleteBtn"><i class="fa-solid fa-trash"></i> حذف السجل</button>
+            </div>
+          </form>
+        </section>
+
+        <section class="card tools-card">
+          <div class="section-head">
+            <div>
+              <h2>السجلات والتصدير</h2>
+              <p>ابحث، عدّل، اطبع، أو حمّل الجدول بصيغ مختلفة.</p>
+            </div>
+          </div>
+
+          <div class="tools-row">
+            <div class="field search-box">
+              <i class="fa-solid fa-magnifying-glass"></i>
+              <input type="search" id="searchInput" placeholder="بحث داخل الجدول الحالي..." />
+            </div>
+
+            <div class="field">
+              <select id="activeFilter">
+                <option value="all">كل السجلات</option>
+                <option value="active">الظاهرة فقط</option>
+                <option value="hidden">المخفية فقط</option>
+              </select>
+            </div>
+
+            <div class="export-actions">
+              <button class="btn btn-soft" id="exportExcelBtn" type="button"><i class="fa-solid fa-file-excel"></i> Excel</button>
+              <button class="btn btn-soft" id="exportCsvBtn" type="button"><i class="fa-solid fa-file-csv"></i> CSV</button>
+              <button class="btn btn-soft" id="exportTextBtn" type="button"><i class="fa-solid fa-file-lines"></i> TXT</button>
+              <button class="btn btn-warning" id="printPdfBtn" type="button"><i class="fa-solid fa-file-pdf"></i> PDF/طباعة</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="section-head">
+            <div>
+              <h2 id="recordsTitle">السجلات</h2>
+              <p id="recordsDesc">اضغط تعديل لملء النموذج ثم احفظ التغييرات.</p>
+            </div>
+          </div>
+
+          <div class="table-wrap" id="tableWrap"></div>
+          <div class="record-cards" id="recordCards"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="quick-modal" id="quickModal">
+    <div class="quick-box">
+      <div class="quick-head">
+        <h3><i class="fa-solid fa-bolt"></i> إضافة سريعة</h3>
+        <button class="close-btn" id="closeQuickModal" type="button"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="quickContent"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ضع بيانات مشروع Supabase هنا
+    // لا تستخدم Secret key
+     const SUPABASE_URL = "https://bvkcfdagsfmqrhyqspan.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_3b3QXm3I6MMBqfkRx_m4Yw_98KC6_tr";
+
+    const clientReady =
+      SUPABASE_URL &&
+      SUPABASE_ANON_KEY &&
+      !SUPABASE_URL.includes("ضع_") &&
+      !SUPABASE_ANON_KEY.includes("ضع_");
+
+    const db = clientReady ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+    const TABLES = {
+      announcements: {
+        title: "الإعلانات",
+        desc: "إضافة وتعديل وحذف شريط الإعلانات.",
+        icon: "fa-bullhorn",
+        order: { column: "created_at", ascending: false },
+        labelField: "title",
+        fields: [
+          { name: "title", label: "نص الإعلان", type: "text", required: true },
+          { name: "icon", label: "أيقونة Font Awesome", type: "text", placeholder: "fa-solid fa-bullhorn" },
+          { name: "is_active", label: "ظاهر في الموقع", type: "boolean", default: true }
+        ]
+      },
+
+      activities: {
+        title: "الأنشطة",
+        desc: "إدارة أنشطة الملتقى.",
+        icon: "fa-calendar-check",
+        order: { column: "created_at", ascending: false },
+        labelField: "title",
+        fields: [
+          { name: "title", label: "عنوان النشاط", type: "text", required: true },
+          { name: "subtitle", label: "العنوان الداخلي", type: "text" },
+          { name: "description", label: "الوصف", type: "textarea" },
+          { name: "icon", label: "الأيقونة", type: "text", placeholder: "fa-solid fa-people-group" },
+          { name: "category", label: "التصنيف", type: "text" },
+          { name: "tag_one", label: "وسم 1", type: "text" },
+          { name: "tag_two", label: "وسم 2", type: "text" },
+          { name: "is_light", label: "كرت فاتح", type: "boolean", default: false },
+          { name: "is_active", label: "ظاهر في الموقع", type: "boolean", default: true }
+        ]
+      },
+
+      courses: {
+        title: "الدورات",
+        desc: "إدارة الدورات وتفاصيلها وعدد المقاعد والطلاب المسجلين.",
+        icon: "fa-book-open-reader",
+        order: { column: "created_at", ascending: false },
+        labelField: "title",
+        fields: [
+          { name: "title", label: "اسم الدورة", type: "text", required: true },
+          { name: "description", label: "وصف مختصر", type: "textarea" },
+          { name: "details", label: "تفاصيل تظهر عند الضغط على المزيد", type: "textarea" },
+          { name: "icon", label: "الأيقونة", type: "text", placeholder: "fa-solid fa-book-open-reader" },
+          { name: "category", label: "التصنيف: tech / skills / academic", type: "text" },
+          { name: "status", label: "الحالة", type: "text", placeholder: "متاح" },
+          { name: "seats_total", label: "إجمالي المقاعد", type: "number" },
+          { name: "seats_taken", label: "عدد الطلاب المسجلين", type: "number" },
+          { name: "is_light", label: "كرت فاتح", type: "boolean", default: false },
+          { name: "is_active", label: "ظاهر في الموقع", type: "boolean", default: true }
+        ]
+      },
+
+      committees: {
+        title: "لجان الملتقى",
+        desc: "إدارة اللجان الرئيسية التي تظهر للطلاب في الموقع.",
+        icon: "fa-sitemap",
+        order: { column: "sort_order", ascending: true },
+        labelField: "name",
+        fields: [
+          { name: "name", label: "اسم اللجنة", type: "text", required: true },
+          { name: "description", label: "تعريف اللجنة", type: "textarea" },
+          { name: "task_one", label: "مهمة 1", type: "text" },
+          { name: "task_two", label: "مهمة 2", type: "text" },
+          { name: "task_three", label: "مهمة 3", type: "text" },
+          { name: "icon", label: "الأيقونة", type: "text", placeholder: "fa-solid fa-sitemap" },
+          { name: "link_text", label: "نص زر الروابط", type: "text", placeholder: "تابع قنواتنا" },
+          { name: "link_url", label: "رابط احتياطي", type: "text", placeholder: "#courses أو رابط خارجي" },
+          { name: "sort_order", label: "الترتيب", type: "number" },
+          { name: "is_active", label: "ظاهر في الموقع", type: "boolean", default: true }
+        ]
+      },
+
+      committee_links: {
+        title: "روابط اللجان",
+        desc: "إضافة روابط خاصة بكل لجنة مع شرح لمن كل رابط مخصص.",
+        icon: "fa-link",
+        order: { column: "sort_order", ascending: true },
+        labelField: "title",
+        relationSelects: {
+          committee_id: { table: "committees", value: "id", label: "name" }
+        },
+        fields: [
+          { name: "committee_id", label: "اللجنة", type: "relation", required: true, relation: "committee_id" },
+          { name: "title", label: "عنوان الرابط", type: "text", required: true },
+          { name: "description", label: "شرح الرابط / لمن مخصص", type: "textarea" },
+          { name: "url", label: "الرابط", type: "text", placeholder: "https://t.me/..." },
+          { name: "icon", label: "الأيقونة", type: "text", placeholder: "fa-brands fa-telegram" },
+          { name: "sort_order", label: "الترتيب", type: "number" },
+          { name: "is_active", label: "ظاهر في الموقع", type: "boolean", default: true }
+        ]
+      },
+
+      members: {
+        title: "أعضاء أو إدارات",
+        desc: "اختياري: إذا احتجت عرض أسماء أو إدارات داخلية.",
+        icon: "fa-users",
+        order: { column: "sort_order", ascending: true },
+        labelField: "name",
+        fields: [
+          { name: "name", label: "الاسم / اسم الإدارة", type: "text", required: true },
+          { name: "role", label: "الدور", type: "text" },
+          { name: "icon", label: "الأيقونة", type: "text", placeholder: "fa-solid fa-user" },
+          { name: "sort_order", label: "الترتيب", type: "number" },
+          { name: "is_active", label: "ظاهر في الموقع", type: "boolean", default: true }
+        ]
+      },
+
+      achievements: {
+        title: "الإنجازات",
+        desc: "إدارة أرقام الإنجازات.",
+        icon: "fa-trophy",
+        order: { column: "sort_order", ascending: true },
+        labelField: "title",
+        fields: [
+          { name: "title", label: "العنوان", type: "text", required: true },
+          { name: "value", label: "الرقم", type: "number" },
+          { name: "icon", label: "الأيقونة", type: "text", placeholder: "fa-solid fa-trophy" },
+          { name: "sort_order", label: "الترتيب", type: "number" },
+          { name: "is_active", label: "ظاهر في الموقع", type: "boolean", default: true }
+        ]
+      },
+
+      events: {
+        title: "الفعاليات القادمة",
+        desc: "إدارة الفعاليات في الخط الزمني.",
+        icon: "fa-calendar-days",
+        order: { column: "event_date", ascending: true },
+        labelField: "title",
+        fields: [
+          { name: "title", label: "عنوان الفعالية", type: "text", required: true },
+          { name: "location", label: "المكان / الوقت", type: "text" },
+          { name: "event_date", label: "التاريخ", type: "date" },
+          { name: "status", label: "الحالة", type: "text", placeholder: "قريبًا" },
+          { name: "icon", label: "الأيقونة", type: "text", placeholder: "fa-solid fa-calendar-days" },
+          { name: "is_active", label: "ظاهر في الموقع", type: "boolean", default: true }
+        ]
+      },
+
+      student_issues: {
+        title: "الشكاوى والإشكاليات",
+        desc: "متابعة طلبات الطلاب وتغيير حالتها أو حذفها.",
+        icon: "fa-headset",
+        order: { column: "created_at", ascending: false },
+        labelField: "title",
+        fields: [
+          { name: "student_name", label: "اسم الطالب", type: "text", required: true },
+          { name: "issue_type", label: "نوع الطلب", type: "text", required: true },
+          { name: "title", label: "العنوان", type: "text", required: true },
+          { name: "description", label: "التفاصيل", type: "textarea", required: true },
+          { name: "status", label: "الحالة", type: "text", placeholder: "new / processing / solved" }
+        ]
+      },
+
+      course_registrations: {
+        title: "طلبات تسجيل الدورات",
+        desc: "عرض وتعديل وحذف طلبات تسجيل الطلاب.",
+        icon: "fa-user-plus",
+        order: { column: "created_at", ascending: false },
+        labelField: "student_full_name",
+        fields: [
+          { name: "course_id", label: "رقم الدورة", type: "number" },
+          { name: "course_title", label: "اسم الدورة", type: "text" },
+          { name: "student_full_name", label: "الاسم الكامل", type: "text", required: true },
+          { name: "academic_number", label: "الرقم الأكاديمي", type: "text", required: true },
+          { name: "status", label: "الحالة", type: "text", placeholder: "pending / accepted / rejected" }
+        ]
+      }
+    };
+
+    const loginWrap = document.getElementById("loginWrap");
+    const app = document.getElementById("app");
+    const loginForm = document.getElementById("loginForm");
+    const userEmail = document.getElementById("userEmail");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const themeBtn = document.getElementById("themeBtn");
+    const tabs = document.getElementById("tabs");
+    const statsGrid = document.getElementById("statsGrid");
+    const tableTitle = document.getElementById("tableTitle");
+    const tableDesc = document.getElementById("tableDesc");
+    const formFields = document.getElementById("formFields");
+    const dataForm = document.getElementById("dataForm");
+    const recordId = document.getElementById("recordId");
+    const newBtn = document.getElementById("newBtn");
+    const deleteBtn = document.getElementById("deleteBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const reloadAllBtn = document.getElementById("reloadAllBtn");
+    const tableWrap = document.getElementById("tableWrap");
+    const recordCards = document.getElementById("recordCards");
+    const searchInput = document.getElementById("searchInput");
+    const activeFilter = document.getElementById("activeFilter");
+    const exportExcelBtn = document.getElementById("exportExcelBtn");
+    const exportCsvBtn = document.getElementById("exportCsvBtn");
+    const exportTextBtn = document.getElementById("exportTextBtn");
+    const printPdfBtn = document.getElementById("printPdfBtn");
+    const quickAddBtn = document.getElementById("quickAddBtn");
+    const quickModal = document.getElementById("quickModal");
+    const quickContent = document.getElementById("quickContent");
+    const closeQuickModal = document.getElementById("closeQuickModal");
+    const toast = document.getElementById("toast");
+
+    let currentTable = "committees";
+    let currentRows = [];
+    let filteredRows = [];
+    let relationData = {};
+
+    function showToast(message) {
+      toast.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${message}`;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2800);
+    }
+
+    function safe(value) {
+      if (value === null || value === undefined) return "";
+      return String(value).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function cleanFilename(name) {
+      return String(name).replace(/[\\/:*?"<>|]/g, "-").replace(/\s+/g, "_");
+    }
+
+    function assertClient() {
+      if (!db) {
+        showToast("ضع SUPABASE_URL و SUPABASE_ANON_KEY داخل admin.html");
+        return false;
+      }
+      return true;
+    }
+
+    function getColumns() {
+      const config = TABLES[currentTable];
+      return ["id", ...config.fields.map(f => f.name), "created_at"].filter((v, i, a) => a.indexOf(v) === i);
+    }
+
+    function getLabel(row) {
+      const field = TABLES[currentTable].labelField || "title";
+      return row[field] || row.name || row.title || row.id;
+    }
+
+    function formatCell(value) {
+      if (value === true) return `<span class="badge">نعم</span>`;
+      if (value === false) return `<span class="badge off">لا</span>`;
+      if (value === null || value === undefined) return "";
+      const text = safe(value);
+      return text.length > 150 ? text.slice(0, 150) + "..." : text;
+    }
+
+    function buildTabs() {
+      tabs.innerHTML = Object.entries(TABLES).map(([key, config]) => `
+        <button class="tab ${key === currentTable ? "active" : ""}" data-table="${key}">
+          <span><i class="fa-solid ${config.icon}"></i> ${config.title}</span>
+          <small id="count_${key}">0</small>
+        </button>
+      `).join("");
+
+      tabs.querySelectorAll(".tab").forEach(btn => {
+        btn.onclick = () => {
+          currentTable = btn.dataset.table;
+          document.querySelectorAll(".tab").forEach(b => b.classList.remove("active"));
+          btn.classList.add("active");
+          searchInput.value = "";
+          activeFilter.value = "all";
+          resetForm();
+          renderForm();
+          loadRows();
+        };
+      });
+    }
+
+    async function loadStats() {
+      if (!assertClient()) return;
+
+      const important = ["committees", "committee_links", "courses", "student_issues"];
+      const labels = {
+        committees: "لجان",
+        committee_links: "روابط",
+        courses: "دورات",
+        student_issues: "شكاوى"
+      };
+      const icons = {
+        committees: "fa-sitemap",
+        committee_links: "fa-link",
+        courses: "fa-book-open-reader",
+        student_issues: "fa-headset"
+      };
+
+      let stats = [];
+
+      for (const table of Object.keys(TABLES)) {
+        const { count } = await db.from(table).select("*", { count: "exact", head: true });
+        const el = document.getElementById(`count_${table}`);
+        if (el) el.textContent = count ?? 0;
+
+        if (important.includes(table)) {
+          stats.push({ table, count: count ?? 0 });
+        }
+      }
+
+      statsGrid.innerHTML = stats.map(s => `
+        <div class="stat-card">
+          <i class="fa-solid ${icons[s.table]}"></i>
+          <strong>${s.count}</strong>
+          <span>${labels[s.table]}</span>
+        </div>
+      `).join("");
+    }
+
+    async function loadRelations() {
+      relationData = {};
+
+      const config = TABLES[currentTable];
+      if (!config.relationSelects) return;
+
+      for (const [fieldName, rel] of Object.entries(config.relationSelects)) {
+        const { data, error } = await db
+          .from(rel.table)
+          .select(`${rel.value}, ${rel.label}`)
+          .order(rel.label, { ascending: true });
+
+        relationData[fieldName] = error ? [] : (data || []);
+      }
+    }
+
+    async function renderForm() {
+      const config = TABLES[currentTable];
+      tableTitle.textContent = config.title;
+      tableDesc.textContent = config.desc;
+
+      await loadRelations();
+
+      formFields.innerHTML = config.fields.map(field => {
+        if (field.type === "boolean") {
+          return `
+            <div class="field">
+              <label>${field.label}</label>
+              <label class="check-row">
+                <input type="checkbox" name="${field.name}" ${field.default ? "checked" : ""} />
+                نعم
+              </label>
+            </div>
+          `;
+        }
+
+        if (field.type === "textarea") {
+          return `
+            <div class="field full">
+              <label>${field.label}</label>
+              <textarea name="${field.name}" placeholder="${safe(field.placeholder || "")}" ${field.required ? "required" : ""}></textarea>
+            </div>
+          `;
+        }
+
+        if (field.type === "relation") {
+          const options = relationData[field.relation] || [];
+          return `
+            <div class="field">
+              <label>${field.label}</label>
+              <select name="${field.name}" ${field.required ? "required" : ""}>
+                <option value="">اختر...</option>
+                ${options.map(opt => `<option value="${safe(opt.id)}">${safe(opt.name || opt.title || opt.id)}</option>`).join("")}
+              </select>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="field">
+            <label>${field.label}</label>
+            <input type="${field.type}" name="${field.name}" placeholder="${safe(field.placeholder || "")}" ${field.required ? "required" : ""} />
+          </div>
+        `;
+      }).join("");
+    }
+
+    function getFormPayload() {
+      const config = TABLES[currentTable];
+      const formData = new FormData(dataForm);
+      const payload = {};
+
+      config.fields.forEach(field => {
+        const input = dataForm.querySelector(`[name="${field.name}"]`);
+
+        if (field.type === "boolean") {
+          payload[field.name] = input.checked;
+        } else if (field.type === "number" || field.type === "relation") {
+          const value = formData.get(field.name);
+          payload[field.name] = value === "" || value === null ? null : Number(value);
+        } else {
+          const value = formData.get(field.name);
+          payload[field.name] = value === "" ? null : value;
+        }
+      });
+
+      return payload;
+    }
+
+    function fillForm(row) {
+      recordId.value = row.id;
+      deleteBtn.classList.remove("hidden");
+
+      TABLES[currentTable].fields.forEach(field => {
+        const input = dataForm.querySelector(`[name="${field.name}"]`);
+        if (!input) return;
+
+        if (field.type === "boolean") {
+          input.checked = Boolean(row[field.name]);
+        } else {
+          input.value = row[field.name] ?? "";
+        }
+      });
+
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function resetForm() {
+      dataForm.reset();
+      recordId.value = "";
+      deleteBtn.classList.add("hidden");
+
+      TABLES[currentTable].fields.forEach(field => {
+        if (field.type === "boolean") {
+          const input = dataForm.querySelector(`[name="${field.name}"]`);
+          if (input) input.checked = field.default !== false;
+        }
+      });
+    }
+
+    async function loadRows() {
+      if (!assertClient()) return;
+
+      tableWrap.innerHTML = `<div class="empty">جاري التحميل...</div>`;
+      recordCards.innerHTML = `<div class="empty">جاري التحميل...</div>`;
+
+      const config = TABLES[currentTable];
+
+      const { data, error } = await db
+        .from(currentTable)
+        .select("*")
+        .order(config.order.column, { ascending: config.order.ascending });
+
+      if (error) {
+        const msg = `
+          <div class="danger-note">
+            خطأ: ${safe(error.message)}<br>
+            إذا كان الخطأ في committee_links شغّل ملف add_committee_links_migration.sql.
+          </div>
+        `;
+        tableWrap.innerHTML = msg;
+        recordCards.innerHTML = msg;
+        return;
+      }
+
+      currentRows = data || [];
+      applyFilters();
+      loadStats();
+    }
+
+    function applyFilters() {
+      const q = searchInput.value.trim().toLowerCase();
+      const active = activeFilter.value;
+
+      filteredRows = currentRows.filter(row => {
+        const text = JSON.stringify(row).toLowerCase();
+        const matchesSearch = !q || text.includes(q);
+
+        let matchesActive = true;
+        if ("is_active" in row) {
+          if (active === "active") matchesActive = row.is_active === true;
+          if (active === "hidden") matchesActive = row.is_active === false;
+        }
+
+        return matchesSearch && matchesActive;
+      });
+
+      renderTable();
+      renderCards();
+    }
+
+    function renderTable() {
+      if (!filteredRows.length) {
+        tableWrap.innerHTML = `<div class="empty">لا توجد سجلات مطابقة.</div>`;
+        return;
+      }
+
+      const columns = getColumns();
+
+      tableWrap.innerHTML = `
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th>إجراءات</th>
+              ${columns.map(c => `<th>${safe(c)}</th>`).join("")}
+            </tr>
+          </thead>
+          <tbody>
+            ${filteredRows.map(row => `
+              <tr>
+                <td>
+                  <div class="row-actions">
+                    <button class="btn btn-soft edit-btn" data-id="${row.id}"><i class="fa-solid fa-pen"></i> تعديل</button>
+                    <button class="btn btn-danger row-delete-btn" data-id="${row.id}"><i class="fa-solid fa-trash"></i></button>
+                  </div>
+                </td>
+                ${columns.map(col => `<td>${formatCell(row[col])}</td>`).join("")}
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
+
+      tableWrap.querySelectorAll(".edit-btn").forEach(btn => {
+        btn.onclick = () => {
+          const row = currentRows.find(r => String(r.id) === String(btn.dataset.id));
+          if (row) fillForm(row);
+        };
+      });
+
+      tableWrap.querySelectorAll(".row-delete-btn").forEach(btn => {
+        btn.onclick = () => deleteRecord(btn.dataset.id);
+      });
+    }
+
+    function renderCards() {
+      if (!filteredRows.length) {
+        recordCards.innerHTML = `<div class="empty">لا توجد سجلات مطابقة.</div>`;
+        return;
+      }
+
+      const columns = getColumns().filter(c => c !== "created_at");
+
+      recordCards.innerHTML = filteredRows.map(row => `
+        <article class="record-card">
+          <h3>${safe(getLabel(row))}</h3>
+          <div class="record-meta">
+            ${columns.slice(0, 7).map(col => `<div><b>${safe(col)}:</b> ${formatCell(row[col])}</div>`).join("")}
+          </div>
+          <div class="row-actions">
+            <button class="btn btn-soft edit-card-btn" data-id="${row.id}"><i class="fa-solid fa-pen"></i> تعديل</button>
+            <button class="btn btn-danger delete-card-btn" data-id="${row.id}"><i class="fa-solid fa-trash"></i> حذف</button>
+          </div>
+        </article>
+      `).join("");
+
+      recordCards.querySelectorAll(".edit-card-btn").forEach(btn => {
+        btn.onclick = () => {
+          const row = currentRows.find(r => String(r.id) === String(btn.dataset.id));
+          if (row) fillForm(row);
+        };
+      });
+
+      recordCards.querySelectorAll(".delete-card-btn").forEach(btn => {
+        btn.onclick = () => deleteRecord(btn.dataset.id);
+      });
+    }
+
+    async function saveRecord(payload) {
+      if (!assertClient()) return;
+
+      const id = recordId.value;
+      let result;
+
+      if (id) {
+        result = await db.from(currentTable).update(payload).eq("id", id);
+      } else {
+        result = await db.from(currentTable).insert(payload);
+      }
+
+      if (result.error) {
+        showToast("خطأ: " + result.error.message);
+        return;
+      }
+
+      showToast(id ? "تم التعديل بنجاح" : "تمت الإضافة بنجاح");
+      resetForm();
+      await loadRows();
+    }
+
+    async function deleteRecord(id = recordId.value) {
+      if (!assertClient() || !id) return;
+      if (!confirm("هل أنت متأكد من حذف هذا السجل؟")) return;
+
+      const { error } = await db.from(currentTable).delete().eq("id", id);
+
+      if (error) {
+        showToast("خطأ: " + error.message);
+        return;
+      }
+
+      showToast("تم الحذف");
+      resetForm();
+      await loadRows();
+    }
+
+    function rowsToPlainObjects() {
+      const columns = getColumns();
+      return filteredRows.map(row => {
+        const obj = {};
+        columns.forEach(col => obj[col] = row[col] ?? "");
+        return obj;
+      });
+    }
+
+    function downloadFile(filename, content, mime) {
+      const blob = new Blob([content], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportCSV() {
+      const rows = rowsToPlainObjects();
+      if (!rows.length) return showToast("لا توجد بيانات للتصدير");
+
+      const columns = Object.keys(rows[0]);
+      const csv = [
+        columns.join(","),
+        ...rows.map(row => columns.map(col => `"${String(row[col]).replace(/"/g, '""')}"`).join(","))
+      ].join("\n");
+
+      downloadFile(`${cleanFilename(TABLES[currentTable].title)}.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
+    }
+
+    function exportText() {
+      const rows = rowsToPlainObjects();
+      if (!rows.length) return showToast("لا توجد بيانات للتصدير");
+
+      const text = rows.map((row, index) => {
+        return `# ${index + 1}\n` + Object.entries(row).map(([k, v]) => `${k}: ${v}`).join("\n");
+      }).join("\n\n--------------------------\n\n");
+
+      downloadFile(`${cleanFilename(TABLES[currentTable].title)}.txt`, text, "text/plain;charset=utf-8");
+    }
+
+    function exportExcel() {
+      const rows = rowsToPlainObjects();
+      if (!rows.length) return showToast("لا توجد بيانات للتصدير");
+
+      const columns = Object.keys(rows[0]);
+      const table = `
+        <html dir="rtl">
+          <head><meta charset="UTF-8"></head>
+          <body>
+            <table border="1">
+              <thead><tr>${columns.map(c => `<th>${safe(c)}</th>`).join("")}</tr></thead>
+              <tbody>
+                ${rows.map(row => `<tr>${columns.map(c => `<td>${safe(row[c])}</td>`).join("")}</tr>`).join("")}
+              </tbody>
+            </table>
+          </body>
+        </html>
+      `;
+
+      downloadFile(`${cleanFilename(TABLES[currentTable].title)}.xls`, table, "application/vnd.ms-excel;charset=utf-8");
+    }
+
+    function printPDF() {
+      if (!filteredRows.length) return showToast("لا توجد بيانات للطباعة");
+      window.print();
+    }
+
+    function openQuickAdd() {
+      let html = "";
+
+      if (currentTable === "committees") {
+        html = `
+          <div class="warning">إضافة سريعة للجان الأساسية. سيضيف النظام اللجان إذا لم تكن موجودة.</div>
+          <button class="btn btn-primary" onclick="quickSeedCommittees()"><i class="fa-solid fa-sitemap"></i> إضافة اللجان الأساسية</button>
+        `;
+      } else if (currentTable === "committee_links") {
+        html = `
+          <div class="warning">إضافة روابط افتراضية للجان. بعد الإضافة عدّل روابط # إلى روابط تيليجرام الحقيقية.</div>
+          <button class="btn btn-primary" onclick="quickSeedCommitteeLinks()"><i class="fa-solid fa-link"></i> إضافة روابط افتراضية</button>
+        `;
+      } else {
+        html = `<div class="empty">الإضافة السريعة متاحة حاليًا للجان وروابط اللجان فقط.</div>`;
+      }
+
+      quickContent.innerHTML = html;
+      quickModal.classList.add("show");
+    }
+
+    async function quickSeedCommittees() {
+      if (!assertClient()) return;
+      const rows = [
+        { name:"اللجنة العلمية المركزية", description:"اللجنة المسؤولة عن تنظيم الجانب العلمي والأكاديمي داخل ملتقى الطالب الجامعي، وتشرف على اللجان العلمية في الكليات.", task_one:"متابعة اللجان العلمية في الكليات.", task_two:"تنظيم المحاضرات والمراجعات.", task_three:"دعم الطلاب أكاديميًا.", icon:"fa-solid fa-microscope", link_text:"روابط اللجنة", link_url:"#", sort_order:1, is_active:true },
+        { name:"لجنة الأنشطة", description:"اللجنة المسؤولة عن تنظيم الفعاليات والبرامج الطلابية المختلفة داخل الجامعة.", task_one:"تنظيم الأنشطة والفعاليات.", task_two:"استقبال أفكار الطلاب.", task_three:"تعزيز المشاركة والتعاون.", icon:"fa-solid fa-calendar-check", link_text:"روابط اللجنة", link_url:"#activities", sort_order:2, is_active:true },
+        { name:"اللجنة الإعلامية", description:"الواجهة الإعلامية للملتقى، وتختص بالتغطيات والإعلانات والمنشورات.", task_one:"نشر الأخبار والإعلانات.", task_two:"تغطية الفعاليات.", task_three:"إبراز إنجازات الملتقى.", icon:"fa-solid fa-bullhorn", link_text:"تابع قنواتنا", link_url:"#", sort_order:3, is_active:true },
+        { name:"لجنة التدريب والتأهيل", description:"اللجنة المهتمة بتطوير مهارات الطلاب عبر الدورات والورش والبرامج التدريبية.", task_one:"إعداد الدورات.", task_two:"متابعة التسجيل والحضور.", task_three:"تطوير مهارات الطلاب.", icon:"fa-solid fa-chalkboard-user", link_text:"روابط اللجنة", link_url:"#courses", sort_order:4, is_active:true },
+        { name:"لجنة شؤون الطلاب", description:"اللجنة المعنية باستقبال قضايا الطلاب وإشكالياتهم ومقترحاتهم.", task_one:"استقبال الشكاوى والمقترحات.", task_two:"متابعة القضايا الطلابية.", task_three:"الدفاع عن مصالح الطلاب.", icon:"fa-solid fa-headset", link_text:"روابط اللجنة", link_url:"#issues", sort_order:5, is_active:true }
+      ];
+
+      const { error } = await db.from("committees").upsert(rows, { onConflict: "name" });
+      if (error) return showToast("خطأ: " + error.message);
+
+      showToast("تمت إضافة اللجان الأساسية");
+      quickModal.classList.remove("show");
+      await loadRows();
+    }
+
+    async function quickSeedCommitteeLinks() {
+      if (!assertClient()) return;
+
+      const { data: committees, error } = await db.from("committees").select("id,name");
+      if (error || !committees?.length) return showToast("أضف اللجان أولًا");
+
+      const getId = name => committees.find(c => c.name === name)?.id;
+      const rows = [
+        { committee_id:getId("اللجنة العلمية المركزية"), title:"القناة المركزية للجنة العلمية", description:"مخصصة للإعلانات العلمية العامة والمراجعات والملخصات.", url:"#", icon:"fa-brands fa-telegram", sort_order:1, is_active:true },
+        { committee_id:getId("اللجنة العلمية المركزية"), title:"قنوات اللجان العلمية في الكليات", description:"مخصصة للوصول إلى قنوات كل كلية حسب التخصص.", url:"#", icon:"fa-solid fa-building-columns", sort_order:2, is_active:true },
+        { committee_id:getId("لجنة الأنشطة"), title:"قناة لجنة الأنشطة", description:"مخصصة لإعلانات الفعاليات والأنشطة والمبادرات.", url:"#", icon:"fa-brands fa-telegram", sort_order:1, is_active:true },
+        { committee_id:getId("اللجنة الإعلامية"), title:"قناة اللجنة الإعلامية", description:"مخصصة لأخبار الملتقى والتغطيات والمنشورات.", url:"#", icon:"fa-brands fa-telegram", sort_order:1, is_active:true },
+        { committee_id:getId("لجنة التدريب والتأهيل"), title:"قسم الدورات والتسجيل", description:"للانتقال إلى الدورات المتاحة والتسجيل فيها.", url:"#courses", icon:"fa-solid fa-book-open-reader", sort_order:1, is_active:true },
+        { committee_id:getId("لجنة شؤون الطلاب"), title:"تقديم شكوى أو مقترح", description:"للطلاب الذين لديهم مشكلة أو مقترح أو إشكالية.", url:"#issues", icon:"fa-solid fa-headset", sort_order:1, is_active:true }
+      ].filter(r => r.committee_id);
+
+      const { error: insertError } = await db.from("committee_links").insert(rows);
+      if (insertError) return showToast("خطأ: " + insertError.message);
+
+      showToast("تمت إضافة روابط افتراضية");
+      quickModal.classList.remove("show");
+      await loadRows();
+    }
+
+    window.quickSeedCommittees = quickSeedCommittees;
+    window.quickSeedCommitteeLinks = quickSeedCommitteeLinks;
+
+    dataForm.onsubmit = e => {
+      e.preventDefault();
+      saveRecord(getFormPayload());
+    };
+
+    newBtn.onclick = resetForm;
+    deleteBtn.onclick = () => deleteRecord();
+    refreshBtn.onclick = loadRows;
+    if (reloadAllBtn) reloadAllBtn.onclick = async () => { await loadRows(); await loadStats(); };
+    searchInput.oninput = applyFilters;
+    activeFilter.onchange = applyFilters;
+    exportCsvBtn.onclick = exportCSV;
+    exportTextBtn.onclick = exportText;
+    exportExcelBtn.onclick = exportExcel;
+    printPdfBtn.onclick = printPDF;
+    quickAddBtn.onclick = openQuickAdd;
+    closeQuickModal.onclick = () => quickModal.classList.remove("show");
+    quickModal.onclick = e => { if (e.target === quickModal) quickModal.classList.remove("show"); };
+
+    themeBtn.onclick = () => {
+      document.body.classList.toggle("dark");
+      themeBtn.innerHTML = document.body.classList.contains("dark")
+        ? '<i class="fa-solid fa-sun"></i>'
+        : '<i class="fa-solid fa-moon"></i>';
+    };
+
+    loginForm.onsubmit = async e => {
+      e.preventDefault();
+      if (!assertClient()) return;
+
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      const { data, error } = await db.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        showToast("فشل الدخول: " + error.message);
+        return;
+      }
+
+      await afterLogin(data.session);
+    };
+
+    logoutBtn.onclick = async () => {
+      if (db) await db.auth.signOut();
+      location.reload();
+    };
+
+    async function afterLogin(session) {
+      if (!session) return;
+
+      const { data: admin, error } = await db
+        .from("admin_users")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .maybeSingle();
+
+      if (error || !admin) {
+        await db.auth.signOut();
+        showToast("هذا الحساب ليس أدمن. أضف user_id في جدول admin_users.");
+        return;
+      }
+
+      userEmail.textContent = session.user.email;
+      loginWrap.style.display = "none";
+      app.style.display = "block";
+
+      buildTabs();
+      await renderForm();
+      resetForm();
+      await loadRows();
+      await loadStats();
+    }
+
+    async function init() {
+      if (!assertClient()) return;
+
+      const { data } = await db.auth.getSession();
+      if (data.session) await afterLogin(data.session);
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1983 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B5ED7" />
+  <title>ملتقى الطالب الجامعي | جامعة العلوم والتكنولوجيا</title>
+
+  <!-- SEO + Google Search + Social Preview -->
+  <meta name="description" content="الموقع الرسمي لملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا: أخبار الملتقى، اللجان، الأنشطة، الدورات، الفعاليات، الشكاوى والمقترحات وخدمات الطلاب." />
+  <meta name="keywords" content="ملتقى الطالب الجامعي, جامعة العلوم والتكنولوجيا, University Student Forum, USF, جامعة العلوم والتكنولوجيا اليمن, أنشطة طلابية, دورات تدريبية, لجان طلابية, شؤون الطلاب" />
+  <meta name="author" content="الدكتور علي أمير الشهاري" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow" />
+  <meta name="language" content="Arabic" />
+  <meta name="geo.region" content="YE" />
+  <meta name="geo.placename" content="Yemen" />
+  <link rel="canonical" href="https://YOUR-DOMAIN.com/" />
+
+  <!-- Open Graph: WhatsApp, Facebook, Telegram, LinkedIn -->
+  <meta property="og:locale" content="ar_AR" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="ملتقى الطالب الجامعي - جامعة العلوم والتكنولوجيا" />
+  <meta property="og:title" content="ملتقى الطالب الجامعي | جامعة العلوم والتكنولوجيا" />
+  <meta property="og:description" content="الموقع الرسمي لملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا: أخبار الملتقى، اللجان، الأنشطة، الدورات، الفعاليات، الشكاوى والمقترحات وخدمات الطلاب." />
+  <meta property="og:url" content="https://YOUR-DOMAIN.com/" />
+  <meta property="og:image" content="https://YOUR-DOMAIN.com/og-image.png" />
+  <meta property="og:image:secure_url" content="https://YOUR-DOMAIN.com/og-image.png" />
+  <meta property="og:image:alt" content="ملتقى الطالب الجامعي - جامعة العلوم والتكنولوجيا" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <!-- Twitter / X Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ملتقى الطالب الجامعي | جامعة العلوم والتكنولوجيا" />
+  <meta name="twitter:description" content="الموقع الرسمي لملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا: أخبار الملتقى، اللجان، الأنشطة، الدورات، الفعاليات، الشكاوى والمقترحات وخدمات الطلاب." />
+  <meta name="twitter:image" content="https://YOUR-DOMAIN.com/og-image.png" />
+
+  <!-- Icons / PWA basics -->
+  <link rel="icon" href="/logo.png" type="image/png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+
+  <!-- Structured Data for Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollegeOrUniversity",
+    "name": "ملتقى الطالب الجامعي - جامعة العلوم والتكنولوجيا",
+    "alternateName": "University Student Forum - University of Science and Technology",
+    "url": "https://YOUR-DOMAIN.com/",
+    "logo": "https://YOUR-DOMAIN.com/logo.png",
+    "image": "https://YOUR-DOMAIN.com/og-image.png",
+    "description": "الموقع الرسمي لملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا: أخبار الملتقى، اللجان، الأنشطة، الدورات، الفعاليات، الشكاوى والمقترحات وخدمات الطلاب.",
+    "address": {
+      "@type": "PostalAddress",
+      "addressCountry": "YE"
+    },
+    "sameAs": []
+  }
+  </script>
+
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/typed.js@2.1.0/dist/typed.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root{
+      --primary:#0B5ED7;--primary-dark:#063B8F;--primary-soft:#1E88E5;--primary-light:#64B5F6;
+      --bg:#EEF7FF;--bg2:#DDEEFF;--white:#fff;--text:#07213F;--muted:#58728F;
+      --border:rgba(11,94,215,.14);--border2:rgba(11,94,215,.25);
+      --glass:rgba(255,255,255,.80);--glass2:rgba(255,255,255,.95);
+      --shadow:0 22px 70px rgba(11,94,215,.14);--shadow2:0 35px 95px rgba(11,94,215,.24);
+      --ease:cubic-bezier(.2,.8,.2,1);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;scroll-padding-top:96px}
+    body{
+      min-height:100vh;font-family:"Cairo","Tajawal",sans-serif;color:var(--text);overflow-x:hidden;
+      background:
+        radial-gradient(circle at 12% 8%,rgba(55,71,79,.12),transparent 27%),
+        radial-gradient(circle at 85% 0%,rgba(84,110,122,.14),transparent 30%),
+        linear-gradient(135deg,var(--bg),#fff 48%,var(--bg2));
+    }
+    body.dark{
+      --bg:#061525;--bg2:#0A1F35;--white:#0E2A45;--text:#EAF6FF;--muted:#A8C7E8;
+      --border:rgba(234,246,255,.13);--border2:rgba(234,246,255,.24);
+      --glass:rgba(8,27,47,.78);--glass2:rgba(8,27,47,.95);
+      --shadow:0 22px 70px rgba(0,0,0,.34);--shadow2:0 35px 95px rgba(0,0,0,.48);
+      background:linear-gradient(135deg,#0E171B,#172329 48%,#101A1F);
+    }
+    a{text-decoration:none;color:inherit}button,input,textarea,select{font-family:inherit}img{max-width:100%;display:block}
+    .container{width:min(1180px,calc(100% - 28px));margin-inline:auto}
+    .bg-orb{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
+    .bg-orb span{position:absolute;width:360px;height:360px;border-radius:50%;filter:blur(28px);opacity:.22;background:var(--primary-soft);animation:orb 14s var(--ease) infinite alternate}
+    .bg-orb span:nth-child(1){top:80px;right:-130px}.bg-orb span:nth-child(2){bottom:120px;left:-140px;background:var(--primary-light);animation-delay:1.5s}
+    @keyframes orb{to{transform:translate3d(42px,-38px,0) scale(1.12)}}
+
+    .topbar{position:fixed;top:14px;right:0;left:0;z-index:1000}
+    .nav{
+      width:min(1180px,calc(100% - 22px));height:74px;margin:auto;padding:0 12px 0 18px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--border);
+      border-radius:999px;background:var(--glass);backdrop-filter:blur(24px);box-shadow:0 16px 55px rgba(55,71,79,.10);transition:.35s var(--ease)
+    }
+    .topbar.scrolled .nav{height:62px;box-shadow:var(--shadow)}
+    .brand{display:flex;align-items:center;gap:10px;min-width:0}
+    .brand-logo{width:54px;height:54px;flex:0 0 54px;padding:6px;border-radius:20px;background:linear-gradient(var(--white),var(--white)) padding-box,linear-gradient(135deg,var(--primary),var(--bg),var(--primary-soft)) border-box;border:2px solid transparent;box-shadow:0 14px 34px rgba(55,71,79,.18);overflow:hidden}
+    .brand-logo img{width:100%;height:100%;object-fit:contain;border-radius:15px}
+    .brand-fallback{width:100%;height:100%;display:none;place-items:center;border-radius:15px;color:var(--bg);background:linear-gradient(135deg,var(--primary-soft),var(--primary))}
+    .brand-text{display:grid;gap:2px;min-width:0}.brand-text strong{color:var(--primary);font-size:17px;line-height:1.2;font-weight:900;white-space:nowrap}.dark .brand-text strong{color:var(--bg)}.brand-text span{color:var(--muted);font-size:11px;font-weight:800;white-space:nowrap}
+    .nav-links{display:flex;align-items:center;gap:2px;color:var(--muted);font-size:13px;font-weight:900}
+    .nav-links a{display:inline-flex;align-items:center;gap:6px;padding:10px;border-radius:999px;transition:.28s var(--ease)}
+    .nav-links a:hover,.nav-links a.active{color:var(--primary);background:rgba(55,71,79,.08)}.dark .nav-links a:hover,.dark .nav-links a.active{color:var(--bg);background:rgba(241,247,251,.08)}
+    .nav-actions{display:flex;align-items:center;gap:8px}
+    .icon-btn,.menu-btn{
+      width:43px;height:43px;display:grid;place-items:center;border:1px solid var(--border);border-radius:16px;background:var(--glass2);
+      color:var(--text);cursor:pointer;transition:.28s var(--ease);font-size:16px
+    }
+    .menu-btn{display:none}.icon-btn:hover,.menu-btn:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 19px;border:0;border-radius:999px;cursor:pointer;font-size:14px;font-weight:900;transition:.32s var(--ease);white-space:nowrap}
+    .btn-dark{color:var(--bg);background:linear-gradient(135deg,var(--primary-soft),var(--primary));box-shadow:0 18px 42px rgba(55,71,79,.24)}
+    .btn-light{color:var(--primary);background:linear-gradient(135deg,var(--bg),var(--white));border:1px solid rgba(55,71,79,.12);box-shadow:0 14px 34px rgba(55,71,79,.10)}
+    .btn-soft{color:var(--primary);background:rgba(55,71,79,.08);border:1px solid rgba(55,71,79,.14)}
+    .btn:hover{transform:translateY(-4px)}
+
+    .hero{min-height:100svh;padding:112px 0 56px;display:flex;align-items:center}
+    .hero-layout{display:grid;grid-template-columns:minmax(0,1.06fr) minmax(0,.94fr);align-items:center;gap:38px;overflow:hidden}
+    .hero-content{min-width:0;overflow:hidden}
+    .hero-badge{display:inline-flex;align-items:center;gap:9px;margin-bottom:18px;padding:10px 14px;border-radius:999px;color:var(--primary);background:rgba(55,71,79,.08);border:1px solid rgba(55,71,79,.18);font-size:13px;font-weight:900}
+    .hero h1{max-width:760px;margin-bottom:12px;font-size:clamp(37px,6.4vw,82px);line-height:1.15;letter-spacing:-2.2px;font-weight:900}
+    .gradient-text{background:linear-gradient(135deg,var(--primary-dark),var(--primary),var(--primary-soft));-webkit-background-clip:text;background-clip:text;color:transparent}
+    .typed-line{position:relative;width:100%;max-width:700px;height:54px;margin:12px 0 16px;color:var(--primary);overflow:hidden;contain:layout paint}
+    .typed-line span,#typedText{position:absolute;inset:0;display:block;width:100%;height:100%;white-space:nowrap;overflow:hidden;font-size:clamp(20px,3vw,32px);font-weight:900;line-height:1.6;text-align:right}.typed-cursor{display:none!important}
+    .hero p{max-width:700px;margin-bottom:25px;color:var(--muted);font-size:17px;line-height:2.1;font-weight:700}
+    .hero-actions,.hero-chips,.tags,.filters{display:flex;align-items:center;flex-wrap:wrap;gap:10px}.hero-actions{margin-bottom:22px}
+    .chip{display:inline-flex;align-items:center;gap:8px;padding:10px 13px;border:1px solid var(--border);border-radius:16px;background:var(--glass);box-shadow:0 8px 26px rgba(55,71,79,.06);color:var(--muted);font-size:12px;font-weight:900}
+    .chip i{color:var(--primary)}
+    .hero-visual{min-height:560px;width:100%;max-width:560px;justify-self:center;display:grid;place-items:center;position:relative;overflow:visible}
+    .logo-aura{position:absolute;width:min(500px,88vw);height:min(500px,88vw);border-radius:50%;background:radial-gradient(circle,rgba(55,71,79,.10),transparent 58%),conic-gradient(from 80deg,rgba(55,71,79,.14),rgba(241,247,251,.55),rgba(84,110,122,.16),rgba(55,71,79,.14));animation:aura 24s linear infinite}
+    @keyframes aura{to{transform:rotate(360deg)}}
+    .showcase{width:min(430px,calc(100% - 74px));padding:22px;border:1px solid var(--border2);border-radius:42px;background:var(--glass);box-shadow:var(--shadow2);backdrop-filter:blur(24px);position:relative;overflow:hidden;animation:float 6s var(--ease) infinite;display:grid;gap:16px}
+    @keyframes float{50%{transform:translateY(-16px) rotate(-.7deg)}}
+    .logo-panel{position:relative;z-index:1;min-height:250px;padding:18px;display:grid;place-items:center;border-radius:32px;background:linear-gradient(var(--white),var(--white)) padding-box,linear-gradient(135deg,var(--primary),var(--bg),var(--primary-soft)) border-box;border:3px solid transparent;box-shadow:0 22px 58px rgba(55,71,79,.15)}
+    .logo-panel img{width:min(250px,78vw);height:min(250px,78vw);object-fit:contain}.logo-placeholder{width:230px;height:230px;display:none;place-items:center;border-radius:30px;color:var(--bg);background:linear-gradient(135deg,var(--primary-soft),var(--primary));font-size:72px}
+    .showcase-title{padding:16px;border:1px solid var(--border);border-radius:24px;background:rgba(255,255,255,.55);text-align:center}.dark .showcase-title{background:rgba(241,247,251,.06)}
+    .showcase-title strong{display:block;color:var(--primary);font-size:22px;font-weight:900}.dark .showcase-title strong{color:var(--bg)}.showcase-title span{color:var(--muted);font-size:13px;font-weight:900}
+    .showcase-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.showcase-stat{padding:13px 8px;border:1px solid var(--border);border-radius:19px;background:rgba(255,255,255,.48);text-align:center}.dark .showcase-stat{background:rgba(241,247,251,.06)}
+    .showcase-stat i{display:block;color:var(--primary);font-size:19px;margin-bottom:7px}.showcase-stat strong{display:block;color:var(--primary);font-size:20px;font-weight:900}.showcase-stat span{display:block;color:var(--muted);font-size:11px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .float-note{position:absolute;z-index:4;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 14px;border:1px solid var(--border);border-radius:18px;background:var(--glass2);box-shadow:var(--shadow);backdrop-filter:blur(18px);color:var(--primary);font-size:12px;font-weight:900;min-width:132px;white-space:nowrap;animation:note 4.8s var(--ease) infinite}.dark .float-note{color:var(--bg)}
+    .float-note.one{top:72px;right:0}.float-note.two{bottom:74px;left:0;animation-delay:.8s}.float-note.three{top:176px;left:0;animation-delay:1.5s}@keyframes note{50%{transform:translateY(-14px)}}
+
+    .ticker{margin-top:-22px;padding:12px 0;overflow:hidden;border-block:1px solid var(--border);background:rgba(255,255,255,.38);backdrop-filter:blur(16px)}.dark .ticker{background:rgba(241,247,251,.04)}
+    .ticker-track{display:flex;width:max-content;gap:14px;animation:ticker 26s linear infinite}.ticker:hover .ticker-track{animation-play-state:paused}
+    .ticker-item{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border:1px solid var(--border);border-radius:999px;background:var(--glass);color:var(--muted);font-size:13px;font-weight:900;white-space:nowrap}.ticker-item i{color:var(--primary)}
+    @keyframes ticker{to{transform:translateX(50%)}}
+
+    section{position:relative;padding:78px 0}.section-header{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:30px}.section-kicker{display:inline-flex;align-items:center;gap:8px;margin-bottom:8px;color:var(--section-color,var(--primary));font-size:14px;font-weight:900}.section-kicker:before{content:"";width:30px;height:4px;border-radius:999px;background:linear-gradient(90deg,var(--section-color,var(--primary)),var(--primary-light))}
+    .section-title{max-width:720px;font-size:clamp(28px,4vw,48px);line-height:1.35;letter-spacing:-1px;font-weight:900}.section-desc{max-width:560px;color:var(--muted);font-size:15px;line-height:2;font-weight:700}
+    #about{--section-color:#2F6F73;--section-soft:rgba(47,111,115,.10);background:linear-gradient(180deg,transparent,rgba(47,111,115,.045),transparent)}
+    #process{--section-color:#546E7A;--section-soft:rgba(84,110,122,.11);background:linear-gradient(180deg,transparent,rgba(84,110,122,.055),transparent)}
+    #goals{--section-color:#0B5ED7;--section-soft:rgba(11,94,215,.11);background:linear-gradient(180deg,transparent,rgba(11,94,215,.055),transparent)}
+    #committeeship{--section-color:#0077B6;--section-soft:rgba(0,119,182,.11);background:linear-gradient(180deg,transparent,rgba(0,119,182,.055),transparent)}
+    #activities{--section-color:#3F7D58;--section-soft:rgba(63,125,88,.11);background:linear-gradient(180deg,transparent,rgba(63,125,88,.055),transparent)}
+    #courses{--section-color:#3F5E7D;--section-soft:rgba(63,94,125,.11);background:linear-gradient(180deg,transparent,rgba(63,94,125,.055),transparent)}
+    #committees{--section-color:#6D5A7A;--section-soft:rgba(109,90,122,.11);background:linear-gradient(180deg,transparent,rgba(109,90,122,.055),transparent)}
+    #achievements{--section-color:#9A7A2F;--section-soft:rgba(154,122,47,.12);background:linear-gradient(180deg,transparent,rgba(154,122,47,.06),transparent)}
+    #issues{--section-color:#7B4C4C;--section-soft:rgba(123,76,76,.11);background:linear-gradient(180deg,transparent,rgba(123,76,76,.055),transparent)}
+    #timeline{--section-color:#4F6F8F;--section-soft:rgba(79,111,143,.12);background:linear-gradient(180deg,transparent,rgba(79,111,143,.06),transparent)}
+    #gallery{--section-color:#5B6F5B;--section-soft:rgba(91,111,91,.11);background:linear-gradient(180deg,transparent,rgba(91,111,91,.055),transparent)}
+
+    .about-grid,.issues-layout{display:grid;grid-template-columns:.94fr 1.06fr;gap:18px;align-items:stretch}.mission-card{min-height:430px;padding:30px;border-radius:36px;color:var(--bg);background:radial-gradient(circle at 22% 18%,rgba(255,255,255,.20),transparent 26%),linear-gradient(135deg,var(--section-color),var(--primary) 58%,var(--primary-dark));box-shadow:var(--shadow2);position:relative;overflow:hidden}
+    .mission-content{position:relative;z-index:1}.mission-content h3{margin-bottom:14px;font-size:clamp(28px,3vw,38px);line-height:1.45;font-weight:900}.mission-content p{color:rgba(241,247,251,.86);line-height:2;font-size:16px;font-weight:700}.mission-steps{display:grid;gap:12px;margin-top:24px}.mission-step,.step{display:flex;align-items:center;gap:12px;padding:13px;border-radius:18px;background:rgba(241,247,251,.11);color:var(--bg);font-weight:900}.mission-step span,.step span{width:36px;height:36px;display:grid;place-items:center;border-radius:13px;color:var(--primary);background:var(--bg)}
+
+    .feature-stack{display:grid;gap:14px}.soft-card,.activity-card,.course-card,.committee-card,.achievement-card,.issue-form,.timeline-card,.gallery-card,.mini-service,.process-card{border:1px solid var(--border);border-radius:26px;background:var(--glass);backdrop-filter:blur(20px);box-shadow:var(--shadow);transition:.35s var(--ease)}.soft-card:hover,.activity-card:hover,.course-card:hover,.committee-card:hover,.achievement-card:hover,.timeline-card:hover,.gallery-card:hover,.mini-service:hover,.process-card:hover{transform:translateY(-8px);box-shadow:var(--shadow2)}
+    .soft-card{display:grid;grid-template-columns:62px 1fr;gap:14px;align-items:start;padding:20px}.soft-icon,.mini-service span,.process-card .number,.achievement-icon,.avatar{display:grid;place-items:center;color:var(--bg);background:linear-gradient(135deg,var(--section-color,var(--primary-soft)),var(--primary));box-shadow:0 16px 36px rgba(55,71,79,.20)}.soft-icon{width:62px;height:62px;border-radius:22px;font-size:24px}.soft-card h3{margin-bottom:6px;font-size:20px;font-weight:900}.soft-card p{color:var(--muted);font-size:14px;line-height:1.9;font-weight:700}
+
+    .mini-services{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:18px}.mini-service{padding:18px;min-height:146px;display:grid;gap:10px}.mini-service span{width:52px;height:52px;border-radius:18px;font-size:22px}.mini-service strong{font-size:16px;font-weight:900}.mini-service p{color:var(--muted);font-size:13px;line-height:1.7;font-weight:700}
+    .process-grid,.goals-grid,.committeeship-grid,.activities-grid,.courses-grid,.committees-grid,.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}.process-card{padding:22px;display:grid;gap:14px}.process-card .number{width:50px;height:50px;border-radius:18px;font-weight:900}.process-card h3{font-size:20px;font-weight:900}.process-card p{color:var(--muted);font-weight:700;line-height:1.9}
+
+    .activity-card,.course-card{overflow:hidden}.cover{height:170px;display:flex;align-items:flex-end;padding:19px;position:relative;overflow:hidden;color:var(--bg);background:radial-gradient(circle at 18% 20%,rgba(255,255,255,.22),transparent 25%),linear-gradient(135deg,var(--section-color,var(--primary-soft)),var(--primary) 58%,var(--primary-dark))}.cover.light-cover{color:var(--section-color,var(--primary));background:linear-gradient(135deg,var(--section-soft),var(--bg));border-bottom:1px solid var(--border)}.cover h3{position:relative;z-index:1;display:flex;align-items:center;gap:10px;font-size:24px;font-weight:900}.card-body{padding:21px}.card-body h3{margin-bottom:9px;font-size:21px;font-weight:900}.card-body p{margin-bottom:16px;color:var(--muted);font-size:14px;line-height:1.9;font-weight:700}.tag{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:999px;color:var(--section-color,var(--primary));background:var(--section-soft,rgba(55,71,79,.08));font-size:12px;font-weight:900}
+    .empty-state{grid-column:1/-1;padding:32px;text-align:center;border:1px dashed var(--border2);border-radius:26px;color:var(--muted);background:var(--glass);font-weight:900}
+    .filters{margin-bottom:23px}.filter-btn{display:inline-flex;align-items:center;gap:7px;padding:10px 15px;border:1px solid var(--border);border-radius:999px;background:var(--glass);color:var(--muted);cursor:pointer;font-weight:900;transition:.3s var(--ease)}.filter-btn:hover,.filter-btn.active{color:var(--bg);border-color:transparent;background:linear-gradient(135deg,var(--section-color),var(--primary));transform:translateY(-3px)}
+    .progress-block{margin:16px 0 18px}.progress-info{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;color:var(--muted);font-size:13px;font-weight:900}.progress{height:10px;overflow:hidden;border-radius:999px;background:rgba(55,71,79,.10)}.progress span{display:block;height:100%;width:var(--width);border-radius:inherit;background:linear-gradient(90deg,var(--section-color,var(--primary)),var(--primary-soft))}
+    .course-meta-line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 4px;padding:10px 12px;border-radius:16px;color:var(--section-color,var(--primary));background:var(--section-soft);font-size:13px;font-weight:900}.course-more-box{display:none;margin:12px 0 16px;padding:13px;border-radius:18px;background:rgba(55,71,79,.07);color:var(--muted);font-size:13px;font-weight:750;line-height:1.9;border:1px solid var(--border)}.course-more-box.show{display:block}.course-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.course-actions .btn{padding-inline:15px}
+
+    .committees-grid,.achievements-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px}.committee-card,.achievement-card{padding:24px 18px;text-align:center;overflow:hidden}.avatar{width:88px;height:88px;margin:0 auto 15px;border-radius:31px;font-size:31px}.committee-card h3{font-size:18px;font-weight:900;margin-bottom:7px}.committee-card p{color:var(--muted);font-size:13px;line-height:1.8;font-weight:800}.achievement-icon{width:58px;height:58px;margin:0 auto 13px;border-radius:22px;font-size:24px}.achievement-number{margin-bottom:6px;color:var(--section-color);font-size:42px;line-height:1;font-weight:900}.achievement-card p{color:var(--muted);font-weight:900}
+
+    .issues-panel{min-height:470px;padding:31px;border-radius:38px;color:var(--bg);background:linear-gradient(135deg,var(--section-color),var(--primary-dark));box-shadow:var(--shadow2)}.issues-panel h2{margin-bottom:14px;font-size:clamp(29px,3vw,39px);line-height:1.45;font-weight:900}.issues-panel p{margin-bottom:23px;color:rgba(241,247,251,.86);font-size:16px;line-height:2;font-weight:700}.steps{display:grid;gap:12px}.issue-form{padding:27px;border-radius:38px}.form-grid,.registration-form{display:grid;grid-template-columns:1fr 1fr;gap:14px}.registration-form{grid-template-columns:1fr}.field{display:grid;gap:8px}.field.full{grid-column:1/-1}label{color:var(--muted);font-size:13px;font-weight:900}input,select,textarea{width:100%;padding:14px 15px;border:1px solid var(--border);border-radius:18px;outline:none;background:rgba(255,255,255,.64);color:var(--text);font-size:14px;font-weight:800}.dark input,.dark select,.dark textarea{background:rgba(241,247,251,.07)}textarea{min-height:132px;resize:vertical}
+
+    .timeline-wrap{position:relative;display:grid;gap:17px;padding-right:20px}.timeline-wrap:before{content:"";position:absolute;top:15px;bottom:15px;right:40px;width:4px;border-radius:999px;background:linear-gradient(180deg,var(--section-color),var(--primary-light))}.timeline-card{position:relative;display:grid;grid-template-columns:92px 1fr auto;align-items:center;gap:17px;padding:20px 86px 20px 19px;border-radius:30px}.timeline-card:before{content:"";position:absolute;right:26px;width:30px;height:30px;border-radius:50%;background:var(--section-color);border:6px solid var(--glass2)}.date-box{width:92px;height:78px;display:grid;place-items:center;border-radius:25px;text-align:center;line-height:1.35;color:var(--bg);background:linear-gradient(135deg,var(--section-color),var(--primary));font-size:15px;font-weight:900}.timeline-content h3{margin-bottom:7px;font-size:21px;font-weight:900}.timeline-content p{color:var(--muted);line-height:1.8;font-weight:800}.timeline-status{display:inline-flex;align-items:center;gap:6px;padding:9px 12px;border-radius:999px;color:var(--section-color);background:var(--section-soft);font-size:12px;font-weight:900;white-space:nowrap}
+    .gallery-card{min-height:210px;padding:20px;display:grid;align-content:end;overflow:hidden;color:var(--bg);background:linear-gradient(135deg,var(--section-color),var(--primary));}.gallery-card.light-gallery{color:var(--section-color);background:linear-gradient(135deg,var(--section-soft),var(--bg))}.gallery-card h3{display:flex;align-items:center;gap:10px;margin-bottom:7px;font-size:22px;font-weight:900}.gallery-card p{color:rgba(241,247,251,.82);line-height:1.8;font-weight:700}.gallery-card.light-gallery p{color:var(--muted)}
+
+    .modal-backdrop{position:fixed;inset:0;z-index:2500;display:none;place-items:center;padding:20px;background:rgba(15,24,29,.45);backdrop-filter:blur(14px)}.modal-backdrop.show{display:grid}.modal-box{width:min(480px,100%);border:1px solid var(--border2);border-radius:30px;background:var(--glass2);box-shadow:var(--shadow2);padding:24px;position:relative}.modal-close{position:absolute;top:14px;left:14px;width:40px;height:40px;border:1px solid var(--border);border-radius:15px;background:var(--glass);color:var(--text);cursor:pointer}.modal-head{display:grid;grid-template-columns:62px 1fr;align-items:center;gap:14px;margin-bottom:20px;padding-left:44px}.modal-icon{width:62px;height:62px;display:grid;place-items:center;border-radius:22px;background:linear-gradient(135deg,var(--primary-soft),var(--primary));color:var(--bg);font-size:23px}.modal-head h3{font-size:23px;font-weight:900;margin-bottom:4px}.modal-head p{color:var(--muted);font-size:14px;font-weight:800;line-height:1.7}.modal-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+
+    .footer{padding:42px 0 92px;border-top:1px solid var(--border);background:rgba(255,255,255,.34);backdrop-filter:blur(16px)}.dark .footer{background:rgba(241,247,251,.04)}.footer-inner{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;color:var(--muted);font-weight:800;line-height:1.8}.footer-brand{display:flex;align-items:center;gap:12px}.footer-logo{width:54px;height:54px;display:grid;place-items:center;padding:6px;border-radius:18px;background:var(--white);border:1px solid var(--border);overflow:hidden;color:var(--primary);font-size:22px}
+    .bottom-nav{position:fixed;right:12px;bottom:12px;left:12px;z-index:1100;display:none;grid-template-columns:repeat(5,1fr);gap:6px;padding:8px;border:1px solid var(--border);border-radius:25px;background:var(--glass2);backdrop-filter:blur(22px);box-shadow:var(--shadow2)}.bottom-nav a{display:grid;place-items:center;gap:4px;min-height:50px;border-radius:18px;color:var(--muted);font-size:10px;font-weight:900}.bottom-nav a i{font-size:18px}.bottom-nav a.active{color:var(--primary);background:rgba(55,71,79,.08)}
+    .toast{position:fixed;left:18px;bottom:18px;z-index:3000;max-width:calc(100% - 36px);padding:15px 18px;border-radius:18px;color:var(--bg);background:linear-gradient(135deg,var(--primary-soft),var(--primary));box-shadow:0 18px 50px rgba(55,71,79,.26);font-weight:900;transform:translateY(120px);opacity:0;transition:.35s var(--ease)}.toast.show{transform:translateY(0);opacity:1}
+    .reveal{opacity:0;transform:translateY(42px);transition:.86s var(--ease)}.reveal.show{opacity:1;transform:translateY(0)}.delay-1{transition-delay:.08s}.delay-2{transition-delay:.16s}.delay-3{transition-delay:.24s}
+
+
+    .committee-card{
+      padding:24px 18px;
+      text-align:right;
+      overflow:hidden;
+      display:grid;
+      gap:12px;
+      position:relative;
+    }
+
+    .committee-card .avatar{
+      margin:0 0 8px auto;
+    }
+
+    .committee-card h3{
+      font-size:20px;
+      font-weight:900;
+      margin-bottom:3px;
+      color:var(--text);
+    }
+
+    .committee-card p{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.9;
+      font-weight:800;
+    }
+
+    .committee-tasks{
+      display:grid;
+      gap:7px;
+      margin-top:2px;
+    }
+
+    .committee-task{
+      display:flex;
+      align-items:flex-start;
+      gap:7px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.8;
+      font-weight:850;
+    }
+
+    .committee-task i{
+      color:var(--section-color,var(--primary));
+      margin-top:6px;
+      font-size:10px;
+    }
+
+    .committee-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:6px;
+    }
+
+    .committee-actions .btn{
+      padding:10px 13px;
+      font-size:12px;
+    }
+
+
+    /* ===== Committees Better Mobile Design + Bottom Sheet ===== */
+    .committees-grid{
+      align-items:stretch;
+    }
+
+    .committee-card{
+      min-height:360px;
+      padding:24px;
+      text-align:right;
+      display:flex;
+      flex-direction:column;
+      gap:13px;
+      overflow:hidden;
+      position:relative;
+      isolation:isolate;
+    }
+
+    .committee-card::before{
+      content:"";
+      position:absolute;
+      inset:auto -40px -70px auto;
+      width:180px;
+      height:180px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(11,94,215,.14), transparent 70%);
+      z-index:-1;
+    }
+
+    .committee-card .avatar{
+      width:76px;
+      height:76px;
+      margin:0;
+      border-radius:26px;
+      font-size:28px;
+      flex:0 0 auto;
+    }
+
+    .committee-card h3{
+      font-size:21px;
+      font-weight:900;
+      margin:0;
+      color:var(--text);
+      line-height:1.5;
+    }
+
+    .committee-card p{
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.9;
+      font-weight:800;
+      margin:0;
+    }
+
+    .committee-tasks{
+      display:grid;
+      gap:8px;
+      margin-top:2px;
+    }
+
+    .committee-task{
+      display:flex;
+      align-items:flex-start;
+      gap:8px;
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.8;
+      font-weight:850;
+    }
+
+    .committee-task i{
+      color:var(--section-color,var(--primary));
+      margin-top:7px;
+      font-size:8px;
+      flex:0 0 auto;
+    }
+
+    .committee-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:auto;
+    }
+
+    .committee-actions .btn{
+      padding:10px 13px;
+      font-size:12px;
+    }
+
+    .committee-detail-backdrop{
+      position:fixed;
+      inset:0;
+      z-index:2600;
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      padding:14px;
+      background:rgba(4,17,31,.42);
+      backdrop-filter:blur(12px);
+    }
+
+    .committee-detail-backdrop.show{
+      display:flex;
+    }
+
+    .committee-detail-sheet{
+      width:min(720px,100%);
+      max-height:min(82vh,760px);
+      overflow:auto;
+      border:1px solid var(--border2);
+      border-radius:30px 30px 24px 24px;
+      background:var(--glass2);
+      box-shadow:var(--shadow2);
+      padding:22px;
+      animation:sheetUp .28s var(--ease) both;
+    }
+
+    @keyframes sheetUp{
+      from{transform:translateY(38px);opacity:0}
+      to{transform:translateY(0);opacity:1}
+    }
+
+    .sheet-handle{
+      width:54px;
+      height:5px;
+      border-radius:999px;
+      background:rgba(11,94,215,.25);
+      margin:0 auto 16px;
+    }
+
+    .sheet-head{
+      display:grid;
+      grid-template-columns:66px 1fr 42px;
+      align-items:center;
+      gap:12px;
+      margin-bottom:16px;
+    }
+
+    .sheet-icon{
+      width:66px;
+      height:66px;
+      display:grid;
+      place-items:center;
+      border-radius:23px;
+      color:var(--bg);
+      background:linear-gradient(135deg,#1E88E5,#0B5ED7,#063B8F);
+      box-shadow:0 16px 36px rgba(11,94,215,.24);
+      font-size:25px;
+    }
+
+    .sheet-head h3{
+      font-size:23px;
+      line-height:1.4;
+      font-weight:900;
+      color:var(--text);
+    }
+
+    .sheet-head p{
+      color:var(--muted);
+      font-size:13px;
+      font-weight:800;
+      line-height:1.7;
+    }
+
+    .sheet-close{
+      width:42px;
+      height:42px;
+      border:1px solid var(--border);
+      border-radius:15px;
+      background:var(--glass);
+      color:var(--text);
+      cursor:pointer;
+    }
+
+    .sheet-section{
+      padding:15px;
+      border:1px solid var(--border);
+      border-radius:20px;
+      background:rgba(255,255,255,.44);
+      margin-bottom:12px;
+    }
+
+    .dark .sheet-section{
+      background:rgba(241,247,251,.05);
+    }
+
+    .sheet-section h4{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      color:var(--primary);
+      font-size:16px;
+      font-weight:900;
+      margin-bottom:8px;
+    }
+
+    .sheet-section p,
+    .sheet-section li{
+      color:var(--muted);
+      font-size:14px;
+      line-height:2;
+      font-weight:800;
+    }
+
+    .sheet-section ul{
+      padding-right:20px;
+    }
+
+    @media(max-width:760px){
+      .committees-grid{
+        grid-template-columns:1fr !important;
+        gap:12px;
+      }
+
+      .committee-card{
+        min-height:auto;
+        padding:16px;
+        border-radius:24px;
+        display:grid;
+        grid-template-columns:64px 1fr;
+        align-items:center;
+        gap:12px;
+      }
+
+      .committee-card .avatar{
+        width:64px;
+        height:64px;
+        border-radius:22px;
+        font-size:24px;
+        grid-row:1 / span 3;
+      }
+
+      .committee-card h3{
+        font-size:18px;
+        line-height:1.4;
+      }
+
+      .committee-card p{
+        display:block;
+        font-size:12.5px;
+        line-height:1.8;
+        max-height:48px;
+        overflow:hidden;
+      }
+
+      .committee-tasks{
+        display:none;
+      }
+
+      .committee-actions{
+        margin-top:0;
+      }
+
+      .committee-actions .btn{
+        width:auto;
+        padding:8px 11px;
+        font-size:11.5px;
+      }
+
+      .committee-detail-sheet{
+        max-height:86vh;
+        border-radius:28px 28px 20px 20px;
+        padding:18px;
+      }
+
+      .sheet-head{
+        grid-template-columns:56px 1fr 40px;
+      }
+
+      .sheet-icon{
+        width:56px;
+        height:56px;
+        border-radius:20px;
+        font-size:22px;
+      }
+
+      .sheet-head h3{
+        font-size:19px;
+      }
+    }
+
+
+    /* ===== Committee Links Popup ===== */
+    .committee-links-backdrop{
+      position:fixed;
+      inset:0;
+      z-index:2700;
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      padding:14px;
+      background:rgba(4,17,31,.45);
+      backdrop-filter:blur(13px);
+    }
+
+    .committee-links-backdrop.show{
+      display:flex;
+    }
+
+    .committee-links-sheet{
+      width:min(760px,100%);
+      max-height:min(86vh,780px);
+      overflow:auto;
+      border:1px solid var(--border2);
+      border-radius:30px 30px 24px 24px;
+      background:var(--glass2);
+      box-shadow:var(--shadow2);
+      padding:22px;
+      animation:sheetUp .28s var(--ease) both;
+    }
+
+    .links-list{
+      display:grid;
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .committee-link-card{
+      display:grid;
+      grid-template-columns:52px 1fr auto;
+      gap:12px;
+      align-items:center;
+      padding:14px;
+      border:1px solid var(--border);
+      border-radius:22px;
+      background:rgba(255,255,255,.48);
+      transition:.25s var(--ease);
+    }
+
+    .dark .committee-link-card{
+      background:rgba(241,247,251,.06);
+    }
+
+    .committee-link-card:hover{
+      transform:translateY(-3px);
+      box-shadow:0 18px 45px rgba(11,94,215,.16);
+    }
+
+    .committee-link-icon{
+      width:52px;
+      height:52px;
+      border-radius:18px;
+      display:grid;
+      place-items:center;
+      color:var(--bg);
+      background:linear-gradient(135deg,#1E88E5,#0B5ED7,#063B8F);
+      font-size:21px;
+      box-shadow:0 12px 28px rgba(11,94,215,.20);
+    }
+
+    .committee-link-card h4{
+      font-size:16px;
+      font-weight:900;
+      color:var(--text);
+      margin-bottom:4px;
+      line-height:1.5;
+    }
+
+    .committee-link-card p{
+      color:var(--muted);
+      font-size:12.5px;
+      line-height:1.8;
+      font-weight:800;
+    }
+
+    .committee-link-card .btn{
+      padding:9px 12px;
+      font-size:12px;
+    }
+
+    .links-empty{
+      padding:18px;
+      border:1px dashed var(--border2);
+      border-radius:22px;
+      text-align:center;
+      color:var(--muted);
+      font-weight:900;
+      line-height:1.8;
+    }
+
+    @media(max-width:760px){
+      .committee-links-sheet{
+        max-height:88vh;
+        border-radius:28px 28px 20px 20px;
+        padding:18px;
+      }
+
+      .committee-link-card{
+        grid-template-columns:46px 1fr;
+        align-items:start;
+      }
+
+      .committee-link-icon{
+        width:46px;
+        height:46px;
+        border-radius:16px;
+        font-size:19px;
+      }
+
+      .committee-link-card .btn{
+        grid-column:1 / -1;
+        width:100%;
+      }
+    }
+
+    @media(max-width:1080px){
+      .nav-links{position:fixed;top:92px;right:12px;left:12px;display:none;flex-direction:column;align-items:stretch;padding:14px;border:1px solid var(--border);border-radius:26px;background:var(--glass2);backdrop-filter:blur(24px);box-shadow:var(--shadow2)}.nav-links.open{display:flex}.menu-btn{display:grid}
+      .hero-layout,.about-grid,.issues-layout{grid-template-columns:minmax(0,1fr)}.hero-visual{min-height:540px;max-width:540px}.mini-services,.committees-grid,.achievements-grid{grid-template-columns:repeat(2,1fr)}.process-grid,.goals-grid,.committeeship-grid,.activities-grid,.courses-grid,.committees-grid,.gallery-grid{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(max-width:760px){
+      .container,.nav{width:min(100% - 20px,1180px)}.topbar{top:10px}.nav{height:66px;padding-inline:10px}.brand-logo{width:48px;height:48px;flex-basis:48px}.brand-text strong{max-width:155px;overflow:hidden;text-overflow:ellipsis;font-size:14px}.brand-text span,.nav-actions .btn{display:none}
+      .hero{min-height:auto;padding:100px 0 48px}.hero-layout{gap:22px}.hero h1{font-size:clamp(34px,12vw,54px)}.typed-line{height:72px}.typed-line span,#typedText{font-size:21px;line-height:1.7}.hero p{font-size:15px}.hero-actions .btn{flex:1 1 100%}.hero-chips{display:grid;grid-template-columns:1fr 1fr}
+      .hero-visual{min-height:475px;max-width:100%;overflow:hidden}.showcase{width:min(100%,390px);padding:17px;border-radius:32px}.logo-panel img,.logo-placeholder{width:210px;height:210px}.float-note.three{display:none}.float-note.one{top:18px;right:8px}.float-note.two{bottom:16px;left:8px}.float-note{min-width:auto;max-width:142px;padding:9px 11px;font-size:11px}
+      .ticker{margin-top:0}section{padding:62px 0}.section-header{display:grid;gap:12px}.feature-stack,.mini-services,.process-grid,.goals-grid,.committeeship-grid,.activities-grid,.courses-grid,.committees-grid,.achievements-grid,.gallery-grid,.form-grid{grid-template-columns:1fr}.soft-card{grid-template-columns:56px 1fr;padding:17px}.timeline-wrap{padding-right:0}.timeline-wrap:before{right:23px}.timeline-card{grid-template-columns:1fr;padding:22px 68px 22px 17px}.modal-actions .btn{flex:1 1 100%}.footer{padding-bottom:100px}.footer-inner{grid-template-columns:1fr}.bottom-nav{display:grid}.toast{bottom:92px}
+    }
+
+
+    /* =========================================================
+       BLUE PREMIUM FULL THEME
+       هوية زرقاء كاملة للموقع
+       ========================================================= */
+    :root{
+      --primary:#0B5ED7;
+      --primary-dark:#063B8F;
+      --primary-soft:#1E88E5;
+      --primary-light:#64B5F6;
+      --bg:#EEF7FF;
+      --bg2:#DDEEFF;
+      --white:#FFFFFF;
+      --text:#07213F;
+      --muted:#58728F;
+      --border:rgba(11,94,215,.14);
+      --border2:rgba(11,94,215,.25);
+      --glass:rgba(255,255,255,.80);
+      --glass2:rgba(255,255,255,.95);
+      --shadow:0 22px 70px rgba(11,94,215,.14);
+      --shadow2:0 35px 95px rgba(11,94,215,.24);
+    }
+
+    body{
+      background:
+        radial-gradient(circle at 12% 8%,rgba(11,94,215,.18),transparent 28%),
+        radial-gradient(circle at 85% 0%,rgba(30,136,229,.18),transparent 32%),
+        radial-gradient(circle at 45% 80%,rgba(100,181,246,.18),transparent 30%),
+        linear-gradient(135deg,#EEF7FF,#FFFFFF 48%,#DDEEFF) !important;
+    }
+
+    body.dark{
+      --bg:#061525;
+      --bg2:#0A1F35;
+      --white:#0E2A45;
+      --text:#EAF6FF;
+      --muted:#A8C7E8;
+      --border:rgba(234,246,255,.13);
+      --border2:rgba(234,246,255,.24);
+      --glass:rgba(8,27,47,.78);
+      --glass2:rgba(8,27,47,.95);
+      --shadow:0 22px 70px rgba(0,0,0,.34);
+      --shadow2:0 35px 95px rgba(0,0,0,.50);
+      background:
+        radial-gradient(circle at 12% 8%,rgba(30,136,229,.18),transparent 30%),
+        radial-gradient(circle at 85% 0%,rgba(100,181,246,.12),transparent 32%),
+        linear-gradient(135deg,#04111F,#081B2F 48%,#061525) !important;
+    }
+
+    #about{--section-color:#0077B6;--section-soft:rgba(0,119,182,.11);background:linear-gradient(180deg,transparent,rgba(0,119,182,.055),transparent)!important}
+    #process{--section-color:#0B5ED7;--section-soft:rgba(11,94,215,.11);background:linear-gradient(180deg,transparent,rgba(11,94,215,.055),transparent)!important}
+    #activities{--section-color:#0096C7;--section-soft:rgba(0,150,199,.12);background:linear-gradient(180deg,transparent,rgba(0,150,199,.055),transparent)!important}
+    #courses{--section-color:#1E88E5;--section-soft:rgba(30,136,229,.12);background:linear-gradient(180deg,transparent,rgba(30,136,229,.060),transparent)!important}
+    #committees{--section-color:#1565C0;--section-soft:rgba(21,101,192,.12);background:linear-gradient(180deg,transparent,rgba(21,101,192,.055),transparent)!important}
+    #achievements{--section-color:#0288D1;--section-soft:rgba(2,136,209,.12);background:linear-gradient(180deg,transparent,rgba(2,136,209,.060),transparent)!important}
+    #issues{--section-color:#0D47A1;--section-soft:rgba(13,71,161,.12);background:linear-gradient(180deg,transparent,rgba(13,71,161,.055),transparent)!important}
+    #timeline{--section-color:#1976D2;--section-soft:rgba(25,118,210,.12);background:linear-gradient(180deg,transparent,rgba(25,118,210,.060),transparent)!important}
+    #gallery{--section-color:#0288D1;--section-soft:rgba(2,136,209,.12);background:linear-gradient(180deg,transparent,rgba(2,136,209,.055),transparent)!important}
+
+    .nav{border-color:rgba(11,94,215,.16)!important;box-shadow:0 16px 55px rgba(11,94,215,.12)!important}
+    .brand-logo,.logo-panel{background:linear-gradient(var(--white),var(--white)) padding-box,linear-gradient(135deg,#0B5ED7,#EEF7FF,#64B5F6) border-box!important;box-shadow:0 14px 34px rgba(11,94,215,.22)!important}
+    .brand-fallback,.logo-placeholder,.modal-icon,.btn-dark,.toast{background:linear-gradient(135deg,#1E88E5,#0B5ED7,#063B8F)!important}
+    .gradient-text{background:linear-gradient(135deg,#063B8F,#0B5ED7,#64B5F6)!important;-webkit-background-clip:text!important;background-clip:text!important;color:transparent!important}
+    .hero-badge{color:#0B5ED7!important;background:rgba(11,94,215,.09)!important;border-color:rgba(11,94,215,.20)!important}
+    .dark .hero-badge{color:#EAF6FF!important;background:rgba(100,181,246,.10)!important;border-color:rgba(100,181,246,.18)!important}
+    .chip i,.ticker-item i,.showcase-stat i,.showcase-stat strong,.typed-line,.brand-text strong,.showcase-title strong{color:#0B5ED7!important}
+    .dark .chip i,.dark .ticker-item i,.dark .showcase-stat i,.dark .showcase-stat strong,.dark .typed-line,.dark .brand-text strong,.dark .showcase-title strong{color:#90CAF9!important}
+    .logo-aura{background:radial-gradient(circle,rgba(11,94,215,.16),transparent 58%),conic-gradient(from 80deg,rgba(11,94,215,.20),rgba(238,247,255,.70),rgba(30,136,229,.22),rgba(11,94,215,.20))!important}
+    .btn-light{color:#0B5ED7!important;background:linear-gradient(135deg,#EEF7FF,#FFFFFF)!important;border-color:rgba(11,94,215,.15)!important;box-shadow:0 14px 34px rgba(11,94,215,.12)!important}
+    .btn-soft{color:#0B5ED7!important;background:rgba(11,94,215,.08)!important;border-color:rgba(11,94,215,.16)!important}
+    .btn-soft:hover{background:rgba(11,94,215,.13)!important}
+    .soft-card,.activity-card,.course-card,.committee-card,.achievement-card,.issue-form,.timeline-card,.gallery-card,.mini-service,.process-card,.showcase,.modal-box{border-color:rgba(11,94,215,.14)!important;box-shadow:0 22px 70px rgba(11,94,215,.13)!important}
+    .soft-card:hover,.activity-card:hover,.course-card:hover,.committee-card:hover,.achievement-card:hover,.timeline-card:hover,.gallery-card:hover,.mini-service:hover,.process-card:hover{box-shadow:0 35px 95px rgba(11,94,215,.22)!important}
+    .filter-btn:hover,.filter-btn.active{background:linear-gradient(135deg,#1E88E5,#0B5ED7)!important;box-shadow:0 12px 34px rgba(11,94,215,.22)!important}
+    .progress span{background:linear-gradient(90deg,#0B5ED7,#1E88E5,#64B5F6)!important}
+    input:focus,select:focus,textarea:focus{border-color:rgba(11,94,215,.55)!important;box-shadow:0 0 0 4px rgba(11,94,215,.12)!important}
+    .bottom-nav a.active{color:#0B5ED7!important;background:rgba(11,94,215,.10)!important}
+    .dark .bottom-nav a.active{color:#90CAF9!important;background:rgba(144,202,249,.10)!important}
+
+  
+    /* =========================================================
+       PREMIUM MOBILE HERO + CLEAN TEXT OVERRIDES
+       ========================================================= */
+    .hero-content{
+      position:relative;
+      z-index:2;
+    }
+
+    .hero-badge{
+      box-shadow:0 12px 34px rgba(11,94,215,.10);
+    }
+
+    .hero p{
+      text-wrap:balance;
+    }
+
+    .hero-actions .btn i{
+      font-size:15px;
+    }
+
+    .chip{
+      justify-content:center;
+      min-height:46px;
+    }
+
+    .chip i{
+      font-size:16px;
+    }
+
+    .section-desc{
+      text-wrap:balance;
+    }
+
+    @media(max-width:760px){
+      body{
+        background:
+          radial-gradient(circle at 18% 5%,rgba(11,94,215,.18),transparent 30%),
+          radial-gradient(circle at 85% 22%,rgba(100,181,246,.18),transparent 34%),
+          linear-gradient(180deg,#EAF6FF 0%,#F7FBFF 48%,#E4F2FF 100%) !important;
+      }
+
+      .hero{
+        padding:96px 0 34px;
+      }
+
+      .hero-layout{
+        display:flex;
+        flex-direction:column;
+        gap:22px;
+        overflow:visible;
+      }
+
+      .hero-content{
+        width:100%;
+        padding:22px 16px 18px;
+        border:1px solid rgba(11,94,215,.12);
+        border-radius:34px;
+        background:linear-gradient(180deg,rgba(255,255,255,.60),rgba(255,255,255,.28));
+        box-shadow:0 22px 70px rgba(11,94,215,.12);
+        backdrop-filter:blur(16px);
+        text-align:center;
+      }
+
+      .hero-badge{
+        margin-inline:auto;
+        margin-bottom:13px;
+        padding:9px 13px;
+        font-size:12px;
+      }
+
+      .hero h1{
+        font-size:clamp(31px,11vw,48px);
+        line-height:1.25;
+        letter-spacing:-1px;
+        margin-bottom:8px;
+      }
+
+      .typed-line{
+        height:66px;
+        margin:8px auto 12px;
+        max-width:100%;
+      }
+
+      .typed-line span,
+      #typedText{
+        position:relative;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        white-space:normal;
+        text-align:center;
+        font-size:clamp(17px,5.2vw,23px);
+        line-height:1.55;
+        padding-inline:6px;
+      }
+
+      .hero p{
+        font-size:14px;
+        line-height:2.05;
+        margin-bottom:18px;
+        color:#58728F;
+      }
+
+      .hero-actions{
+        display:grid;
+        grid-template-columns:1fr;
+        gap:10px;
+        margin-bottom:14px;
+      }
+
+      .hero-actions .btn{
+        width:100%;
+        min-height:58px;
+        border-radius:24px;
+        font-size:15px;
+        box-shadow:0 16px 36px rgba(11,94,215,.15);
+      }
+
+      .hero-actions .btn-soft{
+        background:rgba(255,255,255,.38) !important;
+      }
+
+      .hero-chips{
+        display:grid;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:9px;
+      }
+
+      .chip{
+        min-height:62px;
+        padding:10px 8px;
+        border-radius:20px;
+        background:rgba(255,255,255,.62);
+        box-shadow:0 10px 28px rgba(11,94,215,.08);
+        font-size:12px;
+        text-align:center;
+        flex-direction:column;
+        gap:5px;
+      }
+
+      .hero-visual{
+        min-height:420px;
+        width:100%;
+        margin-top:0;
+        overflow:hidden;
+      }
+
+      .showcase{
+        width:min(100%,370px);
+        border-radius:34px;
+        padding:16px;
+        animation:none;
+      }
+
+      .logo-panel{
+        min-height:225px;
+        border-radius:28px;
+      }
+
+      .logo-panel img,
+      .logo-placeholder{
+        width:205px;
+        height:205px;
+      }
+
+      .showcase-title strong{
+        font-size:19px;
+      }
+
+      .float-note{
+        border-radius:18px;
+        background:rgba(255,255,255,.86);
+      }
+
+      .float-note.one{
+        top:14px;
+        right:14px;
+      }
+
+      .float-note.two{
+        bottom:18px;
+        left:14px;
+      }
+
+      .section-title{
+        font-size:clamp(24px,7.5vw,34px);
+        line-height:1.45;
+      }
+
+      .section-desc{
+        font-size:14px;
+      }
+
+      .mission-card{
+        min-height:auto;
+        border-radius:30px;
+        padding:23px;
+      }
+
+      .mission-content h3{
+        font-size:24px;
+      }
+
+      .mission-content p{
+        font-size:14px;
+      }
+
+      .process-card,
+      .soft-card,
+      .activity-card,
+      .course-card,
+      .achievement-card,
+      .timeline-card,
+      .gallery-card{
+        border-radius:24px;
+      }
+
+      .bottom-nav{
+        right:10px;
+        left:10px;
+        bottom:10px;
+        border-radius:26px;
+      }
+
+      .bottom-nav a{
+        min-height:54px;
+      }
+    }
+
+  
+    /* ===== Final requested edits ===== */
+    .btn-science{
+      color:var(--bg);
+      background:linear-gradient(135deg,#00A6D6,#0B5ED7,#063B8F);
+      box-shadow:0 18px 42px rgba(11,94,215,.24);
+    }
+
+    .btn-science:hover{
+      transform:translateY(-4px);
+    }
+
+    .hero-actions .btn{
+      gap:12px;
+    }
+
+    .hero-actions .btn i,
+    .chip i,
+    .bottom-nav a i{
+      margin-inline-start:4px;
+      margin-inline-end:4px;
+    }
+
+    .footer-inner strong{
+      color:var(--primary);
+      font-weight:900;
+    }
+
+    .footer-inner span{
+      color:var(--muted);
+      font-weight:800;
+    }
+
+    @media(max-width:760px){
+      .hero-actions{
+        gap:12px;
+      }
+
+      .hero-actions .btn{
+        justify-content:center;
+        gap:14px;
+        letter-spacing:0;
+      }
+
+      .hero-actions .btn i{
+        font-size:18px;
+        min-width:24px;
+      }
+
+      .chip{
+        gap:8px;
+      }
+
+      .chip i{
+        font-size:18px;
+        min-width:22px;
+      }
+
+      .footer-inner{
+        text-align:center;
+      }
+
+      .footer-brand{
+        justify-content:center;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="bg-orb"><span></span><span></span></div>
+
+  <header class="topbar" id="topbar">
+    <nav class="nav">
+      <a href="#home" class="brand">
+        <div class="brand-logo">
+          <img src="logo.png" alt="شعار ملتقى الطالب الجامعي" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';" />
+          <div class="brand-fallback"><i class="fa-solid fa-graduation-cap"></i></div>
+        </div>
+        <div class="brand-text"><strong>ملتقى الطالب الجامعي</strong><span>University Student Forum</span></div>
+      </a>
+      <div class="nav-links" id="navLinks">
+        <a href="#about"><i class="fa-solid fa-circle-info"></i> عن الملتقى</a>
+        <a href="#goals"><i class="fa-solid fa-bullseye"></i> الأهداف</a>
+        <a href="#committeeship"><i class="fa-solid fa-id-card-clip"></i> العضوية</a>
+        <a href="#activities"><i class="fa-solid fa-bullhorn"></i> الأنشطة</a>
+        <a href="#courses"><i class="fa-solid fa-book-open-reader"></i> الدورات</a>
+        <a href="#committees"><i class="fa-solid fa-sitemap"></i> لجان الملتقى</a>
+        <a href="#achievements"><i class="fa-solid fa-trophy"></i> الإنجازات</a>
+        <a href="#issues"><i class="fa-solid fa-headset"></i> الشكاوى</a>
+        <a href="#timeline"><i class="fa-solid fa-calendar-days"></i> الفعاليات</a>
+      </div>
+      <div class="nav-actions">
+        <button class="icon-btn" id="themeBtn"><i class="fa-solid fa-moon"></i></button>
+        <a class="btn btn-light" href="#issues"><i class="fa-solid fa-paper-plane"></i> قدّم طلبك</a>
+        <button class="menu-btn" id="menuBtn"><i class="fa-solid fa-bars"></i></button>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="home">
+      <div class="container hero-layout">
+        <div class="hero-content reveal">
+          <div class="hero-badge"><i class="fa-solid fa-star"></i> ملتقى الطالب الجامعي</div>
+          <h1>ملتقى الطالب <span class="gradient-text">الجامعي</span></h1>
+          <div class="typed-line"><span id="typedText"></span></div>
+          <p>منصة طلابية حديثة تجمع خدمات الملتقى في مكان واحد: تعريف واضح، لجان نشطة، دورات، فعاليات، أنشطة، وقسم لاستقبال قضايا الطلاب ومقترحاتهم.</p>
+          <div class="hero-actions">
+            <a href="#committees" class="btn btn-science"><i class="fa-solid fa-microscope"></i> اللجان العلمية</a>
+            <a href="#activities" class="btn btn-dark"><i class="fa-solid fa-bullhorn"></i> استكشف الأنشطة</a>
+            <a href="#courses" class="btn btn-light"><i class="fa-solid fa-user-plus"></i> التسجيل في الدورات</a>
+            <a href="#timeline" class="btn btn-soft"><i class="fa-solid fa-timeline"></i> المواعيد القادمة</a>
+          </div>
+          <div class="hero-chips">
+            <div class="chip"><i class="fa-solid fa-bell"></i> أخبار الملتقى</div>
+            <div class="chip"><i class="fa-solid fa-book-open"></i> تدريب وتأهيل</div>
+            <div class="chip"><i class="fa-solid fa-comments"></i> قضايا الطلاب</div>
+            <div class="chip"><i class="fa-solid fa-microscope"></i> اللجان العلمية</div>
+          </div>
+        </div>
+        <div class="hero-visual reveal delay-1">
+          <div class="logo-aura"></div>
+          <div class="float-note one"><i class="fa-solid fa-calendar-plus"></i> فعالية جديدة</div>
+          <div class="float-note two"><i class="fa-solid fa-award"></i> إنجازات مستمرة</div>
+          <div class="float-note three"><i class="fa-solid fa-chalkboard-user"></i> دورة متاحة</div>
+          <div class="showcase">
+            <div class="logo-panel">
+              <img src="logo.png" alt="الشعار" onerror="this.style.display='none';this.nextElementSibling.style.display='grid';" />
+              <div class="logo-placeholder"><i class="fa-solid fa-graduation-cap"></i></div>
+            </div>
+            <div class="showcase-title"><strong>University Student Forum</strong><span>ملتقى الطالب الجامعي</span></div>
+            <div class="showcase-stats">
+              <div class="showcase-stat"><i class="fa-solid fa-book"></i><strong id="heroCoursesCount">0+</strong><span>دورة</span></div>
+              <div class="showcase-stat"><i class="fa-solid fa-calendar-check"></i><strong id="heroActivitiesCount">0+</strong><span>نشاط</span></div>
+              <div class="showcase-stat"><i class="fa-solid fa-check-double"></i><strong id="heroSolvedCount">0+</strong><span>حل</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="ticker"><div class="ticker-track" id="announcementsTicker"></div></div>
+
+    <section id="about">
+      <div class="container">
+        <div class="section-header reveal">
+          <div>
+            <div class="section-kicker">التعريف بالملتقى</div>
+            <h2 class="section-title">كيان طلابي وُلد من رحم المعاناة لخدمة الطالب الجامعي</h2>
+          </div>
+          <p class="section-desc">هذا القسم يوضح التعريف الرسمي بالملتقى، ويعرض رسالته ودوره داخل الجامعة بطريقة حديثة تناسب الموقع.</p>
+        </div>
+
+        <div class="about-grid">
+          <div class="mission-card reveal delay-1">
+            <div class="mission-content">
+              <h3>نحن كيان طلابي يسعى لخدمة الطالب الجامعي وتبني قضاياه.</h3>
+              <p>
+                ملتقى الطالب الجامعي كيان طلابي وُلد من رحم المعاناة، يسعى لخدمة الطالب الجامعي، وتبني قضاياه، والدفاع عن حقوقه، وتنمية وعيه وقدراته عبر البرامج والأنشطة المتنوعة؛ ليكون له الدور الفاعل والمؤثر في بناء الأمة.
+              </p>
+              <div class="mission-steps">
+                <div class="mission-step"><span><i class="fa-solid fa-hand-holding-heart"></i></span> خدمة الطالب الجامعي وتبني قضاياه</div>
+                <div class="mission-step"><span><i class="fa-solid fa-shield-halved"></i></span> الدفاع عن حقوق الطلاب ومصالحهم</div>
+                <div class="mission-step"><span><i class="fa-solid fa-brain"></i></span> تنمية الوعي والقدرات والمهارات</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="feature-stack">
+            <div class="soft-card reveal delay-1">
+              <div class="soft-icon"><i class="fa-solid fa-bullhorn"></i></div>
+              <div>
+                <h3>منبر للإعلان والتواصل</h3>
+                <p>يعرض الموقع أخبار الملتقى، الأنشطة، الدورات، والفعاليات بطريقة منظمة وسريعة الوصول.</p>
+              </div>
+            </div>
+
+            <div class="soft-card reveal delay-2">
+              <div class="soft-icon"><i class="fa-solid fa-user-graduate"></i></div>
+              <div>
+                <h3>تمكين الطالب</h3>
+                <p>يساعد الموقع في ربط الطالب بالفرص التدريبية والأنشطة التي تطور مهاراته وتوسع مشاركته.</p>
+              </div>
+            </div>
+
+            <div class="soft-card reveal delay-3">
+              <div class="soft-icon"><i class="fa-solid fa-headset"></i></div>
+              <div>
+                <h3>استقبال القضايا والشكاوى</h3>
+                <p>يوفر قسمًا واضحًا لتقديم الإشكاليات والشكاوى حتى تصل للجهة المختصة ويتم التعامل معها.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="process">
+      <div class="container">
+        <div class="section-header reveal">
+          <div>
+            <div class="section-kicker">رسالتنا ورؤيتنا وقيمنا</div>
+            <h2 class="section-title">هوية الملتقى التي ينطلق منها في خدمة الطلاب</h2>
+          </div>
+          <p class="section-desc">توضح هذه البطاقات الأساس الذي ينطلق منه الملتقى في خدمة الطالب وبناء وعيه وقدراته.</p>
+        </div>
+
+        <div class="process-grid">
+          <div class="process-card reveal delay-1">
+            <div class="number"><i class="fa-solid fa-envelope-open-text"></i></div>
+            <h3>رسالتنا</h3>
+            <p>نحن ملتقى طلابي يسعى إلى خدمة الطالب الجامعي، وتبني قضاياه، وتنمية وعيه وقدراته عبر البرامج والأنشطة المتنوعة؛ ليكون له الدور الفاعل والمؤثر في بناء الأمة.</p>
+          </div>
+
+          <div class="process-card reveal delay-2">
+            <div class="number"><i class="fa-solid fa-lightbulb"></i></div>
+            <h3>رؤيتنا</h3>
+            <p>بناء مجتمع طلابي متميز علميًا، متسلحًا بالوعي، ومساهمًا في نهضة الأمة من خلال العلم والعمل والمبادرة والمسؤولية.</p>
+          </div>
+
+          <div class="process-card reveal delay-3">
+            <div class="number"><i class="fa-solid fa-seedling"></i></div>
+            <h3>قيمنا</h3>
+            <p>العمل الجماعي، التعاون، المصداقية، الإحسان، الارتقاء، الالتزام، الإخلاص، الأمانة، واستشعار المسؤولية تجاه الطالب والجامعة والمجتمع.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="goals">
+      <div class="container">
+        <div class="section-header reveal">
+          <div>
+            <div class="section-kicker">أهداف ملتقى الطالب الجامعي</div>
+            <h2 class="section-title">أهداف واضحة لخدمة الطالب وبناء وعيه وقدراته</h2>
+          </div>
+          <p class="section-desc">أهداف عملية تعكس دور الملتقى في خدمة الطلاب، رفع الوعي، تنظيم الأنشطة، وتبني القضايا الطلابية.</p>
+        </div>
+
+        <div class="goals-grid">
+          <div class="process-card reveal delay-1"><div class="number">1</div><h3>ترسيخ الثوابت</h3><p>ترسيخ الثوابت الوطنية والإسلامية بمعزل عن الانتماءات، وبما يعزز الوعي والانتماء المسؤول.</p></div>
+          <div class="process-card reveal delay-2"><div class="number">2</div><h3>تنمية القيم والوعي</h3><p>تنمية القيم الروحية والأخلاقية والوعي الوطني لدى الطلاب، وإتاحة الفرصة لهم للتعبير المسؤول عن آرائهم.</p></div>
+          <div class="process-card reveal delay-3"><div class="number">3</div><h3>تطوير التعليم</h3><p>الارتقاء بالمستوى التعليمي الجامعي، والسعي إلى تطوير العملية التعليمية بما يخدم الطالب والجامعة.</p></div>
+          <div class="process-card reveal delay-1"><div class="number">4</div><h3>بناء القدرات</h3><p>بناء قدرات الطلاب ومهاراتهم بما يمكنهم من الإسهام في نهضة الأمة وتقدمها.</p></div>
+          <div class="process-card reveal delay-2"><div class="number">5</div><h3>تنظيم الأنشطة</h3><p>إقامة وتنظيم الأنشطة الطلابية المختلفة التي تنمي شخصية الطالب وتزيد من تفاعله داخل الجامعة.</p></div>
+          <div class="process-card reveal delay-3"><div class="number">6</div><h3>رعاية المصالح</h3><p>رعاية مصالح الطلاب، والدفاع عن حقوقهم، وتبني قضاياهم المشروعة بطريقة منظمة ومسؤولة.</p></div>
+          <div class="process-card reveal delay-1"><div class="number">7</div><h3>الربط بالمجتمع</h3><p>ربط الطلاب بالمجتمع المدني والمهني، وإيجاد فرص المساندة المهنية بما يضمن صقل خبراتهم والعمل بعلومهم.</p></div>
+          <div class="process-card reveal delay-2"><div class="number">8</div><h3>تعزيز التعاون</h3><p>تعزيز روح التعاون والإحسان بين الطلاب، ونشر ثقافة العمل الجماعي وخدمة الآخرين.</p></div>
+          <div class="process-card reveal delay-3"><div class="number">9</div><h3>التشبيك المؤسسي</h3><p>التشبيك مع منظومة الرؤية الوطنية ووحداتها التنفيذية لتنفيذ أهداف الرؤية الوطنية لبناء الدولة اليمنية.</p></div>
+          <div class="process-card reveal delay-1"><div class="number"><i class="fa-solid fa-globe"></i></div><h3>الحضور الرقمي</h3><p>إيجاد منصة إلكترونية رسمية تعرض أنشطة الملتقى وتسهّل وصول الطالب إلى الخدمات والمعلومات.</p></div>
+          <div class="process-card reveal delay-2"><div class="number"><i class="fa-solid fa-chalkboard-user"></i></div><h3>دعم التدريب</h3><p>تسهيل التسجيل في الدورات والبرامج التدريبية، وربط الطالب بفرص التأهيل والتطوير المستمر.</p></div>
+          <div class="process-card reveal delay-3"><div class="number"><i class="fa-solid fa-folder-open"></i></div><h3>أرشفة الإنجازات</h3><p>توثيق إنجازات الملتقى وفعالياته وأنشطته، وبناء أرشيف إعلامي يعكس أثره داخل الجامعة.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="committeeship">
+      <div class="container">
+        <div class="section-header reveal">
+          <div>
+            <div class="section-kicker">شروط العضوية</div>
+            <h2 class="section-title">ضوابط الانضمام والعمل داخل ملتقى الطالب الجامعي</h2>
+          </div>
+          <p class="section-desc">يمكن لاحقًا تحويل هذا القسم إلى نموذج طلب عضوية من داخل الموقع إذا رغبت.</p>
+        </div>
+
+        <div class="committeeship-grid">
+          <div class="process-card reveal delay-1"><div class="number"><i class="fa-solid fa-university"></i></div><h3>أن يكون طالبًا</h3><p>أن يكون أحد طلاب جامعة العلوم والتكنولوجيا.</p></div>
+          <div class="process-card reveal delay-2"><div class="number"><i class="fa-solid fa-user-check"></i></div><h3>حسن السيرة</h3><p>أن يكون حسن السيرة والسلوك داخل الجامعة وخارجها.</p></div>
+          <div class="process-card reveal delay-3"><div class="number"><i class="fa-solid fa-scale-balanced"></i></div><h3>الالتزام باللوائح</h3><p>أن يلتزم بقوانين ولوائح الملتقى ويحترم نظام العمل الطلابي.</p></div>
+          <div class="process-card reveal delay-1"><div class="number"><i class="fa-solid fa-heart"></i></div><h3>قيم الولاء</h3><p>أن يحمل قيم الولاء للدين والوطن، وأن يعمل بروح المسؤولية.</p></div>
+          <div class="process-card reveal delay-2"><div class="number"><i class="fa-solid fa-hands-helping"></i></div><h3>خدمة الطلاب</h3><p>أن يعمل لأجل المصلحة العامة وخدمة الطلاب في دفعته وكليته والجامعة بشكل عام.</p></div>
+          <div class="process-card reveal delay-3"><div class="number"><i class="fa-solid fa-briefcase"></i></div><h3>تحمل المسؤولية</h3><p>أن يستشعر روح المسؤولية في العمل الموكل إليه، ويلتزم بإنجازه بإخلاص وأمانة.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="activities">
+      <div class="container">
+        <div class="section-header reveal"><div><div class="section-kicker">الأنشطة</div><h2 class="section-title">أنشطة الملتقى وبرامجه</h2></div><p class="section-desc">مساحة لعرض أحدث الأنشطة والبرامج الطلابية التي ينظمها الملتقى داخل الجامعة.</p></div>
+        <div class="activities-grid" id="activitiesGrid"><div class="empty-state">جاري عرض الأنشطة...</div></div>
+      </div>
+    </section>
+
+    <section id="courses">
+      <div class="container">
+        <div class="section-header reveal"><div><div class="section-kicker">تسجيل الدورات</div><h2 class="section-title">الدورات والبرامج التدريبية</h2></div><p class="section-desc">استعرض الدورات المتاحة، اقرأ تفاصيل كل دورة، ثم سجّل بياناتك بسهولة عند فتح التسجيل.</p></div>
+        <div class="filters reveal">
+          <button class="filter-btn active" data-filter="all"><i class="fa-solid fa-border-all"></i> الكل</button>
+          <button class="filter-btn" data-filter="tech"><i class="fa-solid fa-laptop-code"></i> تقنية</button>
+          <button class="filter-btn" data-filter="skills"><i class="fa-solid fa-person-chalkboard"></i> مهارات</button>
+          <button class="filter-btn" data-filter="academic"><i class="fa-solid fa-graduation-cap"></i> أكاديمية</button>
+        </div>
+        <div class="courses-grid" id="coursesGrid"><div class="empty-state">جاري عرض الدورات...</div></div>
+      </div>
+    </section>
+
+    <section id="committees">
+      <div class="container">
+        <div class="section-header reveal">
+          <div>
+            <div class="section-kicker">لجان ملتقى الطالب الجامعي</div>
+            <h2 class="section-title">اللجان الرئيسية التي يتعامل معها الطالب مباشرة</h2>
+          </div>
+          <p class="section-desc">
+            يتكون ملتقى الطالب الجامعي من عدد من اللجان الرئيسية التي تعمل بشكل منظم لخدمة الطالب الجامعي، وتغطي الجوانب العلمية، التدريبية، الإعلامية، والأنشطة الطلابية، إضافة إلى متابعة قضايا الطلاب ومقترحاتهم.
+          </p>
+        </div>
+
+        <div class="committees-grid" id="committeesGrid">
+          <div class="empty-state">جاري تحميل لجان الملتقى...</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="achievements">
+      <div class="container">
+        <div class="section-header reveal"><div><div class="section-kicker">إنجازات الملتقى</div><h2 class="section-title">أثر الملتقى وإنجازاته</h2></div><p class="section-desc">أرقام مختصرة تعكس حضور الملتقى وأنشطته وخدماته للطلاب.</p></div>
+        <div class="achievements-grid" id="achievementsGrid"><div class="empty-state">جاري عرض الإنجازات...</div></div>
+      </div>
+    </section>
+
+    <section id="issues">
+      <div class="container issues-layout">
+        <div class="issues-panel reveal">
+          <h2>قدّم إشكاليتك أو شكواك بطريقة منظمة</h2>
+          <p>اكتب طلبك بوضوح وسيتم استقباله ومتابعته من الجهة المختصة داخل الملتقى.</p>
+          <div class="steps">
+            <div class="step"><span><i class="fa-solid fa-list-check"></i></span> اختر نوع الإشكالية</div>
+            <div class="step"><span><i class="fa-solid fa-pen-to-square"></i></span> اكتب التفاصيل بوضوح</div>
+            <div class="step"><span><i class="fa-solid fa-share-nodes"></i></span> تتم متابعتها من لوحة الأدمن</div>
+          </div>
+        </div>
+        <form class="issue-form reveal delay-1" id="issueForm">
+          <div class="form-grid">
+            <div class="field"><label><i class="fa-solid fa-user"></i> الاسم</label><input type="text" name="student_name" placeholder="اكتب اسمك" required /></div>
+            <div class="field"><label><i class="fa-solid fa-layer-group"></i> نوع الطلب</label><select name="issue_type" required><option value="">اختر النوع</option><option>إشكالية أكاديمية</option><option>شكوى</option><option>اقتراح</option><option>مشكلة تقنية</option></select></div>
+            <div class="field full"><label><i class="fa-solid fa-heading"></i> عنوان الإشكالية</label><input type="text" name="title" placeholder="مثال: مشكلة في التسجيل في الدورة" required /></div>
+            <div class="field full"><label><i class="fa-solid fa-message"></i> التفاصيل</label><textarea name="description" placeholder="اشرح المشكلة أو الشكوى بالتفصيل" required></textarea></div>
+            <div class="field full"><button class="btn btn-dark" type="submit"><i class="fa-solid fa-paper-plane"></i> إرسال الطلب</button></div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section id="timeline">
+      <div class="container">
+        <div class="section-header reveal"><div><div class="section-kicker">Timeline</div><h2 class="section-title">المواعيد القادمة</h2></div><p class="section-desc">تابع أهم المواعيد والفعاليات القادمة للملتقى أولًا بأول.</p></div>
+        <div class="timeline-wrap" id="eventsTimeline"><div class="empty-state">جاري عرض الفعاليات...</div></div>
+      </div>
+    </section>
+
+    <section id="gallery">
+      <div class="container">
+        <div class="section-header reveal"><div><div class="section-kicker">معرض مختصر</div><h2 class="section-title">مساحة مستقبلية لصور وتغطيات الملتقى</h2></div><p class="section-desc">يمكن تطويره لاحقًا وربطه بجدول للصور.</p></div>
+        <div class="gallery-grid">
+          <div class="gallery-card reveal delay-1"><h3><i class="fa-solid fa-camera-retro"></i> تغطية الأنشطة</h3><p>توثيق الفعاليات والدورات والبرامج الطلابية.</p></div>
+          <div class="gallery-card light-gallery reveal delay-2"><h3><i class="fa-solid fa-person-chalkboard"></i> برامج تدريبية</h3><p>إبراز البرامج التي تنمي وعي الطالب وقدراته.</p></div>
+          <div class="gallery-card reveal delay-3"><h3><i class="fa-solid fa-medal"></i> إنجازات الملتقى</h3><p>عرض أثر الملتقى في خدمة الطلاب وبناء المجتمع الجامعي.</p></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <div class="footer-logo">
+          <img src="logo.png" alt="شعار" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=&quot;fa-solid fa-graduation-cap&quot;></i>';" />
+        </div>
+        <div>
+          <strong>ملتقى الطالب الجامعي</strong><br>
+          <span>University Student Forum</span>
+        </div>
+      </div>
+      <div>
+        جميع الحقوق محفوظة © 2026<br>
+        <strong>الدكتور علي أمير الشهاري</strong><br>
+        <span>مطوّر موقع ملتقى الطالب الجامعي</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="modal-backdrop" id="courseModal">
+    <div class="modal-box">
+      <button class="modal-close" id="closeCourseModal" type="button"><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-head"><div class="modal-icon"><i class="fa-solid fa-user-plus"></i></div><div><h3>التسجيل في الدورة</h3><p id="modalCourseName">أدخل بياناتك للتسجيل</p></div></div>
+      <form id="courseRegistrationForm" class="registration-form">
+        <input type="hidden" name="course_id" id="registrationCourseId" />
+        <input type="hidden" name="course_title" id="registrationCourseTitle" />
+        <div class="field full"><label><i class="fa-solid fa-user"></i> الاسم الكامل</label><input type="text" name="student_full_name" placeholder="اكتب اسمك الرباعي" required /></div>
+        <div class="field full"><label><i class="fa-solid fa-id-card"></i> الرقم الأكاديمي</label><input type="text" name="academic_number" placeholder="مثال: 202412345" required /></div>
+        <div class="modal-actions"><button class="btn btn-dark" type="submit"><i class="fa-solid fa-circle-check"></i> تأكيد التسجيل</button><button class="btn btn-soft" type="button" id="cancelCourseModal"><i class="fa-solid fa-arrow-rotate-left"></i> إلغاء</button></div>
+      </form>
+    </div>
+  </div>
+
+
+  <div class="committee-detail-backdrop" id="committeeDetailBackdrop">
+    <div class="committee-detail-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div class="sheet-icon" id="sheetIcon"><i class="fa-solid fa-sitemap"></i></div>
+        <div>
+          <h3 id="sheetTitle">اسم اللجنة</h3>
+          <p>تفاصيل اللجنة ودورها داخل ملتقى الطالب الجامعي</p>
+        </div>
+        <button class="sheet-close" id="sheetClose" type="button"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="sheet-section">
+        <h4><i class="fa-solid fa-circle-info"></i> التعريف</h4>
+        <p id="sheetDescription"></p>
+      </div>
+
+      <div class="sheet-section">
+        <h4><i class="fa-solid fa-list-check"></i> أبرز المهام</h4>
+        <ul id="sheetTasks"></ul>
+      </div>
+
+      <div class="sheet-section" id="sheetLinkBox">
+        <h4><i class="fa-solid fa-arrow-up-right-from-square"></i> الرابط</h4>
+        <a class="btn btn-dark" id="sheetLink" href="#"><i class="fa-solid fa-arrow-left"></i> انتقال</a>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="committee-links-backdrop" id="committeeLinksBackdrop">
+    <div class="committee-links-sheet">
+      <div class="sheet-handle"></div>
+
+      <div class="sheet-head">
+        <div class="sheet-icon" id="linksSheetIcon"><i class="fa-solid fa-link"></i></div>
+        <div>
+          <h3 id="linksSheetTitle">روابط اللجنة</h3>
+          <p id="linksSheetSubtitle">روابط مهمة مع توضيح لمن كل رابط مخصص</p>
+        </div>
+        <button class="sheet-close" id="linksSheetClose" type="button"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="links-list" id="committeeLinksList">
+        <div class="links-empty">جاري تحميل الروابط...</div>
+      </div>
+    </div>
+  </div>
+
+
+  <nav class="bottom-nav">
+    <a href="#home"><i class="fa-solid fa-house"></i>الرئيسية</a>
+    <a href="#committees"><i class="fa-solid fa-sitemap"></i>اللجان</a>
+    <a href="#courses"><i class="fa-solid fa-book-open-reader"></i>الدورات</a>
+    <a href="#issues"><i class="fa-solid fa-headset"></i>الشكاوى</a>
+    <a href="#timeline"><i class="fa-solid fa-calendar-days"></i>الفعاليات</a>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ضع بيانات مشروع Supabase هنا
+    const SUPABASE_URL = "https://bvkcfdagsfmqrhyqspan.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_3b3QXm3I6MMBqfkRx_m4Yw_98KC6_tr";
+
+    const supabaseIsReady = SUPABASE_URL && SUPABASE_ANON_KEY && !SUPABASE_URL.includes("ضع_") && !SUPABASE_ANON_KEY.includes("ضع_");
+    const db = supabaseIsReady ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+    const topbar = document.getElementById("topbar");
+    const navLinks = document.getElementById("navLinks");
+    const menuBtn = document.getElementById("menuBtn");
+    const themeBtn = document.getElementById("themeBtn");
+    const toast = document.getElementById("toast");
+    const issueForm = document.getElementById("issueForm");
+    const courseModal = document.getElementById("courseModal");
+    const closeCourseModal = document.getElementById("closeCourseModal");
+    const cancelCourseModal = document.getElementById("cancelCourseModal");
+    const courseRegistrationForm = document.getElementById("courseRegistrationForm");
+    const modalCourseName = document.getElementById("modalCourseName");
+    const registrationCourseId = document.getElementById("registrationCourseId");
+    const registrationCourseTitle = document.getElementById("registrationCourseTitle");
+
+    const announcementsTicker = document.getElementById("announcementsTicker");
+    const activitiesGrid = document.getElementById("activitiesGrid");
+    const coursesGrid = document.getElementById("coursesGrid");
+    const committeesGrid = document.getElementById("committeesGrid");
+    const achievementsGrid = document.getElementById("achievementsGrid");
+    const eventsTimeline = document.getElementById("eventsTimeline");
+    const committeeDetailBackdrop = document.getElementById("committeeDetailBackdrop");
+    const sheetClose = document.getElementById("sheetClose");
+    const sheetIcon = document.getElementById("sheetIcon");
+    const sheetTitle = document.getElementById("sheetTitle");
+    const sheetDescription = document.getElementById("sheetDescription");
+    const sheetTasks = document.getElementById("sheetTasks");
+    const sheetLink = document.getElementById("sheetLink");
+    const sheetLinkBox = document.getElementById("sheetLinkBox");
+    const committeeLinksBackdrop = document.getElementById("committeeLinksBackdrop");
+    const linksSheetClose = document.getElementById("linksSheetClose");
+    const linksSheetIcon = document.getElementById("linksSheetIcon");
+    const linksSheetTitle = document.getElementById("linksSheetTitle");
+    const linksSheetSubtitle = document.getElementById("linksSheetSubtitle");
+    const committeeLinksList = document.getElementById("committeeLinksList");
+
+    new Typed("#typedText", {
+      strings: [
+        "كيان طلابي لخدمة الطالب الجامعي.",
+        "نتبنى قضايا الطلاب وندافع عن حقوقهم.",
+        "نحو طالب واعٍ، مبادر، ومؤثر.",
+        "أنشطة وبرامج تعزز روح المشاركة.",
+        "تدريب وتأهيل تصقل المهارات.",
+        "لجان تعمل بروح الفريق الواحد.",
+        "صوت الطالب يصل بطريقة منظمة.",
+        "رؤية طلابية لبناء مجتمع جامعي أفضل.",
+        "منصة متجاوبة وواضحة على الهاتف.",
+        "ملتقى يجمع العلم، الوعي، والعمل."
+      ],
+      typeSpeed: 42,
+      backSpeed: 22,
+      backDelay: 1450,
+      loop: true,
+      smartBackspace: true,
+      showCursor: false
+    });
+
+    function safeText(value, fallback = "") {
+      if (value === null || value === undefined) return fallback;
+      return String(value).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function iconClass(value, fallback = "fa-solid fa-circle-dot") {
+      return value && value.startsWith("fa-") ? value : fallback;
+    }
+
+    function formatDateArabic(value) {
+      if (!value) return "قريبًا";
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return safeText(value);
+      return new Intl.DateTimeFormat("ar", { day: "2-digit", month: "long" }).format(d);
+    }
+
+    function showToast(message) {
+      toast.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${message}`;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    function empty(container, text) {
+      container.innerHTML = `<div class="empty-state">${text}</div>`;
+    }
+
+    window.addEventListener("scroll", () => {
+      topbar.classList.toggle("scrolled", window.scrollY > 35);
+      setActiveLinks();
+    });
+
+    menuBtn.addEventListener("click", () => navLinks.classList.toggle("open"));
+    navLinks.querySelectorAll("a").forEach(a => a.addEventListener("click", () => navLinks.classList.remove("open")));
+
+    themeBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      themeBtn.querySelector("i").className = document.body.classList.contains("dark") ? "fa-solid fa-sun" : "fa-solid fa-moon";
+    });
+
+    const revealObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add("show"); });
+    }, { threshold: .12 });
+    document.querySelectorAll(".reveal").forEach(el => revealObserver.observe(el));
+
+    async function loadAll() {
+      if (!db) {
+        announcementsTicker.innerHTML = `<div class="ticker-item"><i class="fa-solid fa-triangle-exclamation"></i> لم يتم ربط Supabase بعد</div>`;
+        empty(activitiesGrid, "لم يتم ربط Supabase بعد.");
+        empty(coursesGrid, "لم يتم ربط Supabase بعد.");
+        empty(committeesGrid, "لم يتم ربط Supabase بعد.");
+        empty(achievementsGrid, "لم يتم ربط Supabase بعد.");
+        empty(eventsTimeline, "لم يتم ربط Supabase بعد.");
+        return;
+      }
+
+      await Promise.all([
+        loadAnnouncements(),
+        loadActivities(),
+        loadCourses(),
+        loadCommittees(),
+        loadAchievements(),
+        loadEvents()
+      ]);
+
+      document.querySelectorAll(".reveal").forEach(el => revealObserver.observe(el));
+    }
+
+    async function loadAnnouncements() {
+      const { data, error } = await db.from("announcements").select("title, icon").eq("is_active", true).order("created_at", { ascending: false });
+      if (error || !data?.length) {
+        announcementsTicker.innerHTML = `<div class="ticker-item"><i class="fa-solid fa-circle-info"></i> لا توجد إعلانات حاليًا</div>`;
+        return;
+      }
+      announcementsTicker.innerHTML = [...data, ...data].map(i => `<div class="ticker-item"><i class="${iconClass(i.icon, "fa-solid fa-bullhorn")}"></i>${safeText(i.title)}</div>`).join("");
+    }
+
+    async function loadActivities() {
+      const { data, error } = await db.from("activities").select("*").eq("is_active", true).order("created_at", { ascending: false });
+      if (error || !data?.length) return empty(activitiesGrid, "لا توجد أنشطة مضافة حاليًا.");
+      document.getElementById("heroActivitiesCount").textContent = `${data.length}+`;
+      activitiesGrid.innerHTML = data.map((a, i) => `
+        <article class="activity-card reveal delay-${(i % 3) + 1}">
+          <div class="cover ${a.is_light ? "light-cover" : ""}"><h3><i class="${iconClass(a.icon, "fa-solid fa-bullhorn")}"></i> ${safeText(a.title)}</h3></div>
+          <div class="card-body">
+            <h3>${safeText(a.subtitle, a.title)}</h3>
+            <p>${safeText(a.description)}</p>
+            <div class="tags">
+              <span class="tag"><i class="fa-solid fa-tag"></i> ${safeText(a.tag_one, a.category || "نشاط")}</span>
+              <span class="tag"><i class="fa-solid fa-star"></i> ${safeText(a.tag_two, "مميز")}</span>
+            </div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    async function loadCourses() {
+      const { data, error } = await db.from("courses").select("*").eq("is_active", true).order("created_at", { ascending: false });
+      if (error || !data?.length) return empty(coursesGrid, "لا توجد دورات متاحة حاليًا.");
+      document.getElementById("heroCoursesCount").textContent = `${data.length}+`;
+
+      coursesGrid.innerHTML = data.map((c, i) => {
+        const total = Number(c.seats_total || 0);
+        const taken = Number(c.seats_taken || 0);
+        const percent = total > 0 ? Math.min(Math.round((taken / total) * 100), 100) : 0;
+        const status = c.status || "متاح";
+        return `
+          <article class="course-card reveal delay-${(i % 3) + 1}" data-category="${safeText(c.category, "academic")}">
+            <div class="cover ${c.is_light ? "light-cover" : ""}"><h3><i class="${iconClass(c.icon, "fa-solid fa-book-open-reader")}"></i> ${safeText(c.title)}</h3></div>
+            <div class="card-body">
+              <div class="tags">
+                <span class="tag"><i class="fa-solid fa-layer-group"></i> ${safeText(c.category, "دورة")}</span>
+                <span class="tag"><i class="fa-solid fa-circle-check"></i> ${safeText(status)}</span>
+              </div>
+              <p>${safeText(c.description)}</p>
+              <div class="course-meta-line"><span><i class="fa-solid fa-users"></i> الطلاب المسجلون</span><strong>${taken}</strong></div>
+              <div class="progress-block">
+                <div class="progress-info"><span>المقاعد</span><span>${taken} / ${total || "غير محدد"}</span></div>
+                <div class="progress"><span style="--width:${percent}%"></span></div>
+              </div>
+              <div class="course-more-box">${safeText(c.details, "لا توجد تفاصيل إضافية بعد.")}</div>
+              <div class="course-actions">
+                <button class="btn btn-soft more-btn" type="button"><i class="fa-solid fa-circle-info"></i> المزيد</button>
+                <button class="btn ${status.includes("قريب") ? "btn-soft" : "btn-dark"} action-btn" data-course-id="${safeText(c.id)}" data-course-title="${safeText(c.title)}">
+                  <i class="fa-solid ${status.includes("قريب") ? "fa-bell" : "fa-user-plus"}"></i>
+                  ${status.includes("قريب") ? "تنبيه عند الفتح" : "طلب التسجيل"}
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+      bindMoreButtons();
+      bindCourseButtons();
+      applyCurrentFilter();
+    }
+
+    async function loadCommittees() {
+      const { data, error } = await db
+        .from("committees")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+
+      if (error || !data?.length) return empty(committeesGrid, "لا توجد لجان مضافة حاليًا.");
+
+      committeesGrid.innerHTML = data.map((committee, i) => {
+        const description = committee.description || "هذه اللجنة تعمل ضمن لجان ملتقى الطالب الجامعي لخدمة الطلاب وتنظيم الأعمال المرتبطة بها.";
+        const tasksArray = [committee.task_one, committee.task_two, committee.task_three].filter(Boolean);
+
+        const tasks = tasksArray.map(task => `
+          <div class="committee-task">
+            <i class="fa-solid fa-circle"></i>
+            <span>${safeText(task)}</span>
+          </div>
+        `).join("");
+
+        const linkText = committee.link_text || "روابط اللجنة";
+
+        return `
+          <div class="committee-card reveal delay-${(i % 3) + 1}">
+            <div class="avatar"><i class="${iconClass(committee.icon, "fa-solid fa-sitemap")}"></i></div>
+            <h3>${safeText(committee.name)}</h3>
+            <p>${safeText(description)}</p>
+            <div class="committee-tasks">${tasks}</div>
+            <div class="committee-actions">
+              <button class="btn btn-soft committee-detail-btn"
+                type="button"
+                data-title="${safeText(committee.name)}"
+                data-icon="${safeText(iconClass(committee.icon, "fa-solid fa-sitemap"))}"
+                data-description="${safeText(description)}"
+                data-task-one="${safeText(committee.task_one || "")}"
+                data-task-two="${safeText(committee.task_two || "")}"
+                data-task-three="${safeText(committee.task_three || "")}">
+                <i class="fa-solid fa-circle-info"></i> التفاصيل
+              </button>
+
+              <button class="btn btn-dark committee-links-btn"
+                type="button"
+                data-committee-id="${safeText(committee.id)}"
+                data-title="${safeText(committee.name)}"
+                data-icon="${safeText(iconClass(committee.icon, "fa-solid fa-sitemap"))}">
+                <i class="fa-solid fa-link"></i> ${safeText(linkText)}
+              </button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      bindCommitteeDetails();
+      bindCommitteeLinks();
+    }
+
+    async function loadAchievements() {
+      const { data, error } = await db.from("achievements").select("*").eq("is_active", true).order("sort_order", { ascending: true });
+      if (error || !data?.length) return empty(achievementsGrid, "لا توجد إنجازات مضافة حاليًا.");
+
+      const solved = data.find(x => String(x.title || "").includes("حل") || String(x.title || "").includes("إشكالية"));
+      document.getElementById("heroSolvedCount").textContent = `${Number(solved?.value || 0)}+`;
+
+      achievementsGrid.innerHTML = data.map((a, i) => `
+        <div class="achievement-card reveal delay-${(i % 3) + 1}">
+          <div class="achievement-icon"><i class="${iconClass(a.icon, "fa-solid fa-trophy")}"></i></div>
+          <div class="achievement-number" data-count="${Number(a.value || 0)}">0</div>
+          <p>${safeText(a.title)}</p>
+        </div>
+      `).join("");
+      resetCountersObserver();
+    }
+
+    async function loadEvents() {
+      const { data, error } = await db.from("events").select("*").eq("is_active", true).order("event_date", { ascending: true });
+      if (error || !data?.length) return empty(eventsTimeline, "لا توجد فعاليات قادمة حاليًا.");
+      eventsTimeline.innerHTML = data.map((e, i) => `
+        <article class="timeline-card reveal delay-${(i % 3) + 1}">
+          <div class="date-box">${formatDateArabic(e.event_date)}</div>
+          <div class="timeline-content"><h3><i class="${iconClass(e.icon, "fa-solid fa-calendar-days")}"></i> ${safeText(e.title)}</h3><p>${safeText(e.location, "سيتم تحديد المكان لاحقًا")}</p></div>
+          <div class="timeline-status"><i class="fa-solid fa-circle-check"></i> ${safeText(e.status, "قريبًا")}</div>
+        </article>
+      `).join("");
+    }
+
+
+
+    async function loadCommitteeLinks(committeeId, committeeTitle, committeeIcon) {
+      linksSheetIcon.innerHTML = `<i class="${committeeIcon || "fa-solid fa-link"}"></i>`;
+      linksSheetTitle.textContent = `روابط ${committeeTitle || "اللجنة"}`;
+      linksSheetSubtitle.textContent = "اختر الرابط المناسب حسب كليتك أو نوع الخدمة المطلوبة";
+      committeeLinksList.innerHTML = `<div class="links-empty">جاري تحميل الروابط...</div>`;
+
+      committeeLinksBackdrop.classList.add("show");
+      document.body.style.overflow = "hidden";
+
+      if (!db) {
+        committeeLinksList.innerHTML = `<div class="links-empty">لم يتم ربط Supabase بعد.</div>`;
+        return;
+      }
+
+      const { data, error } = await db
+        .from("committee_links")
+        .select("*")
+        .eq("committee_id", committeeId)
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+
+      if (error) {
+        committeeLinksList.innerHTML = `<div class="links-empty">تعذر تحميل روابط اللجنة حاليًا.</div>`;
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        committeeLinksList.innerHTML = `
+          <div class="links-empty">
+            لا توجد روابط مضافة لهذه اللجنة حاليًا.<br>
+            يمكن إضافتها لاحقًا من لوحة الإدارة.
+          </div>
+        `;
+        return;
+      }
+
+      committeeLinksList.innerHTML = data.map(link => {
+        const url = link.url || "#";
+        return `
+          <article class="committee-link-card">
+            <div class="committee-link-icon"><i class="${iconClass(link.icon, "fa-solid fa-link")}"></i></div>
+            <div>
+              <h4>${safeText(link.title)}</h4>
+              <p>${safeText(link.description, "رابط خاص بهذه اللجنة.")}</p>
+            </div>
+            <a class="btn btn-dark" href="${safeText(url)}" ${url.startsWith("http") ? 'target="_blank" rel="noopener"' : ""}>
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> فتح
+            </a>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function bindCommitteeLinks() {
+      document.querySelectorAll(".committee-links-btn").forEach(btn => {
+        btn.onclick = () => {
+          loadCommitteeLinks(btn.dataset.committeeId, btn.dataset.title, btn.dataset.icon);
+        };
+      });
+    }
+
+    function closeCommitteeLinksSheet() {
+      committeeLinksBackdrop.classList.remove("show");
+      document.body.style.overflow = "";
+    }
+
+    if (linksSheetClose) linksSheetClose.onclick = closeCommitteeLinksSheet;
+    if (committeeLinksBackdrop) {
+      committeeLinksBackdrop.onclick = e => {
+        if (e.target === committeeLinksBackdrop) closeCommitteeLinksSheet();
+      };
+    }
+
+
+    function bindCommitteeDetails() {
+      document.querySelectorAll(".committee-detail-btn").forEach(btn => {
+        btn.onclick = () => {
+          const title = btn.dataset.title || "لجنة";
+          const icon = btn.dataset.icon || "fa-solid fa-sitemap";
+          const description = btn.dataset.description || "";
+          const tasks = [btn.dataset.taskOne, btn.dataset.taskTwo, btn.dataset.taskThree].filter(Boolean);
+          const linkText = "انتقال";
+          const linkUrl = "#";
+
+          sheetIcon.innerHTML = `<i class="${icon}"></i>`;
+          sheetTitle.textContent = title;
+          sheetDescription.textContent = description;
+          sheetTasks.innerHTML = tasks.length
+            ? tasks.map(task => `<li>${safeText(task)}</li>`).join("")
+            : `<li>لا توجد مهام مضافة بعد.</li>`;
+
+          sheetLink.textContent = "";
+          sheetLink.innerHTML = `<i class="fa-solid fa-arrow-left"></i> ${safeText(linkText)}`;
+          sheetLink.setAttribute("href", linkUrl || "#");
+
+          if (linkUrl && linkUrl !== "#") {
+            sheetLinkBox.style.display = "block";
+            if (linkUrl.startsWith("http")) {
+              sheetLink.setAttribute("target", "_blank");
+              sheetLink.setAttribute("rel", "noopener");
+            } else {
+              sheetLink.removeAttribute("target");
+              sheetLink.removeAttribute("rel");
+            }
+          } else {
+            sheetLinkBox.style.display = "none";
+          }
+
+          committeeDetailBackdrop.classList.add("show");
+          document.body.style.overflow = "hidden";
+        };
+      });
+    }
+
+    function closeCommitteeSheet() {
+      committeeDetailBackdrop.classList.remove("show");
+      document.body.style.overflow = "";
+    }
+
+    if (sheetClose) sheetClose.onclick = closeCommitteeSheet;
+    if (committeeDetailBackdrop) {
+      committeeDetailBackdrop.onclick = e => {
+        if (e.target === committeeDetailBackdrop) closeCommitteeSheet();
+      };
+    }
+
+    function bindMoreButtons() {
+      document.querySelectorAll(".more-btn").forEach(btn => {
+        btn.onclick = () => {
+          const box = btn.closest(".course-card").querySelector(".course-more-box");
+          box.classList.toggle("show");
+          btn.innerHTML = box.classList.contains("show") ? '<i class="fa-solid fa-chevron-up"></i> إخفاء المعلومات' : '<i class="fa-solid fa-circle-info"></i> المزيد';
+        };
+      });
+    }
+
+    function bindCourseButtons() {
+      document.querySelectorAll(".action-btn").forEach(btn => {
+        btn.onclick = () => {
+          registrationCourseId.value = btn.dataset.courseId || "";
+          registrationCourseTitle.value = btn.dataset.courseTitle || "";
+          modalCourseName.textContent = `الدورة: ${btn.dataset.courseTitle || "دورة"}`;
+          courseModal.classList.add("show");
+          document.body.style.overflow = "hidden";
+        };
+      });
+    }
+
+    closeCourseModal.onclick = closeModal;
+    cancelCourseModal.onclick = closeModal;
+    courseModal.onclick = e => { if (e.target === courseModal) closeModal(); };
+    function closeModal() {
+      courseModal.classList.remove("show");
+      document.body.style.overflow = "";
+      courseRegistrationForm.reset();
+    }
+
+    courseRegistrationForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      if (!db) return showToast("لم يتم ربط Supabase بعد");
+      const form = new FormData(courseRegistrationForm);
+      const payload = {
+        course_id: form.get("course_id") || null,
+        course_title: form.get("course_title"),
+        student_full_name: form.get("student_full_name"),
+        academic_number: form.get("academic_number"),
+        status: "pending"
+      };
+      const { error } = await db.from("course_registrations").insert(payload);
+      if (error) return showToast(error.code === "23505" ? "أنت مسجل في هذه الدورة مسبقًا" : "تعذر إرسال طلب التسجيل");
+      showToast("تم إرسال طلب التسجيل");
+      closeModal();
+      await loadCourses();
+    });
+
+    issueForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      if (!db) return showToast("لم يتم ربط Supabase بعد");
+      const form = new FormData(issueForm);
+      const payload = {
+        student_name: form.get("student_name"),
+        issue_type: form.get("issue_type"),
+        title: form.get("title"),
+        description: form.get("description"),
+        status: "new"
+      };
+      const { error } = await db.from("student_issues").insert(payload);
+      if (error) return showToast("تعذر حفظ الإشكالية");
+      showToast("تم إرسال الإشكالية");
+      issueForm.reset();
+    });
+
+    function applyCurrentFilter() {
+      const active = document.querySelector(".filter-btn.active")?.dataset.filter || "all";
+      document.querySelectorAll(".course-card").forEach(card => {
+        card.style.display = active === "all" || card.dataset.category === active ? "block" : "none";
+      });
+    }
+
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        applyCurrentFilter();
+      };
+    });
+
+    let counted = false, counterObserver;
+    function resetCountersObserver() {
+      counted = false;
+      if (counterObserver) counterObserver.disconnect();
+      counterObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting || counted) return;
+          counted = true;
+          document.querySelectorAll("[data-count]").forEach(counter => {
+            const target = Number(counter.dataset.count || 0);
+            const start = performance.now(), duration = 1600;
+            function tick(now) {
+              const p = Math.min((now - start) / duration, 1);
+              counter.textContent = Math.floor(p * target) + "+";
+              if (p < 1) requestAnimationFrame(tick);
+            }
+            requestAnimationFrame(tick);
+          });
+        });
+      }, { threshold: .35 });
+      counterObserver.observe(document.getElementById("achievements"));
+    }
+    resetCountersObserver();
+
+    function setActiveLinks() {
+      const sections = document.querySelectorAll("section[id], .hero[id]");
+      const navItems = document.querySelectorAll(".nav-links a, .bottom-nav a");
+      let current = "home";
+      sections.forEach(section => { if (window.scrollY >= section.offsetTop - 150) current = section.id; });
+      navItems.forEach(link => link.classList.toggle("active", link.getAttribute("href") === `#${current}`));
+    }
+
+    setActiveLinks();
+    loadAll();
+  </script>
+</body>
+</html>
