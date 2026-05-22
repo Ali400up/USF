@@ -1,0 +1,21 @@
+{
+  "name": "ملتقى الطالب الجامعي - جامعة العلوم والتكنولوجيا",
+  "short_name": "ملتقى الطالب",
+  "description": "الموقع الرسمي لملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#EEF7FF",
+  "theme_color": "#0B5ED7",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
