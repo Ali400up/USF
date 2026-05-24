@@ -120,16 +120,506 @@
     .uploaded-image-card a{position:absolute;right:8px;bottom:8px;left:8px;padding:7px 8px;border-radius:999px;text-align:center;font-size:11px;font-weight:900;color:white;background:rgba(3,20,38,.62);backdrop-filter:blur(8px)}
     .small-note{font-size:12px;line-height:1.8;color:var(--muted);font-weight:800}
 
+    .permission-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:6px}
+    .permission-item{display:flex;align-items:center;gap:8px;padding:10px 11px;border:1px solid var(--border);border-radius:16px;background:rgba(255,255,255,.55);font-size:12.5px;font-weight:900;color:var(--muted)}
+    .dark .permission-item{background:rgba(241,247,251,.05)}
+    .permission-item input{width:16px;height:16px}.permission-note{grid-column:1/-1;font-size:12px;color:var(--muted);font-weight:800;line-height:1.8}
+    .permission-lock{padding:12px 13px;border-radius:17px;background:rgba(211,47,47,.08);border:1px solid rgba(211,47,47,.18);color:var(--danger);font-size:12.5px;font-weight:900;line-height:1.8}
+
+
+    .icon-picker{position:relative;display:grid;gap:10px}
+    .icon-input-row{display:grid;grid-template-columns:58px minmax(0,1fr) auto;gap:8px;align-items:center}
+    .icon-preview{width:58px;height:52px;border:1px solid var(--border);border-radius:18px;display:grid;place-items:center;color:var(--primary);background:rgba(11,94,215,.08);font-size:23px}
+    .icon-picker-panel{display:none;position:absolute;z-index:90;top:calc(100% + 8px);right:0;left:0;padding:13px;border:1px solid var(--border2);border-radius:22px;background:var(--glass2);box-shadow:var(--shadow2);backdrop-filter:blur(22px)}
+    .icon-picker.open .icon-picker-panel{display:grid;gap:12px}
+    .icon-search-box{position:relative}
+    .icon-search-box i{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--muted)}
+    .icon-search-box input{padding-right:39px!important}
+    .icon-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;max-height:288px;overflow:auto;padding:2px}
+    .icon-option{min-height:78px;padding:9px 6px;border:1px solid var(--border);border-radius:18px;background:rgba(255,255,255,.55);color:var(--text);display:grid;place-items:center;gap:5px;transition:.22s var(--ease)}
+    .dark .icon-option{background:rgba(241,247,251,.06)}
+    .icon-option i{font-size:24px;color:var(--primary)}
+    .icon-option span{font-size:10.5px;font-weight:900;color:var(--muted);line-height:1.35;text-align:center}
+    .icon-option:hover,.icon-option.active{transform:translateY(-3px);border-color:rgba(11,94,215,.36);box-shadow:0 12px 30px rgba(11,94,215,.16);background:rgba(11,94,215,.10)}
+    .icon-manual-note{padding:10px 12px;border-radius:16px;background:rgba(11,94,215,.07);color:var(--muted);font-size:12px;font-weight:850;line-height:1.8}
+
     @media(max-width:1100px){.layout{grid-template-columns:1fr}.sidebar{position:static}.mobile-tabs-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.tabs{grid-template-columns:repeat(2,1fr)}.stats-grid{grid-template-columns:repeat(2,1fr)}.tools-row{grid-template-columns:1fr 170px}.export-actions{grid-column:1/-1}}
     @media(max-width:720px){
       .container{width:min(100% - 18px,1320px)}.top-inner{align-items:flex-start}.brand-icon{width:48px;height:48px;border-radius:18px}.brand h1{font-size:17px}.brand p{font-size:11px}.top-actions .btn{padding:10px 11px;font-size:12px}
       .layout{padding-top:12px}.sidebar,.card{border-radius:24px;padding:14px}.tabs{grid-template-columns:1fr}.tab{padding:12px}.stats-grid{grid-template-columns:1fr 1fr;gap:9px}.stat-card{min-height:96px;padding:13px;border-radius:20px}.stat-card strong{font-size:23px}
       .section-head{display:grid;gap:10px}.section-head h2{font-size:22px}.grid-form{grid-template-columns:1fr}.tools-row{grid-template-columns:1fr}.export-actions .btn,.form-actions .btn,.head-actions .btn{flex:1 1 130px}
       .table-wrap{display:none}.record-cards{display:grid}.toast{bottom:12px}.btn:hover{transform:none}.uploaded-images{grid-template-columns:repeat(2,1fr)}
+      .icon-input-row{grid-template-columns:50px 1fr}.icon-picker-btn{grid-column:1/-1;width:100%}.icon-grid{grid-template-columns:repeat(3,1fr);max-height:310px}
     }
     @media print{
       body{background:#fff;color:#000}.topbar,.sidebar,.card.form-card,.tools-card,.toast,.quick-modal{display:none!important}.layout{display:block;padding:0}.card{box-shadow:none;border:0;background:#fff;padding:0}.section-head{display:block;margin-bottom:12px}.table-wrap{display:block;border:0}table{min-width:0;width:100%;font-size:11px}th,td{border:1px solid #999;padding:6px;color:#000}th{background:#eee!important;color:#000}
     }
+  
+
+    /* ===== Ultra clean responsive redesign: boxed sections + card records + pagination ===== */
+    .app{background:linear-gradient(180deg,rgba(255,255,255,.20),transparent 320px)}
+    .topbar{box-shadow:0 10px 34px rgba(11,94,215,.08)}
+    .top-inner{min-height:74px}
+    .brand-icon{border-radius:22px;background:radial-gradient(circle at 28% 18%,rgba(255,255,255,.32),transparent 30%),linear-gradient(135deg,#0EA5E9,#0B5ED7,#063B8F)}
+    .layout{grid-template-columns:minmax(260px,310px) minmax(0,1fr);gap:22px}
+    .sidebar{padding:16px;border-radius:32px;background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.68));box-shadow:0 18px 55px rgba(11,94,215,.12)}
+    .dark .sidebar{background:linear-gradient(180deg,rgba(8,27,47,.94),rgba(8,27,47,.72))}
+    .tabs{display:grid;grid-template-columns:1fr;gap:10px;overflow:visible!important}
+    .tab{min-height:64px;border:1px solid transparent;border-radius:22px;padding:12px;background:linear-gradient(135deg,rgba(255,255,255,.70),rgba(238,247,255,.58));box-shadow:0 10px 28px rgba(11,94,215,.07);position:relative;overflow:hidden}
+    .tab:before{content:"";position:absolute;inset:auto -22px -36px auto;width:92px;height:92px;border-radius:50%;background:rgba(11,94,215,.08);transition:.25s var(--ease)}
+    .tab span{position:relative;z-index:1;display:flex;align-items:center;gap:10px;min-width:0}
+    .tab span i{width:34px;height:34px;display:grid;place-items:center;border-radius:14px;color:#fff;background:linear-gradient(135deg,#1E88E5,#0B5ED7);box-shadow:0 10px 24px rgba(11,94,215,.18);font-size:15px;flex:0 0 auto}
+    .tab small{position:relative;z-index:1;background:rgba(11,94,215,.10);height:28px;min-width:34px;color:var(--primary)}
+    .tab.active,.tab:hover{border-color:rgba(11,94,215,.24);background:linear-gradient(135deg,rgba(11,94,215,.13),rgba(100,181,246,.12));color:var(--primary);transform:translateY(-2px)}
+    .tab.active:before,.tab:hover:before{transform:scale(1.45);background:rgba(11,94,215,.14)}
+    .stats-grid{grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+    .stat-card{min-height:108px;border-radius:26px;background:linear-gradient(135deg,rgba(255,255,255,.86),rgba(255,255,255,.62));box-shadow:0 16px 46px rgba(11,94,215,.10)}
+    .dark .stat-card{background:linear-gradient(135deg,rgba(14,42,69,.92),rgba(8,27,47,.72))}
+    .card{border-radius:32px;background:linear-gradient(180deg,rgba(255,255,255,.88),rgba(255,255,255,.68));box-shadow:0 18px 55px rgba(11,94,215,.10)}
+    .dark .card{background:linear-gradient(180deg,rgba(8,27,47,.94),rgba(8,27,47,.72))}
+    .grid-form{grid-template-columns:repeat(12,1fr);gap:12px}
+    .field{grid-column:span 6;margin-bottom:0}.field.full{grid-column:1/-1}
+    .field input,.field textarea,.field select{border-radius:18px;min-height:48px;background:rgba(255,255,255,.78)}
+    .field textarea{min-height:124px}
+    .form-actions{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:18px}
+    .form-actions .btn{min-height:48px;border-radius:18px}
+    .tools-row{grid-template-columns:minmax(260px,1fr) minmax(160px,210px) auto;gap:12px}
+    .table-wrap{display:none!important}
+    .record-cards{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+    .record-card{position:relative;overflow:hidden;min-height:210px;padding:16px;border-radius:26px;background:linear-gradient(135deg,rgba(255,255,255,.86),rgba(238,247,255,.66));box-shadow:0 16px 45px rgba(11,94,215,.10);border:1px solid rgba(11,94,215,.13)}
+    .dark .record-card{background:linear-gradient(135deg,rgba(14,42,69,.92),rgba(8,27,47,.70))}
+    .record-card:before{content:"";position:absolute;left:-56px;bottom:-66px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(11,94,215,.12),transparent 72%)}
+    .record-card h3{position:relative;z-index:1;display:flex;align-items:center;gap:8px;min-height:34px;margin-bottom:11px;font-size:16px;line-height:1.55;color:var(--text)}
+    .record-card h3:before{content:"\f15c";font-family:"Font Awesome 6 Free";font-weight:900;width:34px;height:34px;display:grid;place-items:center;border-radius:14px;color:#fff;background:linear-gradient(135deg,#1E88E5,#0B5ED7);box-shadow:0 10px 24px rgba(11,94,215,.18);flex:0 0 auto}
+    .record-thumb{width:100%;height:160px;margin-bottom:12px;border-radius:22px;overflow:hidden;border:1px solid var(--border);background:#071a2f;display:grid;place-items:center}
+    .record-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .record-meta{position:relative;z-index:1;display:grid;grid-template-columns:1fr;gap:7px;margin-bottom:14px}
+    .record-meta div{padding:8px 10px;border-radius:14px;background:rgba(11,94,215,.055);line-height:1.7;color:var(--muted)}
+    .dark .record-meta div{background:rgba(241,247,251,.055)}
+    .record-meta b{display:inline-flex;min-width:86px;color:var(--primary);font-weight:900}
+    .record-card .row-actions{position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:auto}
+    .record-card .row-actions .btn{width:100%;min-height:40px;border-radius:15px}
+    .records-pager{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;margin-top:14px;padding:12px;border:1px solid var(--border);border-radius:22px;background:rgba(255,255,255,.56);box-shadow:0 12px 32px rgba(11,94,215,.08)}
+    .dark .records-pager{background:rgba(241,247,251,.055)}
+    .pager-buttons{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.pager-buttons .btn{padding:9px 11px;border-radius:14px;min-width:42px}
+    .pager-buttons .btn.active{color:#fff;background:linear-gradient(135deg,#1E88E5,#0B5ED7)}
+    .pager-info{text-align:center;color:var(--muted);font-size:12px;font-weight:900;line-height:1.8}
+    .pager-size{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:12px;font-weight:900}.pager-size select{padding:8px 10px;border:1px solid var(--border);border-radius:14px;background:var(--glass2);color:var(--text);font-weight:900}
+    .icon-picker-panel{position:fixed;inset:auto 16px 16px 16px;top:auto;max-height:82vh;overflow:auto;border-radius:28px}
+    .icon-grid{grid-template-columns:repeat(auto-fit,minmax(82px,1fr));max-height:52vh}
+
+    @media(max-width:980px){
+      .container{width:min(100% - 18px,1320px)}
+      .top-inner{min-height:auto;padding:10px 0;align-items:center}.brand h1{font-size:17px}.brand p{font-size:11px}.brand-icon{width:48px;height:48px;border-radius:18px}
+      .top-actions{gap:6px}.top-actions .btn{padding:9px 10px;font-size:12px;border-radius:13px}
+      .layout{display:grid;grid-template-columns:1fr;gap:12px;padding:12px 0 20px}
+      .sidebar{position:relative;top:auto;border-radius:24px;padding:11px}
+      .mobile-tabs-head{display:flex;margin-bottom:10px}.mobile-tabs-head strong{font-size:13px;color:var(--primary)}
+      .tabs{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+      .tab{min-height:74px;padding:9px 6px;border-radius:19px;display:grid;place-items:center;text-align:center;justify-content:center;align-content:center;gap:6px}
+      .tab span{display:grid;place-items:center;gap:5px;font-size:11px;line-height:1.3;white-space:normal;max-width:100%;overflow:hidden}
+      .tab span i{width:34px;height:34px;border-radius:14px;font-size:14px}
+      .tab small{position:absolute;top:6px;left:6px;height:21px;min-width:24px;font-size:10px}
+      .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.stat-card{min-height:92px;padding:13px;border-radius:22px}.stat-card strong{font-size:23px}
+      .card{border-radius:24px;padding:14px}.section-head{display:grid;gap:10px;margin-bottom:12px}.section-head h2{font-size:21px}.section-head p{font-size:12px}.head-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+      .grid-form{grid-template-columns:1fr}.field,.field.full{grid-column:1/-1}.field label{font-size:12px}.field input,.field textarea,.field select{font-size:13px;border-radius:16px;min-height:46px;padding:12px}.field textarea{min-height:110px}
+      .tools-row{grid-template-columns:1fr;gap:8px}.export-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.export-actions .btn{width:100%;padding:10px 8px}
+      .record-cards{grid-template-columns:1fr;gap:10px}.record-card{border-radius:22px;padding:13px;min-height:auto}.record-card h3{font-size:15px}.record-thumb{height:180px;border-radius:18px}.record-meta div{font-size:12px;padding:7px 9px}.record-meta b{min-width:74px}
+      .records-pager{grid-template-columns:1fr;gap:9px;border-radius:20px;padding:10px}.pager-info{order:-1}.pager-buttons{justify-content:center}.pager-size{justify-content:center}
+      .permission-grid{grid-template-columns:1fr}.uploaded-images{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(max-width:420px){
+      .tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.tab{min-height:68px}.tab span{font-size:10.5px}.tab span i{width:32px;height:32px}
+      .stats-grid{grid-template-columns:1fr 1fr}.top-actions .btn[href="index.html"]{display:none}.record-thumb{height:155px}.export-actions{grid-template-columns:1fr 1fr}.icon-grid{grid-template-columns:repeat(3,1fr)}
+    }
+
+
+/* =====================================================================
+   PREMIUM PERMISSIONS SELECTOR + SECTION CLICK FOCUS
+   تحسين خاص لقسم: الأقسام المسموحة لهذا الأدمن
+   ===================================================================== */
+.premium-permissions-field{
+  grid-column:1/-1!important;
+  margin-top:6px!important;
+}
+.permissions-shell{
+  position:relative;
+  overflow:hidden;
+  padding:18px;
+  border-radius:30px;
+  border:1px solid rgba(11,94,215,.16);
+  background:
+    radial-gradient(circle at 0% 0%,rgba(18,200,255,.14),transparent 35%),
+    radial-gradient(circle at 100% 100%,rgba(11,94,215,.10),transparent 38%),
+    linear-gradient(145deg,rgba(255,255,255,.88),rgba(239,248,255,.62));
+  box-shadow:0 18px 48px rgba(6,33,74,.09), inset 0 1px 0 rgba(255,255,255,.60);
+}
+.dark .permissions-shell{
+  border-color:rgba(234,246,255,.10);
+  background:
+    radial-gradient(circle at 0% 0%,rgba(18,200,255,.08),transparent 35%),
+    linear-gradient(145deg,rgba(234,246,255,.07),rgba(234,246,255,.035));
+}
+.permissions-shell:before{
+  content:"";
+  position:absolute;
+  width:190px;
+  height:190px;
+  border-radius:50%;
+  left:-76px;
+  bottom:-96px;
+  background:radial-gradient(circle,rgba(18,200,255,.22),transparent 68%);
+  pointer-events:none;
+}
+.permissions-header{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:14px;
+}
+.permissions-title-block{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  min-width:0;
+}
+.permissions-title-icon{
+  width:48px;
+  height:48px;
+  border-radius:19px;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  color:#fff;
+  background:linear-gradient(135deg,#12C8FF,#0B5ED7 60%,#063B8F);
+  box-shadow:0 16px 34px rgba(11,94,215,.24);
+}
+.permissions-main-label{
+  display:block;
+  margin:0 0 5px 0!important;
+  font-size:17px!important;
+  font-weight:950!important;
+  color:#052247!important;
+  letter-spacing:-.3px;
+}
+.dark .permissions-main-label{color:#EAF6FF!important}
+.permissions-subtitle{
+  display:block;
+  color:#58728F;
+  font-size:12.8px;
+  font-weight:850;
+  line-height:1.85;
+}
+.dark .permissions-subtitle{color:#A8C7E8}
+.permissions-counter{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  padding:9px 12px;
+  border-radius:999px;
+  white-space:nowrap;
+  font-size:12px;
+  font-weight:950;
+  color:#0B5ED7;
+  background:rgba(11,94,215,.09);
+  border:1px solid rgba(11,94,215,.12);
+}
+.dark .permissions-counter{
+  color:#91DFFF;
+  background:rgba(145,223,255,.08);
+  border-color:rgba(145,223,255,.12);
+}
+.permission-toolbar{
+  position:relative;
+  z-index:1;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:13px;
+}
+.permission-mini-btn{
+  border:0;
+  border-radius:15px;
+  padding:9px 12px;
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  font-size:12px;
+  font-weight:950;
+  color:#0B5ED7;
+  background:rgba(255,255,255,.72);
+  border:1px solid rgba(11,94,215,.13);
+  box-shadow:0 10px 24px rgba(6,33,74,.06);
+  transition:.24s var(--ease);
+}
+.permission-mini-btn:hover{
+  transform:translateY(-2px);
+  background:rgba(11,94,215,.10);
+  border-color:rgba(11,94,215,.24);
+}
+.dark .permission-mini-btn{
+  color:#91DFFF;
+  background:rgba(234,246,255,.055);
+  border-color:rgba(234,246,255,.10);
+}
+.premium-permission-grid{
+  position:relative;
+  z-index:1;
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  gap:11px!important;
+  margin:0!important;
+}
+.permission-card{
+  position:relative;
+  min-height:92px;
+  padding:13px 13px 13px 46px;
+  border-radius:24px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  overflow:hidden;
+  cursor:pointer;
+  user-select:none;
+  border:1px solid rgba(11,94,215,.12);
+  background:linear-gradient(145deg,rgba(255,255,255,.86),rgba(255,255,255,.55));
+  box-shadow:0 12px 30px rgba(6,33,74,.065);
+  transition:.25s var(--ease);
+}
+.dark .permission-card{
+  background:linear-gradient(145deg,rgba(234,246,255,.065),rgba(234,246,255,.028));
+  border-color:rgba(234,246,255,.09);
+}
+.permission-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(11,94,215,.28);
+  box-shadow:0 20px 42px rgba(11,94,215,.12);
+}
+.permission-card:before{
+  content:"";
+  position:absolute;
+  inset:auto -48px -58px auto;
+  width:130px;
+  height:130px;
+  border-radius:50%;
+  background:rgba(18,200,255,.12);
+  transition:.25s var(--ease);
+}
+.permission-card:hover:before,
+.permission-card.is-selected:before{
+  transform:scale(1.35);
+  background:rgba(255,255,255,.18);
+}
+.permission-input{
+  position:absolute;
+  opacity:0;
+  pointer-events:none;
+}
+.permission-card-icon{
+  position:relative;
+  z-index:1;
+  width:44px;
+  height:44px;
+  border-radius:18px;
+  display:grid;
+  place-items:center;
+  flex:0 0 auto;
+  color:#0B5ED7;
+  background:rgba(11,94,215,.09);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55);
+  transition:.25s var(--ease);
+}
+.permission-card-text{
+  position:relative;
+  z-index:1;
+  display:grid;
+  gap:4px;
+  min-width:0;
+}
+.permission-card-text strong{
+  color:#052247;
+  font-size:13.2px;
+  line-height:1.55;
+  font-weight:950;
+}
+.dark .permission-card-text strong{color:#EAF6FF}
+.permission-card-text em{
+  font-style:normal;
+  color:#6C86A4;
+  font-size:10.7px;
+  line-height:1.55;
+  font-weight:850;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.dark .permission-card-text em{color:#A8C7E8}
+.permission-card-check{
+  position:absolute;
+  left:12px;
+  top:50%;
+  transform:translateY(-50%) scale(.80);
+  width:30px;
+  height:30px;
+  border-radius:12px;
+  display:grid;
+  place-items:center;
+  color:#9AB0C8;
+  background:rgba(255,255,255,.72);
+  border:1px solid rgba(11,94,215,.12);
+  box-shadow:0 8px 20px rgba(6,33,74,.07);
+  transition:.25s var(--ease);
+}
+.dark .permission-card-check{
+  background:rgba(234,246,255,.06);
+  color:#A8C7E8;
+  border-color:rgba(234,246,255,.10);
+}
+.permission-card.is-selected{
+  color:#fff;
+  border-color:rgba(18,200,255,.38)!important;
+  background:
+    radial-gradient(circle at 20% 0%,rgba(255,255,255,.30),transparent 34%),
+    linear-gradient(135deg,#12C8FF,#0B5ED7 58%,#063B8F)!important;
+  box-shadow:0 24px 56px rgba(11,94,215,.22)!important;
+  transform:translateY(-3px);
+}
+.permission-card.is-selected .permission-card-icon{
+  color:#fff;
+  background:rgba(255,255,255,.20);
+}
+.permission-card.is-selected .permission-card-text strong,
+.permission-card.is-selected .permission-card-text em{
+  color:#fff!important;
+}
+.permission-card.is-selected .permission-card-check{
+  color:#0B5ED7;
+  background:#fff;
+  transform:translateY(-50%) scale(1);
+  border-color:rgba(255,255,255,.74);
+}
+.permission-card.is-selected .permission-card-check i:before{content:"\f00c"}
+.permissions-help-strip{
+  position:relative;
+  z-index:1;
+  margin-top:13px;
+  padding:11px 12px;
+  border-radius:18px;
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
+  color:#496C92;
+  background:rgba(11,94,215,.06);
+  border:1px dashed rgba(11,94,215,.18);
+  font-size:12px;
+  font-weight:850;
+  line-height:1.8;
+}
+.dark .permissions-help-strip{
+  color:#A8C7E8;
+  background:rgba(234,246,255,.04);
+  border-color:rgba(234,246,255,.10);
+}
+.tab.active{
+  color:#fff!important;
+  border-color:rgba(18,200,255,.55)!important;
+  background:
+    radial-gradient(circle at 20% 0%,rgba(255,255,255,.30),transparent 34%),
+    linear-gradient(135deg,#12C8FF,#0B5ED7 55%,#063B8F)!important;
+  box-shadow:0 24px 56px rgba(11,94,215,.25)!important;
+}
+.tab.active span,
+.tab.active span i,
+.tab.active small{color:#fff!important}
+.tab.active span i{
+  background:rgba(255,255,255,.20)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 12px 26px rgba(0,0,0,.10)!important;
+}
+.tab.active small{
+  background:rgba(255,255,255,.22)!important;
+  border:1px solid rgba(255,255,255,.28);
+}
+.tab.tab-selected-now{animation:tabSelectedPop .72s var(--ease) both}
+@keyframes tabSelectedPop{
+  0%{transform:scale(.96)}
+  45%{transform:scale(1.045)}
+  100%{transform:scale(1)}
+}
+.form-card.form-focus{animation:formFocusGlow 1.35s var(--ease) both}
+@keyframes formFocusGlow{
+  0%{box-shadow:0 0 0 0 rgba(18,200,255,0), var(--shadow)}
+  35%{box-shadow:0 0 0 7px rgba(18,200,255,.16), 0 30px 80px rgba(11,94,215,.20)}
+  100%{box-shadow:var(--shadow)}
+}
+@media(max-width:760px){
+  .permissions-shell{padding:14px;border-radius:25px}
+  .permissions-header{display:grid;gap:10px}
+  .permissions-counter{width:max-content}
+  .premium-permission-grid{grid-template-columns:1fr!important;gap:9px!important}
+  .permission-card{min-height:84px;border-radius:21px;padding:12px 12px 12px 44px}
+  .permission-card-icon{width:40px;height:40px;border-radius:16px}
+  .permission-card-text strong{font-size:12.5px}
+  .permission-card-text em{font-size:10.4px}
+}
+@media(max-width:430px){
+  .permission-toolbar{display:grid;grid-template-columns:1fr 1fr}
+  .permission-mini-btn{justify-content:center;padding:9px 8px}
+  .permissions-title-icon{width:43px;height:43px;border-radius:17px}
+  .permissions-main-label{font-size:15px!important}
+}
+
+  
+
+/* ===== Premium readable pager fix: يمنع تلاصق النصوص مثل عرض 1 - 1 وعدد السجلات 12244896 ===== */
+.records-pager-premium{
+  display:grid!important;
+  grid-template-columns:minmax(220px,1fr) auto minmax(220px,1fr)!important;
+  align-items:center!important;
+  gap:14px!important;
+  margin-top:18px!important;
+  padding:14px!important;
+  border-radius:28px!important;
+  border:1px solid rgba(11,94,215,.16)!important;
+  background:linear-gradient(135deg,rgba(255,255,255,.86),rgba(235,248,255,.66))!important;
+  box-shadow:0 18px 48px rgba(6,33,74,.10)!important;
+  backdrop-filter:blur(18px)!important;
+}
+.dark .records-pager-premium{background:linear-gradient(135deg,rgba(8,27,47,.90),rgba(8,27,47,.66))!important;border-color:rgba(234,246,255,.10)!important}
+.pager-status-card,.pager-buttons-card,.pager-size-card{
+  min-height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  padding:10px 12px;
+  border-radius:22px;
+  border:1px solid rgba(11,94,215,.12);
+  background:rgba(255,255,255,.62);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55);
+}
+.dark .pager-status-card,.dark .pager-buttons-card,.dark .pager-size-card{background:rgba(234,246,255,.055);border-color:rgba(234,246,255,.09)}
+.pager-status-card{flex-direction:column;align-items:flex-start;justify-content:center}
+.pager-status-line{display:flex;align-items:center;gap:7px;color:#496C92;font-size:12.5px;font-weight:900;line-height:1.7;white-space:nowrap}
+.pager-status-line i{width:24px;height:24px;display:grid;place-items:center;border-radius:10px;color:#0B5ED7;background:rgba(11,94,215,.09)}
+.pager-status-line b{color:#052247;font-size:13.5px;font-weight:950;margin-inline:2px}.dark .pager-status-line{color:#A8C7E8}.dark .pager-status-line b{color:#EAF6FF}.dark .pager-status-line i{color:#91DFFF;background:rgba(145,223,255,.08)}
+.pager-buttons-card{flex-wrap:wrap}.pager-page-numbers,.pager-size-buttons{display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap}.pager-nav-btn{min-width:42px!important;height:42px!important;padding:0 11px!important;border-radius:16px!important}.pager-text-btn{min-width:72px!important}.pager-nav-btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
+.pager-page-btn,.pager-size-btn{
+  min-width:40px;height:40px;border:0;border-radius:15px;background:rgba(11,94,215,.08);color:#0B5ED7;font-weight:950;font-size:13px;transition:.22s var(--ease);box-shadow:0 8px 20px rgba(11,94,215,.06)
+}
+.pager-page-btn:hover,.pager-size-btn:hover{transform:translateY(-2px);background:rgba(18,200,255,.13)}
+.pager-page-btn.active,.pager-size-btn.active{color:#fff;background:linear-gradient(135deg,#12C8FF,#0B5ED7,#063B8F);box-shadow:0 12px 26px rgba(11,94,215,.25)}
+.pager-size-card{justify-content:space-between}.pager-size-card>span{display:flex;align-items:center;gap:7px;color:#496C92;font-size:12.5px;font-weight:950;white-space:nowrap}.pager-size-card>span i{color:#0B5ED7}.dark .pager-size-card>span{color:#A8C7E8}.dark .pager-size-card>span i{color:#91DFFF}
+@media(max-width:980px){.records-pager-premium{grid-template-columns:1fr!important}.pager-status-card{align-items:center;text-align:center}.pager-size-card{justify-content:center;flex-wrap:wrap}.pager-buttons-card{gap:7px}.pager-status-line{white-space:normal;text-align:center}.pager-text-btn{min-width:86px!important}}
+@media(max-width:430px){.records-pager-premium{padding:10px!important;border-radius:24px!important}.pager-status-card,.pager-buttons-card,.pager-size-card{border-radius:19px;padding:9px 8px}.pager-nav-btn{min-width:38px!important;height:38px!important}.pager-page-btn,.pager-size-btn{min-width:38px;height:38px;font-size:12px}.pager-status-line,.pager-size-card>span{font-size:12px}.pager-text-btn{min-width:76px!important}}
+
+/* إلغاء الصفحات نهائيًا */
+#recordsPager,.records-pager,.records-pager-premium{display:none!important}
+
   </style>
 </head>
 
@@ -236,6 +726,22 @@
     const db = clientReady ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
     const TABLES = {
+      admin_users: {
+        title:"صلاحيات الأدمن", desc:"إدارة صلاحيات كل أدمن: الأقسام المسموحة، الإضافة، التعديل، الحذف، والنشر.", icon:"fa-user-shield", order:{column:"created_at",ascending:false}, labelField:"display_name",
+        fields:[
+          {name:"display_name",label:"اسم الأدمن",type:"text",required:true},
+          {name:"email",label:"البريد الإلكتروني",type:"email",placeholder:"admin@example.com"},
+          {name:"user_id",label:"User ID من Supabase Auth",type:"text",required:true},
+          {name:"role",label:"الدور",type:"text",placeholder:"super_admin / editor / viewer"},
+          {name:"allowed_tables",label:"الأقسام المسموحة لهذا الأدمن",type:"permissions_check"},
+          {name:"can_insert",label:"يستطيع الإضافة",type:"boolean",default:true},
+          {name:"can_update",label:"يستطيع التعديل",type:"boolean",default:true},
+          {name:"can_delete",label:"يستطيع الحذف",type:"boolean",default:false},
+          {name:"can_publish",label:"يستطيع النشر/الإظهار",type:"boolean",default:true},
+          {name:"is_super_admin",label:"مدير عام لكل الصلاحيات",type:"boolean",default:false},
+          {name:"is_active",label:"الحساب مفعل",type:"boolean",default:true}
+        ]
+      },
       announcements: {
         title:"الإعلانات", desc:"إضافة وتعديل وحذف شريط الإعلانات.", icon:"fa-bullhorn", order:{column:"created_at",ascending:false}, labelField:"title",
         fields:[
@@ -373,14 +879,570 @@
 
     const loginWrap=document.getElementById("loginWrap"), app=document.getElementById("app"), loginForm=document.getElementById("loginForm"), userEmail=document.getElementById("userEmail"), logoutBtn=document.getElementById("logoutBtn"), themeBtn=document.getElementById("themeBtn"), tabs=document.getElementById("tabs"), statsGrid=document.getElementById("statsGrid"), tableTitle=document.getElementById("tableTitle"), tableDesc=document.getElementById("tableDesc"), formFields=document.getElementById("formFields"), dataForm=document.getElementById("dataForm"), recordId=document.getElementById("recordId"), newBtn=document.getElementById("newBtn"), deleteBtn=document.getElementById("deleteBtn"), refreshBtn=document.getElementById("refreshBtn"), reloadAllBtn=document.getElementById("reloadAllBtn"), tableWrap=document.getElementById("tableWrap"), recordCards=document.getElementById("recordCards"), searchInput=document.getElementById("searchInput"), activeFilter=document.getElementById("activeFilter"), exportExcelBtn=document.getElementById("exportExcelBtn"), exportCsvBtn=document.getElementById("exportCsvBtn"), exportTextBtn=document.getElementById("exportTextBtn"), printPdfBtn=document.getElementById("printPdfBtn"), quickAddBtn=document.getElementById("quickAddBtn"), quickModal=document.getElementById("quickModal"), quickContent=document.getElementById("quickContent"), closeQuickModal=document.getElementById("closeQuickModal"), toast=document.getElementById("toast");
 
-    let currentTable="activities", currentRows=[], filteredRows=[], relationData={}, uploadState={};
+    let currentTable="activities", currentRows=[], filteredRows=[], relationData={}, uploadState={}, currentAdminProfile=null;
+
+
+    const COMMON_ICONS = [
+      {"cls": "fa-solid fa-graduation-cap", "label": "قبعة تخرج", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student graduation-cap fa-solid fa-graduation-cap"},
+      {"cls": "fa-solid fa-user-graduate", "label": "طالب متخرج", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student user-graduate fa-solid fa-user-graduate"},
+      {"cls": "fa-solid fa-school", "label": "مدرسة", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student school fa-solid fa-school"},
+      {"cls": "fa-solid fa-building-columns", "label": "building columns", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student building-columns fa-solid fa-building-columns"},
+      {"cls": "fa-solid fa-book", "label": "كتاب", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student book fa-solid fa-book"},
+      {"cls": "fa-solid fa-book-open", "label": "كتاب مفتوح", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student book-open fa-solid fa-book-open"},
+      {"cls": "fa-solid fa-book-open-reader", "label": "book open reader", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student book-open-reader fa-solid fa-book-open-reader"},
+      {"cls": "fa-solid fa-book-atlas", "label": "book atlas", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student book-atlas fa-solid fa-book-atlas"},
+      {"cls": "fa-solid fa-book-bookmark", "label": "book bookmark", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student book-bookmark fa-solid fa-book-bookmark"},
+      {"cls": "fa-solid fa-book-quran", "label": "book quran", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student book-quran fa-solid fa-book-quran"},
+      {"cls": "fa-solid fa-book-medical", "label": "book medical", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student book-medical fa-solid fa-book-medical"},
+      {"cls": "fa-solid fa-chalkboard", "label": "chalkboard", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student chalkboard fa-solid fa-chalkboard"},
+      {"cls": "fa-solid fa-chalkboard-user", "label": "مدرب/محاضر", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student chalkboard-user fa-solid fa-chalkboard-user"},
+      {"cls": "fa-solid fa-clipboard-list", "label": "clipboard list", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student clipboard-list fa-solid fa-clipboard-list"},
+      {"cls": "fa-solid fa-clipboard-check", "label": "clipboard check", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student clipboard-check fa-solid fa-clipboard-check"},
+      {"cls": "fa-solid fa-file-lines", "label": "file lines", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student file-lines fa-solid fa-file-lines"},
+      {"cls": "fa-solid fa-file-pen", "label": "file pen", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student file-pen fa-solid fa-file-pen"},
+      {"cls": "fa-solid fa-file-circle-check", "label": "file circle check", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student file-circle-check fa-solid fa-file-circle-check"},
+      {"cls": "fa-solid fa-folder-open", "label": "folder open", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student folder-open fa-solid fa-folder-open"},
+      {"cls": "fa-solid fa-folder", "label": "folder", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student folder fa-solid fa-folder"},
+      {"cls": "fa-solid fa-pen", "label": "قلم", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student pen fa-solid fa-pen"},
+      {"cls": "fa-solid fa-pen-nib", "label": "pen nib", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student pen-nib fa-solid fa-pen-nib"},
+      {"cls": "fa-solid fa-pencil", "label": "قلم رصاص", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student pencil fa-solid fa-pencil"},
+      {"cls": "fa-solid fa-marker", "label": "marker", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student marker fa-solid fa-marker"},
+      {"cls": "fa-solid fa-highlighter", "label": "highlighter", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student highlighter fa-solid fa-highlighter"},
+      {"cls": "fa-solid fa-eraser", "label": "eraser", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student eraser fa-solid fa-eraser"},
+      {"cls": "fa-solid fa-paperclip", "label": "paperclip", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student paperclip fa-solid fa-paperclip"},
+      {"cls": "fa-solid fa-ruler", "label": "ruler", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student ruler fa-solid fa-ruler"},
+      {"cls": "fa-solid fa-ruler-combined", "label": "ruler combined", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student ruler-combined fa-solid fa-ruler-combined"},
+      {"cls": "fa-solid fa-calculator", "label": "calculator", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student calculator fa-solid fa-calculator"},
+      {"cls": "fa-solid fa-laptop-code", "label": "laptop code", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student laptop-code fa-solid fa-laptop-code"},
+      {"cls": "fa-solid fa-desktop", "label": "desktop", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student desktop fa-solid fa-desktop"},
+      {"cls": "fa-solid fa-computer", "label": "computer", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student computer fa-solid fa-computer"},
+      {"cls": "fa-solid fa-keyboard", "label": "keyboard", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student keyboard fa-solid fa-keyboard"},
+      {"cls": "fa-solid fa-brain", "label": "brain", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student brain fa-solid fa-brain"},
+      {"cls": "fa-solid fa-lightbulb", "label": "lightbulb", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student lightbulb fa-solid fa-lightbulb"},
+      {"cls": "fa-solid fa-spell-check", "label": "spell check", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student spell-check fa-solid fa-spell-check"},
+      {"cls": "fa-solid fa-language", "label": "language", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student language fa-solid fa-language"},
+      {"cls": "fa-solid fa-award", "label": "جائزة", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student award fa-solid fa-award"},
+      {"cls": "fa-solid fa-medal", "label": "medal", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student medal fa-solid fa-medal"},
+      {"cls": "fa-solid fa-trophy", "label": "كأس", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student trophy fa-solid fa-trophy"},
+      {"cls": "fa-solid fa-certificate", "label": "certificate", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student certificate fa-solid fa-certificate"},
+      {"cls": "fa-solid fa-scroll", "label": "scroll", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student scroll fa-solid fa-scroll"},
+      {"cls": "fa-solid fa-landmark", "label": "landmark", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student landmark fa-solid fa-landmark"},
+      {"cls": "fa-solid fa-layer-group", "label": "layer group", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student layer-group fa-solid fa-layer-group"},
+      {"cls": "fa-solid fa-list-check", "label": "list check", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student list-check fa-solid fa-list-check"},
+      {"cls": "fa-solid fa-square-check", "label": "square check", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student square-check fa-solid fa-square-check"},
+      {"cls": "fa-solid fa-check-double", "label": "check double", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student check-double fa-solid fa-check-double"},
+      {"cls": "fa-solid fa-shapes", "label": "shapes", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student shapes fa-solid fa-shapes"},
+      {"cls": "fa-solid fa-puzzle-piece", "label": "puzzle piece", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student puzzle-piece fa-solid fa-puzzle-piece"},
+      {"cls": "fa-solid fa-cubes", "label": "cubes", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student cubes fa-solid fa-cubes"},
+      {"cls": "fa-solid fa-diagram-project", "label": "diagram project", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student diagram-project fa-solid fa-diagram-project"},
+      {"cls": "fa-solid fa-network-wired", "label": "network wired", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student network-wired fa-solid fa-network-wired"},
+      {"cls": "fa-solid fa-sitemap", "label": "sitemap", "keys": "تعليم ومدرسة تعليم مدرسة جامعة كلية طالب طلاب دراسة أكاديمي course education school university student sitemap fa-solid fa-sitemap"},
+      {"cls": "fa-solid fa-tv", "label": "تلفزيون", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv tv fa-solid fa-tv"},
+      {"cls": "fa-solid fa-newspaper", "label": "صحيفة/خبر", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv newspaper fa-solid fa-newspaper"},
+      {"cls": "fa-solid fa-bullhorn", "label": "إعلان", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv bullhorn fa-solid fa-bullhorn"},
+      {"cls": "fa-solid fa-bell", "label": "bell", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv bell fa-solid fa-bell"},
+      {"cls": "fa-solid fa-bell-concierge", "label": "bell concierge", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv bell-concierge fa-solid fa-bell-concierge"},
+      {"cls": "fa-solid fa-bolt", "label": "bolt", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv bolt fa-solid fa-bolt"},
+      {"cls": "fa-solid fa-bullseye", "label": "bullseye", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv bullseye fa-solid fa-bullseye"},
+      {"cls": "fa-solid fa-video", "label": "ندوة فيديو", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv video fa-solid fa-video"},
+      {"cls": "fa-solid fa-video-slash", "label": "video slash", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv video-slash fa-solid fa-video-slash"},
+      {"cls": "fa-solid fa-camera", "label": "كاميرا", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv camera fa-solid fa-camera"},
+      {"cls": "fa-solid fa-camera-retro", "label": "camera retro", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv camera-retro fa-solid fa-camera-retro"},
+      {"cls": "fa-solid fa-images", "label": "معرض صور", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv images fa-solid fa-images"},
+      {"cls": "fa-solid fa-image", "label": "صورة", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv image fa-solid fa-image"},
+      {"cls": "fa-solid fa-photo-film", "label": "photo film", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv photo-film fa-solid fa-photo-film"},
+      {"cls": "fa-solid fa-microphone", "label": "مايكروفون", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv microphone fa-solid fa-microphone"},
+      {"cls": "fa-solid fa-microphone-lines", "label": "مايك ندوة", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv microphone-lines fa-solid fa-microphone-lines"},
+      {"cls": "fa-solid fa-microphone-slash", "label": "microphone slash", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv microphone-slash fa-solid fa-microphone-slash"},
+      {"cls": "fa-solid fa-podcast", "label": "podcast", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv podcast fa-solid fa-podcast"},
+      {"cls": "fa-solid fa-radio", "label": "radio", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv radio fa-solid fa-radio"},
+      {"cls": "fa-solid fa-tower-broadcast", "label": "tower broadcast", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv tower-broadcast fa-solid fa-tower-broadcast"},
+      {"cls": "fa-solid fa-satellite-dish", "label": "satellite dish", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv satellite-dish fa-solid fa-satellite-dish"},
+      {"cls": "fa-solid fa-rss", "label": "rss", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv rss fa-solid fa-rss"},
+      {"cls": "fa-solid fa-wifi", "label": "wifi", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv wifi fa-solid fa-wifi"},
+      {"cls": "fa-solid fa-circle-play", "label": "circle play", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv circle-play fa-solid fa-circle-play"},
+      {"cls": "fa-solid fa-play", "label": "play", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv play fa-solid fa-play"},
+      {"cls": "fa-solid fa-volume-high", "label": "volume high", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv volume-high fa-solid fa-volume-high"},
+      {"cls": "fa-solid fa-volume-low", "label": "volume low", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv volume-low fa-solid fa-volume-low"},
+      {"cls": "fa-solid fa-volume-xmark", "label": "volume xmark", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv volume-xmark fa-solid fa-volume-xmark"},
+      {"cls": "fa-solid fa-headphones", "label": "headphones", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv headphones fa-solid fa-headphones"},
+      {"cls": "fa-solid fa-film", "label": "film", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv film fa-solid fa-film"},
+      {"cls": "fa-solid fa-clapperboard", "label": "clapperboard", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv clapperboard fa-solid fa-clapperboard"},
+      {"cls": "fa-solid fa-closed-captioning", "label": "closed captioning", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv closed-captioning fa-solid fa-closed-captioning"},
+      {"cls": "fa-solid fa-share-nodes", "label": "share nodes", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv share-nodes fa-solid fa-share-nodes"},
+      {"cls": "fa-solid fa-share", "label": "share", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv share fa-solid fa-share"},
+      {"cls": "fa-solid fa-share-from-square", "label": "share from square", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv share-from-square fa-solid fa-share-from-square"},
+      {"cls": "fa-solid fa-square-share-nodes", "label": "square share nodes", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv square-share-nodes fa-solid fa-square-share-nodes"},
+      {"cls": "fa-solid fa-link", "label": "رابط", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv link fa-solid fa-link"},
+      {"cls": "fa-solid fa-link-slash", "label": "link slash", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv link-slash fa-solid fa-link-slash"},
+      {"cls": "fa-solid fa-globe", "label": "globe", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv globe fa-solid fa-globe"},
+      {"cls": "fa-solid fa-earth-asia", "label": "earth asia", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv earth-asia fa-solid fa-earth-asia"},
+      {"cls": "fa-solid fa-earth-africa", "label": "earth africa", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv earth-africa fa-solid fa-earth-africa"},
+      {"cls": "fa-solid fa-earth-americas", "label": "earth americas", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv earth-americas fa-solid fa-earth-americas"},
+      {"cls": "fa-solid fa-comments", "label": "comments", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv comments fa-solid fa-comments"},
+      {"cls": "fa-solid fa-comment-dots", "label": "comment dots", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv comment-dots fa-solid fa-comment-dots"},
+      {"cls": "fa-solid fa-message", "label": "message", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv message fa-solid fa-message"},
+      {"cls": "fa-solid fa-envelope", "label": "envelope", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv envelope fa-solid fa-envelope"},
+      {"cls": "fa-solid fa-envelope-open-text", "label": "envelope open text", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv envelope-open-text fa-solid fa-envelope-open-text"},
+      {"cls": "fa-solid fa-paper-plane", "label": "paper plane", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv paper-plane fa-solid fa-paper-plane"},
+      {"cls": "fa-solid fa-inbox", "label": "inbox", "keys": "أخبار وإعلام خبر اخبار إعلان إعلام صحافة ندوة بث مباشر ميكروفون كاميرا تلفزيون news media announcement webinar microphone camera tv inbox fa-solid fa-inbox"},
+      {"cls": "fa-solid fa-calendar", "label": "calendar", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity calendar fa-solid fa-calendar"},
+      {"cls": "fa-solid fa-calendar-days", "label": "تقويم", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity calendar-days fa-solid fa-calendar-days"},
+      {"cls": "fa-solid fa-calendar-check", "label": "موعد مؤكد", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity calendar-check fa-solid fa-calendar-check"},
+      {"cls": "fa-solid fa-calendar-plus", "label": "calendar plus", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity calendar-plus fa-solid fa-calendar-plus"},
+      {"cls": "fa-solid fa-calendar-minus", "label": "calendar minus", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity calendar-minus fa-solid fa-calendar-minus"},
+      {"cls": "fa-solid fa-calendar-xmark", "label": "calendar xmark", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity calendar-xmark fa-solid fa-calendar-xmark"},
+      {"cls": "fa-solid fa-clock", "label": "clock", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity clock fa-solid fa-clock"},
+      {"cls": "fa-solid fa-hourglass-half", "label": "hourglass half", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity hourglass-half fa-solid fa-hourglass-half"},
+      {"cls": "fa-solid fa-stopwatch", "label": "stopwatch", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity stopwatch fa-solid fa-stopwatch"},
+      {"cls": "fa-solid fa-business-time", "label": "business time", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity business-time fa-solid fa-business-time"},
+      {"cls": "fa-solid fa-location-dot", "label": "موقع", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity location-dot fa-solid fa-location-dot"},
+      {"cls": "fa-solid fa-location-arrow", "label": "location arrow", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity location-arrow fa-solid fa-location-arrow"},
+      {"cls": "fa-solid fa-map", "label": "map", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity map fa-solid fa-map"},
+      {"cls": "fa-solid fa-map-location-dot", "label": "map location dot", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity map-location-dot fa-solid fa-map-location-dot"},
+      {"cls": "fa-solid fa-map-pin", "label": "map pin", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity map-pin fa-solid fa-map-pin"},
+      {"cls": "fa-solid fa-route", "label": "route", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity route fa-solid fa-route"},
+      {"cls": "fa-solid fa-signs-post", "label": "signs post", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity signs-post fa-solid fa-signs-post"},
+      {"cls": "fa-solid fa-bus", "label": "رحلة", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity bus fa-solid fa-bus"},
+      {"cls": "fa-solid fa-bus-simple", "label": "bus simple", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity bus-simple fa-solid fa-bus-simple"},
+      {"cls": "fa-solid fa-car", "label": "car", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity car fa-solid fa-car"},
+      {"cls": "fa-solid fa-van-shuttle", "label": "van shuttle", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity van-shuttle fa-solid fa-van-shuttle"},
+      {"cls": "fa-solid fa-plane", "label": "plane", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity plane fa-solid fa-plane"},
+      {"cls": "fa-solid fa-train", "label": "train", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity train fa-solid fa-train"},
+      {"cls": "fa-solid fa-person-walking", "label": "person walking", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity person-walking fa-solid fa-person-walking"},
+      {"cls": "fa-solid fa-person-hiking", "label": "person hiking", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity person-hiking fa-solid fa-person-hiking"},
+      {"cls": "fa-solid fa-people-group", "label": "فريق", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity people-group fa-solid fa-people-group"},
+      {"cls": "fa-solid fa-users", "label": "طلاب/مجموعة", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity users fa-solid fa-users"},
+      {"cls": "fa-solid fa-user-group", "label": "user group", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity user-group fa-solid fa-user-group"},
+      {"cls": "fa-solid fa-handshake", "label": "handshake", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity handshake fa-solid fa-handshake"},
+      {"cls": "fa-solid fa-ticket", "label": "ticket", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity ticket fa-solid fa-ticket"},
+      {"cls": "fa-solid fa-ticket-simple", "label": "ticket simple", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity ticket-simple fa-solid fa-ticket-simple"},
+      {"cls": "fa-solid fa-door-open", "label": "door open", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity door-open fa-solid fa-door-open"},
+      {"cls": "fa-solid fa-person-chalkboard", "label": "person chalkboard", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity person-chalkboard fa-solid fa-person-chalkboard"},
+      {"cls": "fa-solid fa-champagne-glasses", "label": "champagne glasses", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity champagne-glasses fa-solid fa-champagne-glasses"},
+      {"cls": "fa-solid fa-gift", "label": "gift", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity gift fa-solid fa-gift"},
+      {"cls": "fa-solid fa-cake-candles", "label": "cake candles", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity cake-candles fa-solid fa-cake-candles"},
+      {"cls": "fa-solid fa-flag", "label": "flag", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity flag fa-solid fa-flag"},
+      {"cls": "fa-solid fa-flag-checkered", "label": "flag checkered", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity flag-checkered fa-solid fa-flag-checkered"},
+      {"cls": "fa-solid fa-star", "label": "نجمة", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity star fa-solid fa-star"},
+      {"cls": "fa-solid fa-fire", "label": "fire", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity fire fa-solid fa-fire"},
+      {"cls": "fa-solid fa-heart", "label": "heart", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity heart fa-solid fa-heart"},
+      {"cls": "fa-solid fa-thumbs-up", "label": "thumbs up", "keys": "فعاليات ومواعيد فعاليات مواعيد وقت تقويم رحلة نشاط اجتماع ندوة حضور events calendar time trip meeting activity thumbs-up fa-solid fa-thumbs-up"},
+      {"cls": "fa-solid fa-gauge-high", "label": "gauge high", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management gauge-high fa-solid fa-gauge-high"},
+      {"cls": "fa-solid fa-table-list", "label": "table list", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management table-list fa-solid fa-table-list"},
+      {"cls": "fa-solid fa-list", "label": "list", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management list fa-solid fa-list"},
+      {"cls": "fa-solid fa-list-ul", "label": "list ul", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management list-ul fa-solid fa-list-ul"},
+      {"cls": "fa-solid fa-bars", "label": "bars", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management bars fa-solid fa-bars"},
+      {"cls": "fa-solid fa-sliders", "label": "sliders", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management sliders fa-solid fa-sliders"},
+      {"cls": "fa-solid fa-gear", "label": "gear", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management gear fa-solid fa-gear"},
+      {"cls": "fa-solid fa-gears", "label": "gears", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management gears fa-solid fa-gears"},
+      {"cls": "fa-solid fa-screwdriver-wrench", "label": "screwdriver wrench", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management screwdriver-wrench fa-solid fa-screwdriver-wrench"},
+      {"cls": "fa-solid fa-wrench", "label": "wrench", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management wrench fa-solid fa-wrench"},
+      {"cls": "fa-solid fa-toolbox", "label": "toolbox", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management toolbox fa-solid fa-toolbox"},
+      {"cls": "fa-solid fa-user-shield", "label": "user shield", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management user-shield fa-solid fa-user-shield"},
+      {"cls": "fa-solid fa-shield-halved", "label": "shield halved", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management shield-halved fa-solid fa-shield-halved"},
+      {"cls": "fa-solid fa-lock", "label": "lock", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management lock fa-solid fa-lock"},
+      {"cls": "fa-solid fa-lock-open", "label": "lock open", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management lock-open fa-solid fa-lock-open"},
+      {"cls": "fa-solid fa-key", "label": "key", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management key fa-solid fa-key"},
+      {"cls": "fa-solid fa-id-card", "label": "id card", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management id-card fa-solid fa-id-card"},
+      {"cls": "fa-solid fa-id-card-clip", "label": "id card clip", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management id-card-clip fa-solid fa-id-card-clip"},
+      {"cls": "fa-solid fa-address-card", "label": "address card", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management address-card fa-solid fa-address-card"},
+      {"cls": "fa-solid fa-address-book", "label": "address book", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management address-book fa-solid fa-address-book"},
+      {"cls": "fa-solid fa-user-tie", "label": "user tie", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management user-tie fa-solid fa-user-tie"},
+      {"cls": "fa-solid fa-user-gear", "label": "user gear", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management user-gear fa-solid fa-user-gear"},
+      {"cls": "fa-solid fa-user-check", "label": "user check", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management user-check fa-solid fa-user-check"},
+      {"cls": "fa-solid fa-user-plus", "label": "user plus", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management user-plus fa-solid fa-user-plus"},
+      {"cls": "fa-solid fa-user-pen", "label": "user pen", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management user-pen fa-solid fa-user-pen"},
+      {"cls": "fa-solid fa-users-gear", "label": "users gear", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management users-gear fa-solid fa-users-gear"},
+      {"cls": "fa-solid fa-users-line", "label": "users line", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management users-line fa-solid fa-users-line"},
+      {"cls": "fa-solid fa-people-roof", "label": "people roof", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management people-roof fa-solid fa-people-roof"},
+      {"cls": "fa-solid fa-people-arrows", "label": "people arrows", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management people-arrows fa-solid fa-people-arrows"},
+      {"cls": "fa-solid fa-user-large", "label": "user large", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management user-large fa-solid fa-user-large"},
+      {"cls": "fa-solid fa-user", "label": "user", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management user fa-solid fa-user"},
+      {"cls": "fa-solid fa-circle-user", "label": "circle user", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management circle-user fa-solid fa-circle-user"},
+      {"cls": "fa-solid fa-briefcase", "label": "briefcase", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management briefcase fa-solid fa-briefcase"},
+      {"cls": "fa-solid fa-briefcase-medical", "label": "briefcase medical", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management briefcase-medical fa-solid fa-briefcase-medical"},
+      {"cls": "fa-solid fa-clipboard-user", "label": "clipboard user", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management clipboard-user fa-solid fa-clipboard-user"},
+      {"cls": "fa-solid fa-clipboard-question", "label": "clipboard question", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management clipboard-question fa-solid fa-clipboard-question"},
+      {"cls": "fa-solid fa-clipboard", "label": "clipboard", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management clipboard fa-solid fa-clipboard"},
+      {"cls": "fa-solid fa-table", "label": "table", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management table fa-solid fa-table"},
+      {"cls": "fa-solid fa-filter", "label": "filter", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management filter fa-solid fa-filter"},
+      {"cls": "fa-solid fa-magnifying-glass", "label": "magnifying glass", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management magnifying-glass fa-solid fa-magnifying-glass"},
+      {"cls": "fa-solid fa-rotate", "label": "rotate", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management rotate fa-solid fa-rotate"},
+      {"cls": "fa-solid fa-floppy-disk", "label": "floppy disk", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management floppy-disk fa-solid fa-floppy-disk"},
+      {"cls": "fa-solid fa-pen-to-square", "label": "pen to square", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management pen-to-square fa-solid fa-pen-to-square"},
+      {"cls": "fa-solid fa-trash", "label": "trash", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management trash fa-solid fa-trash"},
+      {"cls": "fa-solid fa-trash-can", "label": "trash can", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management trash-can fa-solid fa-trash-can"},
+      {"cls": "fa-solid fa-plus", "label": "plus", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management plus fa-solid fa-plus"},
+      {"cls": "fa-solid fa-minus", "label": "minus", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management minus fa-solid fa-minus"},
+      {"cls": "fa-solid fa-xmark", "label": "xmark", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management xmark fa-solid fa-xmark"},
+      {"cls": "fa-solid fa-check", "label": "check", "keys": "لجان وإدارة لجان إدارة تنظيم فريق عضو صلاحيات dashboard admin committee organization management check fa-solid fa-check"},
+      {"cls": "fa-solid fa-headset", "label": "دعم/شكاوى", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion headset fa-solid fa-headset"},
+      {"cls": "fa-solid fa-life-ring", "label": "life ring", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion life-ring fa-solid fa-life-ring"},
+      {"cls": "fa-solid fa-circle-question", "label": "circle question", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion circle-question fa-solid fa-circle-question"},
+      {"cls": "fa-solid fa-question", "label": "question", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion question fa-solid fa-question"},
+      {"cls": "fa-solid fa-circle-info", "label": "circle info", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion circle-info fa-solid fa-circle-info"},
+      {"cls": "fa-solid fa-info", "label": "info", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion info fa-solid fa-info"},
+      {"cls": "fa-solid fa-triangle-exclamation", "label": "triangle exclamation", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion triangle-exclamation fa-solid fa-triangle-exclamation"},
+      {"cls": "fa-solid fa-circle-exclamation", "label": "circle exclamation", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion circle-exclamation fa-solid fa-circle-exclamation"},
+      {"cls": "fa-solid fa-bug", "label": "bug", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion bug fa-solid fa-bug"},
+      {"cls": "fa-solid fa-bug-slash", "label": "bug slash", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion bug-slash fa-solid fa-bug-slash"},
+      {"cls": "fa-solid fa-comment", "label": "comment", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion comment fa-solid fa-comment"},
+      {"cls": "fa-solid fa-comment-medical", "label": "comment medical", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion comment-medical fa-solid fa-comment-medical"},
+      {"cls": "fa-solid fa-comment-slash", "label": "comment slash", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion comment-slash fa-solid fa-comment-slash"},
+      {"cls": "fa-solid fa-envelope-circle-check", "label": "envelope circle check", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion envelope-circle-check fa-solid fa-envelope-circle-check"},
+      {"cls": "fa-solid fa-envelope-open", "label": "envelope open", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion envelope-open fa-solid fa-envelope-open"},
+      {"cls": "fa-solid fa-reply", "label": "reply", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion reply fa-solid fa-reply"},
+      {"cls": "fa-solid fa-reply-all", "label": "reply all", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion reply-all fa-solid fa-reply-all"},
+      {"cls": "fa-solid fa-phone", "label": "phone", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion phone fa-solid fa-phone"},
+      {"cls": "fa-solid fa-phone-volume", "label": "phone volume", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion phone-volume fa-solid fa-phone-volume"},
+      {"cls": "fa-solid fa-mobile-screen", "label": "mobile screen", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion mobile-screen fa-solid fa-mobile-screen"},
+      {"cls": "fa-solid fa-mobile-screen-button", "label": "mobile screen button", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion mobile-screen-button fa-solid fa-mobile-screen-button"},
+      {"cls": "fa-solid fa-square-phone", "label": "square phone", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion square-phone fa-solid fa-square-phone"},
+      {"cls": "fa-solid fa-tty", "label": "tty", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion tty fa-solid fa-tty"},
+      {"cls": "fa-solid fa-hand-holding-heart", "label": "hand holding heart", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion hand-holding-heart fa-solid fa-hand-holding-heart"},
+      {"cls": "fa-solid fa-hands-holding", "label": "hands holding", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion hands-holding fa-solid fa-hands-holding"},
+      {"cls": "fa-solid fa-handshake-angle", "label": "handshake angle", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion handshake-angle fa-solid fa-handshake-angle"},
+      {"cls": "fa-solid fa-face-smile", "label": "face smile", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion face-smile fa-solid fa-face-smile"},
+      {"cls": "fa-solid fa-face-frown", "label": "face frown", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion face-frown fa-solid fa-face-frown"},
+      {"cls": "fa-solid fa-face-meh", "label": "face meh", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion face-meh fa-solid fa-face-meh"},
+      {"cls": "fa-solid fa-face-surprise", "label": "face surprise", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion face-surprise fa-solid fa-face-surprise"},
+      {"cls": "fa-solid fa-face-angry", "label": "face angry", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion face-angry fa-solid fa-face-angry"},
+      {"cls": "fa-solid fa-scale-balanced", "label": "scale balanced", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion scale-balanced fa-solid fa-scale-balanced"},
+      {"cls": "fa-solid fa-gavel", "label": "gavel", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion gavel fa-solid fa-gavel"},
+      {"cls": "fa-solid fa-shield-heart", "label": "shield heart", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion shield-heart fa-solid fa-shield-heart"},
+      {"cls": "fa-solid fa-person-circle-question", "label": "person circle question", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion person-circle-question fa-solid fa-person-circle-question"},
+      {"cls": "fa-solid fa-person-circle-check", "label": "person circle check", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion person-circle-check fa-solid fa-person-circle-check"},
+      {"cls": "fa-solid fa-person-circle-exclamation", "label": "person circle exclamation", "keys": "شكاوى ودعم شكاوى دعم مشاكل اقتراح سؤال حل تواصل support issues complaint help problem suggestion person-circle-exclamation fa-solid fa-person-circle-exclamation"},
+      {"cls": "fa-solid fa-code", "label": "كود", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database code fa-solid fa-code"},
+      {"cls": "fa-solid fa-terminal", "label": "terminal", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database terminal fa-solid fa-terminal"},
+      {"cls": "fa-solid fa-laptop", "label": "laptop", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database laptop fa-solid fa-laptop"},
+      {"cls": "fa-solid fa-server", "label": "server", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database server fa-solid fa-server"},
+      {"cls": "fa-solid fa-database", "label": "قاعدة بيانات", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database database fa-solid fa-database"},
+      {"cls": "fa-solid fa-cloud", "label": "cloud", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database cloud fa-solid fa-cloud"},
+      {"cls": "fa-solid fa-cloud-arrow-up", "label": "cloud arrow up", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database cloud-arrow-up fa-solid fa-cloud-arrow-up"},
+      {"cls": "fa-solid fa-cloud-arrow-down", "label": "cloud arrow down", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database cloud-arrow-down fa-solid fa-cloud-arrow-down"},
+      {"cls": "fa-solid fa-upload", "label": "upload", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database upload fa-solid fa-upload"},
+      {"cls": "fa-solid fa-download", "label": "download", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database download fa-solid fa-download"},
+      {"cls": "fa-solid fa-file-arrow-up", "label": "file arrow up", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database file-arrow-up fa-solid fa-file-arrow-up"},
+      {"cls": "fa-solid fa-file-arrow-down", "label": "file arrow down", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database file-arrow-down fa-solid fa-file-arrow-down"},
+      {"cls": "fa-solid fa-hard-drive", "label": "hard drive", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database hard-drive fa-solid fa-hard-drive"},
+      {"cls": "fa-solid fa-microchip", "label": "microchip", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database microchip fa-solid fa-microchip"},
+      {"cls": "fa-solid fa-memory", "label": "memory", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database memory fa-solid fa-memory"},
+      {"cls": "fa-solid fa-signal", "label": "signal", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database signal fa-solid fa-signal"},
+      {"cls": "fa-solid fa-window-maximize", "label": "window maximize", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database window-maximize fa-solid fa-window-maximize"},
+      {"cls": "fa-solid fa-window-restore", "label": "window restore", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database window-restore fa-solid fa-window-restore"},
+      {"cls": "fa-solid fa-display", "label": "display", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database display fa-solid fa-display"},
+      {"cls": "fa-solid fa-tablet-screen-button", "label": "tablet screen button", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database tablet-screen-button fa-solid fa-tablet-screen-button"},
+      {"cls": "fa-solid fa-mobile", "label": "mobile", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database mobile fa-solid fa-mobile"},
+      {"cls": "fa-solid fa-qrcode", "label": "qrcode", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database qrcode fa-solid fa-qrcode"},
+      {"cls": "fa-solid fa-barcode", "label": "barcode", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database barcode fa-solid fa-barcode"},
+      {"cls": "fa-solid fa-fingerprint", "label": "fingerprint", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database fingerprint fa-solid fa-fingerprint"},
+      {"cls": "fa-solid fa-robot", "label": "robot", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database robot fa-solid fa-robot"},
+      {"cls": "fa-solid fa-plug", "label": "plug", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database plug fa-solid fa-plug"},
+      {"cls": "fa-solid fa-plug-circle-bolt", "label": "plug circle bolt", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database plug-circle-bolt fa-solid fa-plug-circle-bolt"},
+      {"cls": "fa-solid fa-power-off", "label": "power off", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database power-off fa-solid fa-power-off"},
+      {"cls": "fa-solid fa-battery-full", "label": "battery full", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database battery-full fa-solid fa-battery-full"},
+      {"cls": "fa-solid fa-battery-half", "label": "battery half", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database battery-half fa-solid fa-battery-half"},
+      {"cls": "fa-solid fa-gamepad", "label": "gamepad", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database gamepad fa-solid fa-gamepad"},
+      {"cls": "fa-solid fa-mouse", "label": "mouse", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database mouse fa-solid fa-mouse"},
+      {"cls": "fa-solid fa-computer-mouse", "label": "computer mouse", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database computer-mouse fa-solid fa-computer-mouse"},
+      {"cls": "fa-solid fa-print", "label": "print", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database print fa-solid fa-print"},
+      {"cls": "fa-solid fa-file-code", "label": "file code", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database file-code fa-solid fa-file-code"},
+      {"cls": "fa-solid fa-file-csv", "label": "file csv", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database file-csv fa-solid fa-file-csv"},
+      {"cls": "fa-solid fa-file-excel", "label": "file excel", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database file-excel fa-solid fa-file-excel"},
+      {"cls": "fa-solid fa-file-pdf", "label": "file pdf", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database file-pdf fa-solid fa-file-pdf"},
+      {"cls": "fa-solid fa-file-word", "label": "file word", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database file-word fa-solid fa-file-word"},
+      {"cls": "fa-solid fa-file-powerpoint", "label": "file powerpoint", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database file-powerpoint fa-solid fa-file-powerpoint"},
+      {"cls": "fa-solid fa-file-zipper", "label": "file zipper", "keys": "تقنية وموقع موقع تقنية كود برمجة شبكة قاعدة بيانات api dashboard tech code website database file-zipper fa-solid fa-file-zipper"},
+      {"cls": "fa-solid fa-microscope", "label": "مجهر", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health microscope fa-solid fa-microscope"},
+      {"cls": "fa-solid fa-flask", "label": "مختبر", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health flask fa-solid fa-flask"},
+      {"cls": "fa-solid fa-vial", "label": "vial", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health vial fa-solid fa-vial"},
+      {"cls": "fa-solid fa-vials", "label": "vials", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health vials fa-solid fa-vials"},
+      {"cls": "fa-solid fa-dna", "label": "dna", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health dna fa-solid fa-dna"},
+      {"cls": "fa-solid fa-atom", "label": "atom", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health atom fa-solid fa-atom"},
+      {"cls": "fa-solid fa-magnet", "label": "magnet", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health magnet fa-solid fa-magnet"},
+      {"cls": "fa-solid fa-eye-dropper", "label": "eye dropper", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health eye-dropper fa-solid fa-eye-dropper"},
+      {"cls": "fa-solid fa-droplet", "label": "droplet", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health droplet fa-solid fa-droplet"},
+      {"cls": "fa-solid fa-droplet-slash", "label": "droplet slash", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health droplet-slash fa-solid fa-droplet-slash"},
+      {"cls": "fa-solid fa-stethoscope", "label": "stethoscope", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health stethoscope fa-solid fa-stethoscope"},
+      {"cls": "fa-solid fa-user-doctor", "label": "user doctor", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health user-doctor fa-solid fa-user-doctor"},
+      {"cls": "fa-solid fa-hospital", "label": "hospital", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health hospital fa-solid fa-hospital"},
+      {"cls": "fa-solid fa-hospital-user", "label": "hospital user", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health hospital-user fa-solid fa-hospital-user"},
+      {"cls": "fa-solid fa-notes-medical", "label": "notes medical", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health notes-medical fa-solid fa-notes-medical"},
+      {"cls": "fa-solid fa-kit-medical", "label": "kit medical", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health kit-medical fa-solid fa-kit-medical"},
+      {"cls": "fa-solid fa-suitcase-medical", "label": "suitcase medical", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health suitcase-medical fa-solid fa-suitcase-medical"},
+      {"cls": "fa-solid fa-pills", "label": "pills", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health pills fa-solid fa-pills"},
+      {"cls": "fa-solid fa-capsules", "label": "capsules", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health capsules fa-solid fa-capsules"},
+      {"cls": "fa-solid fa-syringe", "label": "syringe", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health syringe fa-solid fa-syringe"},
+      {"cls": "fa-solid fa-virus", "label": "virus", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health virus fa-solid fa-virus"},
+      {"cls": "fa-solid fa-bacteria", "label": "bacteria", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health bacteria fa-solid fa-bacteria"},
+      {"cls": "fa-solid fa-heart-pulse", "label": "heart pulse", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health heart-pulse fa-solid fa-heart-pulse"},
+      {"cls": "fa-solid fa-lungs", "label": "lungs", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health lungs fa-solid fa-lungs"},
+      {"cls": "fa-solid fa-tooth", "label": "tooth", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health tooth fa-solid fa-tooth"},
+      {"cls": "fa-solid fa-bone", "label": "bone", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health bone fa-solid fa-bone"},
+      {"cls": "fa-solid fa-x-ray", "label": "x ray", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health x-ray fa-solid fa-x-ray"},
+      {"cls": "fa-solid fa-weight-scale", "label": "weight scale", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health weight-scale fa-solid fa-weight-scale"},
+      {"cls": "fa-solid fa-thermometer", "label": "thermometer", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health thermometer fa-solid fa-thermometer"},
+      {"cls": "fa-solid fa-bed-pulse", "label": "bed pulse", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health bed-pulse fa-solid fa-bed-pulse"},
+      {"cls": "fa-solid fa-house-medical", "label": "house medical", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health house-medical fa-solid fa-house-medical"},
+      {"cls": "fa-solid fa-truck-medical", "label": "truck medical", "keys": "علوم وطب علوم طب مختبر صحة بحث مجهر كيمياء medicine science lab research health truck-medical fa-solid fa-truck-medical"},
+      {"cls": "fa-solid fa-mosque", "label": "مسجد", "keys": "ديني وقيمي دين قيم حج مسجد كعبة وطن إيمان مسؤولية hajj islam mosque kaaba values mosque fa-solid fa-mosque"},
+      {"cls": "fa-solid fa-kaaba", "label": "الكعبة/الحج", "keys": "ديني وقيمي دين قيم حج مسجد كعبة وطن إيمان مسؤولية hajj islam mosque kaaba values kaaba fa-solid fa-kaaba"},
+      {"cls": "fa-solid fa-hands-praying", "label": "hands praying", "keys": "ديني وقيمي دين قيم حج مسجد كعبة وطن إيمان مسؤولية hajj islam mosque kaaba values hands-praying fa-solid fa-hands-praying"},
+      {"cls": "fa-solid fa-praying-hands", "label": "praying hands", "keys": "ديني وقيمي دين قيم حج مسجد كعبة وطن إيمان مسؤولية hajj islam mosque kaaba values praying-hands fa-solid fa-praying-hands"},
+      {"cls": "fa-solid fa-person-praying", "label": "person praying", "keys": "ديني وقيمي دين قيم حج مسجد كعبة وطن إيمان مسؤولية hajj islam mosque kaaba values person-praying fa-solid fa-person-praying"},
+      {"cls": "fa-solid fa-star-and-crescent", "label": "star and crescent", "keys": "ديني وقيمي دين قيم حج مسجد كعبة وطن إيمان مسؤولية hajj islam mosque kaaba values star-and-crescent fa-solid fa-star-and-crescent"},
+      {"cls": "fa-solid fa-moon", "label": "moon", "keys": "ديني وقيمي دين قيم حج مسجد كعبة وطن إيمان مسؤولية hajj islam mosque kaaba values moon fa-solid fa-moon"},
+      {"cls": "fa-solid fa-sun", "label": "sun", "keys": "ديني وقيمي دين قيم حج مسجد كعبة وطن إيمان مسؤولية hajj islam mosque kaaba values sun fa-solid fa-sun"},
+      {"cls": "fa-solid fa-dove", "label": "dove", "keys": "ديني وقيمي دين قيم حج مسجد كعبة وطن إيمان مسؤولية hajj islam mosque kaaba values dove fa-solid fa-dove"},
+      {"cls": "fa-solid fa-seedling", "label": "seedling", "keys": "ديني وقيمي دين قيم حج مسجد كعبة وطن إيمان مسؤولية hajj islam mosque kaaba values seedling fa-solid fa-seedling"},
+      {"cls": "fa-solid fa-tree", "label": "tree", "keys": "ديني وقيمي دين قيم حج مسجد كعبة وطن إيمان مسؤولية hajj islam mosque kaaba values tree fa-solid fa-tree"},
+      {"cls": "fa-solid fa-leaf", "label": "leaf", "keys": "ديني وقيمي دين قيم حج مسجد كعبة وطن إيمان مسؤولية hajj islam mosque kaaba values leaf fa-solid fa-leaf"},
+      {"cls": "fa-solid fa-people-carry-box", "label": "people carry box", "keys": "ديني وقيمي دين قيم حج مسجد كعبة وطن إيمان مسؤولية hajj islam mosque kaaba values people-carry-box fa-solid fa-people-carry-box"},
+      {"cls": "fa-solid fa-hands-holding-child", "label": "hands holding child", "keys": "ديني وقيمي دين قيم حج مسجد كعبة وطن إيمان مسؤولية hajj islam mosque kaaba values hands-holding-child fa-solid fa-hands-holding-child"},
+      {"cls": "fa-solid fa-peace", "label": "peace", "keys": "ديني وقيمي دين قيم حج مسجد كعبة وطن إيمان مسؤولية hajj islam mosque kaaba values peace fa-solid fa-peace"},
+      {"cls": "fa-solid fa-ribbon", "label": "ribbon", "keys": "ديني وقيمي دين قيم حج مسجد كعبة وطن إيمان مسؤولية hajj islam mosque kaaba values ribbon fa-solid fa-ribbon"},
+      {"cls": "fa-solid fa-futbol", "label": "futbol", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment futbol fa-solid fa-futbol"},
+      {"cls": "fa-solid fa-basketball", "label": "basketball", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment basketball fa-solid fa-basketball"},
+      {"cls": "fa-solid fa-volleyball", "label": "volleyball", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment volleyball fa-solid fa-volleyball"},
+      {"cls": "fa-solid fa-table-tennis-paddle-ball", "label": "table tennis paddle ball", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment table-tennis-paddle-ball fa-solid fa-table-tennis-paddle-ball"},
+      {"cls": "fa-solid fa-person-running", "label": "person running", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment person-running fa-solid fa-person-running"},
+      {"cls": "fa-solid fa-person-swimming", "label": "person swimming", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment person-swimming fa-solid fa-person-swimming"},
+      {"cls": "fa-solid fa-dumbbell", "label": "dumbbell", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment dumbbell fa-solid fa-dumbbell"},
+      {"cls": "fa-solid fa-ranking-star", "label": "ranking star", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment ranking-star fa-solid fa-ranking-star"},
+      {"cls": "fa-solid fa-dice", "label": "dice", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment dice fa-solid fa-dice"},
+      {"cls": "fa-solid fa-chess", "label": "chess", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment chess fa-solid fa-chess"},
+      {"cls": "fa-solid fa-chess-king", "label": "chess king", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment chess-king fa-solid fa-chess-king"},
+      {"cls": "fa-solid fa-masks-theater", "label": "masks theater", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment masks-theater fa-solid fa-masks-theater"},
+      {"cls": "fa-solid fa-music", "label": "music", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment music fa-solid fa-music"},
+      {"cls": "fa-solid fa-drum", "label": "drum", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment drum fa-solid fa-drum"},
+      {"cls": "fa-solid fa-guitar", "label": "guitar", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment guitar fa-solid fa-guitar"},
+      {"cls": "fa-solid fa-palette", "label": "palette", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment palette fa-solid fa-palette"},
+      {"cls": "fa-solid fa-paintbrush", "label": "paintbrush", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment paintbrush fa-solid fa-paintbrush"},
+      {"cls": "fa-solid fa-wand-magic-sparkles", "label": "wand magic sparkles", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment wand-magic-sparkles fa-solid fa-wand-magic-sparkles"},
+      {"cls": "fa-solid fa-face-laugh", "label": "face laugh", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment face-laugh fa-solid fa-face-laugh"},
+      {"cls": "fa-solid fa-face-smile-beam", "label": "face smile beam", "keys": "رياضة وترفيه رياضة ترفيه مسابقة لعبة نشاط فوز sports game competition entertainment face-smile-beam fa-solid fa-face-smile-beam"},
+      {"cls": "fa-solid fa-arrow-left", "label": "arrow left", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more arrow-left fa-solid fa-arrow-left"},
+      {"cls": "fa-solid fa-arrow-right", "label": "arrow right", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more arrow-right fa-solid fa-arrow-right"},
+      {"cls": "fa-solid fa-arrow-up", "label": "arrow up", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more arrow-up fa-solid fa-arrow-up"},
+      {"cls": "fa-solid fa-arrow-down", "label": "arrow down", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more arrow-down fa-solid fa-arrow-down"},
+      {"cls": "fa-solid fa-arrow-up-right-from-square", "label": "arrow up right from square", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more arrow-up-right-from-square fa-solid fa-arrow-up-right-from-square"},
+      {"cls": "fa-solid fa-arrow-right-to-bracket", "label": "arrow right to bracket", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more arrow-right-to-bracket fa-solid fa-arrow-right-to-bracket"},
+      {"cls": "fa-solid fa-arrow-right-from-bracket", "label": "arrow right from bracket", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more arrow-right-from-bracket fa-solid fa-arrow-right-from-bracket"},
+      {"cls": "fa-solid fa-chevron-left", "label": "chevron left", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more chevron-left fa-solid fa-chevron-left"},
+      {"cls": "fa-solid fa-chevron-right", "label": "chevron right", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more chevron-right fa-solid fa-chevron-right"},
+      {"cls": "fa-solid fa-chevron-up", "label": "chevron up", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more chevron-up fa-solid fa-chevron-up"},
+      {"cls": "fa-solid fa-chevron-down", "label": "chevron down", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more chevron-down fa-solid fa-chevron-down"},
+      {"cls": "fa-solid fa-angles-left", "label": "angles left", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more angles-left fa-solid fa-angles-left"},
+      {"cls": "fa-solid fa-angles-right", "label": "angles right", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more angles-right fa-solid fa-angles-right"},
+      {"cls": "fa-solid fa-angles-up", "label": "angles up", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more angles-up fa-solid fa-angles-up"},
+      {"cls": "fa-solid fa-angles-down", "label": "angles down", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more angles-down fa-solid fa-angles-down"},
+      {"cls": "fa-solid fa-caret-left", "label": "caret left", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more caret-left fa-solid fa-caret-left"},
+      {"cls": "fa-solid fa-caret-right", "label": "caret right", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more caret-right fa-solid fa-caret-right"},
+      {"cls": "fa-solid fa-caret-up", "label": "caret up", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more caret-up fa-solid fa-caret-up"},
+      {"cls": "fa-solid fa-caret-down", "label": "caret down", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more caret-down fa-solid fa-caret-down"},
+      {"cls": "fa-solid fa-up-right-and-down-left-from-center", "label": "up right and down left from center", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more up-right-and-down-left-from-center fa-solid fa-up-right-and-down-left-from-center"},
+      {"cls": "fa-solid fa-down-left-and-up-right-to-center", "label": "down left and up right to center", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more down-left-and-up-right-to-center fa-solid fa-down-left-and-up-right-to-center"},
+      {"cls": "fa-solid fa-expand", "label": "expand", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more expand fa-solid fa-expand"},
+      {"cls": "fa-solid fa-compress", "label": "compress", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more compress fa-solid fa-compress"},
+      {"cls": "fa-solid fa-maximize", "label": "maximize", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more maximize fa-solid fa-maximize"},
+      {"cls": "fa-solid fa-minimize", "label": "minimize", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more minimize fa-solid fa-minimize"},
+      {"cls": "fa-solid fa-arrows-rotate", "label": "arrows rotate", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more arrows-rotate fa-solid fa-arrows-rotate"},
+      {"cls": "fa-solid fa-rotate-right", "label": "rotate right", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more rotate-right fa-solid fa-rotate-right"},
+      {"cls": "fa-solid fa-rotate-left", "label": "rotate left", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more rotate-left fa-solid fa-rotate-left"},
+      {"cls": "fa-solid fa-repeat", "label": "repeat", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more repeat fa-solid fa-repeat"},
+      {"cls": "fa-solid fa-shuffle", "label": "shuffle", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more shuffle fa-solid fa-shuffle"},
+      {"cls": "fa-solid fa-forward", "label": "forward", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more forward fa-solid fa-forward"},
+      {"cls": "fa-solid fa-backward", "label": "backward", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more backward fa-solid fa-backward"},
+      {"cls": "fa-solid fa-step-forward", "label": "step forward", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more step-forward fa-solid fa-step-forward"},
+      {"cls": "fa-solid fa-step-backward", "label": "step backward", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more step-backward fa-solid fa-step-backward"},
+      {"cls": "fa-solid fa-circle-arrow-left", "label": "circle arrow left", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more circle-arrow-left fa-solid fa-circle-arrow-left"},
+      {"cls": "fa-solid fa-circle-arrow-right", "label": "circle arrow right", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more circle-arrow-right fa-solid fa-circle-arrow-right"},
+      {"cls": "fa-solid fa-square-arrow-up-right", "label": "square arrow up right", "keys": "أسهم وحركة سهم انتقال تنقل عرض المزيد فتح اغلاق move arrows navigation more square-arrow-up-right fa-solid fa-square-arrow-up-right"},
+      {"cls": "fa-solid fa-circle", "label": "circle", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui circle fa-solid fa-circle"},
+      {"cls": "fa-solid fa-circle-dot", "label": "circle dot", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui circle-dot fa-solid fa-circle-dot"},
+      {"cls": "fa-solid fa-square", "label": "square", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui square fa-solid fa-square"},
+      {"cls": "fa-solid fa-diamond", "label": "diamond", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui diamond fa-solid fa-diamond"},
+      {"cls": "fa-solid fa-stop", "label": "stop", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui stop fa-solid fa-stop"},
+      {"cls": "fa-solid fa-pause", "label": "pause", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui pause fa-solid fa-pause"},
+      {"cls": "fa-solid fa-equals", "label": "equals", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui equals fa-solid fa-equals"},
+      {"cls": "fa-solid fa-percent", "label": "percent", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui percent fa-solid fa-percent"},
+      {"cls": "fa-solid fa-hashtag", "label": "hashtag", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui hashtag fa-solid fa-hashtag"},
+      {"cls": "fa-solid fa-at", "label": "at", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui at fa-solid fa-at"},
+      {"cls": "fa-solid fa-asterisk", "label": "asterisk", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui asterisk fa-solid fa-asterisk"},
+      {"cls": "fa-solid fa-circle-plus", "label": "circle plus", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui circle-plus fa-solid fa-circle-plus"},
+      {"cls": "fa-solid fa-circle-minus", "label": "circle minus", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui circle-minus fa-solid fa-circle-minus"},
+      {"cls": "fa-solid fa-circle-xmark", "label": "circle xmark", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui circle-xmark fa-solid fa-circle-xmark"},
+      {"cls": "fa-solid fa-circle-check", "label": "circle check", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui circle-check fa-solid fa-circle-check"},
+      {"cls": "fa-solid fa-square-xmark", "label": "square xmark", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui square-xmark fa-solid fa-square-xmark"},
+      {"cls": "fa-solid fa-toggle-on", "label": "toggle on", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui toggle-on fa-solid fa-toggle-on"},
+      {"cls": "fa-solid fa-toggle-off", "label": "toggle off", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui toggle-off fa-solid fa-toggle-off"},
+      {"cls": "fa-solid fa-tag", "label": "tag", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui tag fa-solid fa-tag"},
+      {"cls": "fa-solid fa-tags", "label": "tags", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui tags fa-solid fa-tags"},
+      {"cls": "fa-solid fa-bookmark", "label": "bookmark", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui bookmark fa-solid fa-bookmark"},
+      {"cls": "fa-solid fa-thumbtack", "label": "thumbtack", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui thumbtack fa-solid fa-thumbtack"},
+      {"cls": "fa-solid fa-location-crosshairs", "label": "location crosshairs", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui location-crosshairs fa-solid fa-location-crosshairs"},
+      {"cls": "fa-solid fa-compass", "label": "compass", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui compass fa-solid fa-compass"},
+      {"cls": "fa-solid fa-eye", "label": "eye", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui eye fa-solid fa-eye"},
+      {"cls": "fa-solid fa-eye-slash", "label": "eye slash", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui eye-slash fa-solid fa-eye-slash"},
+      {"cls": "fa-solid fa-fill-drip", "label": "fill drip", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui fill-drip fa-solid fa-fill-drip"},
+      {"cls": "fa-solid fa-brush", "label": "brush", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui brush fa-solid fa-brush"},
+      {"cls": "fa-solid fa-crop", "label": "crop", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui crop fa-solid fa-crop"},
+      {"cls": "fa-solid fa-crop-simple", "label": "crop simple", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui crop-simple fa-solid fa-crop-simple"},
+      {"cls": "fa-solid fa-object-group", "label": "object group", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui object-group fa-solid fa-object-group"},
+      {"cls": "fa-solid fa-object-ungroup", "label": "object ungroup", "keys": "أشكال ورموز اشكال رموز علامات ألوان shapes symbols ui object-ungroup fa-solid fa-object-ungroup"},
+      {"cls": "fa-solid fa-money-bill", "label": "money bill", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service money-bill fa-solid fa-money-bill"},
+      {"cls": "fa-solid fa-money-bill-wave", "label": "money bill wave", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service money-bill-wave fa-solid fa-money-bill-wave"},
+      {"cls": "fa-solid fa-coins", "label": "coins", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service coins fa-solid fa-coins"},
+      {"cls": "fa-solid fa-wallet", "label": "wallet", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service wallet fa-solid fa-wallet"},
+      {"cls": "fa-solid fa-credit-card", "label": "credit card", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service credit-card fa-solid fa-credit-card"},
+      {"cls": "fa-solid fa-receipt", "label": "receipt", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service receipt fa-solid fa-receipt"},
+      {"cls": "fa-solid fa-cash-register", "label": "cash register", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service cash-register fa-solid fa-cash-register"},
+      {"cls": "fa-solid fa-hand-holding-dollar", "label": "hand holding dollar", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service hand-holding-dollar fa-solid fa-hand-holding-dollar"},
+      {"cls": "fa-solid fa-sack-dollar", "label": "sack dollar", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service sack-dollar fa-solid fa-sack-dollar"},
+      {"cls": "fa-solid fa-chart-line", "label": "chart line", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service chart-line fa-solid fa-chart-line"},
+      {"cls": "fa-solid fa-chart-simple", "label": "chart simple", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service chart-simple fa-solid fa-chart-simple"},
+      {"cls": "fa-solid fa-chart-pie", "label": "chart pie", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service chart-pie fa-solid fa-chart-pie"},
+      {"cls": "fa-solid fa-chart-column", "label": "chart column", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service chart-column fa-solid fa-chart-column"},
+      {"cls": "fa-solid fa-store", "label": "store", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service store fa-solid fa-store"},
+      {"cls": "fa-solid fa-cart-shopping", "label": "cart shopping", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service cart-shopping fa-solid fa-cart-shopping"},
+      {"cls": "fa-solid fa-basket-shopping", "label": "basket shopping", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service basket-shopping fa-solid fa-basket-shopping"},
+      {"cls": "fa-solid fa-box", "label": "box", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service box fa-solid fa-box"},
+      {"cls": "fa-solid fa-box-open", "label": "box open", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service box-open fa-solid fa-box-open"},
+      {"cls": "fa-solid fa-truck", "label": "truck", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service truck fa-solid fa-truck"},
+      {"cls": "fa-solid fa-truck-fast", "label": "truck fast", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service truck-fast fa-solid fa-truck-fast"},
+      {"cls": "fa-solid fa-warehouse", "label": "warehouse", "keys": "مال وخدمات مال رسوم دفع تبرع خدمات money payment service warehouse fa-solid fa-warehouse"},
+      {"cls": "fa-brands fa-telegram", "label": "تلجرام", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links telegram fa-brands fa-telegram"},
+      {"cls": "fa-brands fa-facebook", "label": "فيسبوك", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links facebook fa-brands fa-facebook"},
+      {"cls": "fa-brands fa-facebook-f", "label": "facebook f", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links facebook-f fa-brands fa-facebook-f"},
+      {"cls": "fa-brands fa-whatsapp", "label": "واتساب", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links whatsapp fa-brands fa-whatsapp"},
+      {"cls": "fa-brands fa-x-twitter", "label": "x twitter", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links x-twitter fa-brands fa-x-twitter"},
+      {"cls": "fa-brands fa-twitter", "label": "twitter", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links twitter fa-brands fa-twitter"},
+      {"cls": "fa-brands fa-youtube", "label": "youtube", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links youtube fa-brands fa-youtube"},
+      {"cls": "fa-brands fa-instagram", "label": "instagram", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links instagram fa-brands fa-instagram"},
+      {"cls": "fa-brands fa-linkedin", "label": "linkedin", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links linkedin fa-brands fa-linkedin"},
+      {"cls": "fa-brands fa-linkedin-in", "label": "linkedin in", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links linkedin-in fa-brands fa-linkedin-in"},
+      {"cls": "fa-brands fa-tiktok", "label": "tiktok", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links tiktok fa-brands fa-tiktok"},
+      {"cls": "fa-brands fa-snapchat", "label": "snapchat", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links snapchat fa-brands fa-snapchat"},
+      {"cls": "fa-brands fa-google", "label": "google", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links google fa-brands fa-google"},
+      {"cls": "fa-brands fa-google-drive", "label": "google drive", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links google-drive fa-brands fa-google-drive"},
+      {"cls": "fa-brands fa-github", "label": "github", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links github fa-brands fa-github"},
+      {"cls": "fa-brands fa-gitlab", "label": "gitlab", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links gitlab fa-brands fa-gitlab"},
+      {"cls": "fa-brands fa-discord", "label": "discord", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links discord fa-brands fa-discord"},
+      {"cls": "fa-brands fa-slack", "label": "slack", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links slack fa-brands fa-slack"},
+      {"cls": "fa-brands fa-wordpress", "label": "wordpress", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links wordpress fa-brands fa-wordpress"},
+      {"cls": "fa-brands fa-wikipedia-w", "label": "wikipedia w", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links wikipedia-w fa-brands fa-wikipedia-w"},
+      {"cls": "fa-brands fa-android", "label": "android", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links android fa-brands fa-android"},
+      {"cls": "fa-brands fa-apple", "label": "apple", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links apple fa-brands fa-apple"},
+      {"cls": "fa-brands fa-windows", "label": "windows", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links windows fa-brands fa-windows"},
+      {"cls": "fa-brands fa-microsoft", "label": "microsoft", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links microsoft fa-brands fa-microsoft"},
+      {"cls": "fa-brands fa-chrome", "label": "chrome", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links chrome fa-brands fa-chrome"},
+      {"cls": "fa-brands fa-edge", "label": "edge", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links edge fa-brands fa-edge"},
+      {"cls": "fa-brands fa-firefox", "label": "firefox", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links firefox fa-brands fa-firefox"},
+      {"cls": "fa-brands fa-safari", "label": "safari", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links safari fa-brands fa-safari"},
+      {"cls": "fa-brands fa-behance", "label": "behance", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links behance fa-brands fa-behance"},
+      {"cls": "fa-brands fa-dribbble", "label": "dribbble", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links dribbble fa-brands fa-dribbble"},
+      {"cls": "fa-brands fa-figma", "label": "figma", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links figma fa-brands fa-figma"},
+      {"cls": "fa-brands fa-dropbox", "label": "dropbox", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links dropbox fa-brands fa-dropbox"},
+      {"cls": "fa-brands fa-stack-overflow", "label": "stack overflow", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links stack-overflow fa-brands fa-stack-overflow"},
+      {"cls": "fa-brands fa-js", "label": "js", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links js fa-brands fa-js"},
+      {"cls": "fa-brands fa-html5", "label": "html5", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links html5 fa-brands fa-html5"},
+      {"cls": "fa-brands fa-css3-alt", "label": "css3 alt", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links css3-alt fa-brands fa-css3-alt"},
+      {"cls": "fa-brands fa-python", "label": "python", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links python fa-brands fa-python"},
+      {"cls": "fa-brands fa-php", "label": "php", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links php fa-brands fa-php"},
+      {"cls": "fa-brands fa-laravel", "label": "laravel", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links laravel fa-brands fa-laravel"},
+      {"cls": "fa-brands fa-react", "label": "react", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links react fa-brands fa-react"},
+      {"cls": "fa-brands fa-vuejs", "label": "vuejs", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links vuejs fa-brands fa-vuejs"},
+      {"cls": "fa-brands fa-bootstrap", "label": "bootstrap", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links bootstrap fa-brands fa-bootstrap"},
+      {"cls": "fa-brands fa-npm", "label": "npm", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links npm fa-brands fa-npm"},
+      {"cls": "fa-brands fa-node-js", "label": "node js", "keys": "علامات تجارية وروابط تلجرام فيسبوك واتساب اكس يوتيوب انستغرام brands social links node-js fa-brands fa-node-js"}
+    ];
+
+    function normalizeIconClass(value){
+      const v=String(value||"").trim();
+      if(!v)return "fa-solid fa-circle-dot";
+      if(v.includes("fa-solid")||v.includes("fa-regular")||v.includes("fa-brands"))return v;
+      if(v.startsWith("fa-"))return "fa-solid "+v;
+      return v;
+    }
+
+    function renderIconPickerField(field){
+      const grid=COMMON_ICONS.map(icon=>`
+        <button class="icon-option" type="button" data-icon="${safe(icon.cls)}" data-search="${safe(icon.label+" "+icon.cls+" "+icon.keys)}">
+          <i class="${safe(icon.cls)}"></i>
+          <span>${safe(icon.label)}</span>
+        </button>
+      `).join("");
+      return `
+        <div class="field full">
+          <label>${field.label}</label>
+          <div class="icon-picker" data-icon-picker data-field="${field.name}">
+            <div class="icon-input-row">
+              <div class="icon-preview"><i class="${safe(normalizeIconClass(field.placeholder||"fa-solid fa-circle-dot"))}"></i></div>
+              <input type="text" name="${field.name}" placeholder="${safe(field.placeholder||"fa-solid fa-bullhorn")}" ${field.required?"required":""} />
+              <button class="btn btn-soft icon-picker-btn" type="button"><i class="fa-solid fa-icons"></i> اختيار أيقونة</button>
+            </div>
+            <div class="icon-picker-panel">
+              <div class="icon-search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" class="icon-search-input" placeholder="ابحث بالعربي أو الإنجليزي: مدرسة، كتاب، قلم، خبر، مايك، حج، تلجرام..." />
+              </div>
+              <div class="icon-grid">${grid}</div>
+              <div class="icon-manual-note">القائمة تحتوي على 474 أيقونة مفيدة للموقع. اختر من القائمة أو اكتب يدويًا مثل: fa-solid fa-video</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function updateIconPreview(picker){
+      const field=picker.dataset.field||"icon";
+      const input=picker.querySelector(`[name="${field}"]`);
+      const preview=picker.querySelector(".icon-preview");
+      if(!input||!preview)return;
+      const normalized=normalizeIconClass(input.value||input.placeholder||"fa-solid fa-circle-dot");
+      preview.innerHTML=`<i class="${safe(normalized)}"></i>`;
+      picker.querySelectorAll(".icon-option").forEach(btn=>btn.classList.toggle("active",btn.dataset.icon===normalized));
+    }
+
+    function closeIconPickers(except){
+      document.querySelectorAll("[data-icon-picker]").forEach(picker=>{if(picker!==except)picker.classList.remove("open")});
+    }
+
+    function bindIconPickers(){
+      document.querySelectorAll("[data-icon-picker]").forEach(picker=>{
+        const field=picker.dataset.field||"icon";
+        const input=picker.querySelector(`[name="${field}"]`);
+        const btn=picker.querySelector(".icon-picker-btn");
+        const search=picker.querySelector(".icon-search-input");
+        const options=[...picker.querySelectorAll(".icon-option")];
+        if(btn)btn.onclick=e=>{e.stopPropagation();const willOpen=!picker.classList.contains("open");closeIconPickers(picker);picker.classList.toggle("open",willOpen);if(willOpen&&search)setTimeout(()=>search.focus(),80);};
+        if(input){input.oninput=()=>updateIconPreview(picker);input.onfocus=()=>updateIconPreview(picker);}
+        if(search)search.oninput=()=>{const q=search.value.trim().toLowerCase();options.forEach(option=>{option.style.display=(!q||option.dataset.search.toLowerCase().includes(q))?"grid":"none";});};
+        options.forEach(option=>{option.onclick=e=>{e.stopPropagation();if(input){input.value=option.dataset.icon;input.dispatchEvent(new Event("input",{bubbles:true}));}picker.classList.remove("open");};});
+        updateIconPreview(picker);
+      });
+    }
+
+    document.addEventListener("click",e=>{if(!e.target.closest("[data-icon-picker]"))closeIconPickers();});
 
     function showToast(message){toast.innerHTML=`<i class="fa-solid fa-circle-check"></i> ${message}`;toast.classList.add("show");setTimeout(()=>toast.classList.remove("show"),2800)}
     function safe(value){if(value===null||value===undefined)return "";return String(value).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
     function cleanFilename(name){return String(name).replace(/[\\/:*?"<>|]/g,"-").replace(/\s+/g,"_")}
     function assertClient(){if(!db){showToast("ضع SUPABASE_URL و SUPABASE_ANON_KEY داخل الملف");return false}return true}
-    function getColumns(){const config=TABLES[currentTable];return ["id",...config.fields.map(f=>f.name),"created_at"].filter((v,i,a)=>a.indexOf(v)===i)}
-    function getLabel(row){const field=TABLES[currentTable].labelField||"title";return row[field]||row.name||row.title||row.id}
+    function isSuperAdmin(){return !!(currentAdminProfile&&currentAdminProfile.is_super_admin===true)}
+    function permissionTables(){return Object.keys(TABLES).filter(k=>k!=="admin_users")}
+    function parseAllowedTables(value){if(!value)return[];if(value==="*")return permissionTables();return String(value).split(",").map(x=>x.trim()).filter(Boolean)}
+    function visibleTableKeys(){if(isSuperAdmin())return Object.keys(TABLES);const allowed=parseAllowedTables(currentAdminProfile?.allowed_tables);return Object.keys(TABLES).filter(key=>key!=="admin_users"&&allowed.includes(key))}
+    function canAccessTable(key){return isSuperAdmin()||visibleTableKeys().includes(key)}
+    function canDo(action){if(isSuperAdmin())return true;if(!currentAdminProfile||!canAccessTable(currentTable))return false;if(action==="insert")return currentAdminProfile.can_insert===true;if(action==="update")return currentAdminProfile.can_update===true;if(action==="delete")return currentAdminProfile.can_delete===true;if(action==="publish")return currentAdminProfile.can_publish===true;return false}
+    function ensureVisibleCurrentTable(){const keys=visibleTableKeys();if(!keys.length){showToast("لا توجد صلاحيات مفعلة لهذا الحساب");return}if(!keys.includes(currentTable))currentTable=keys[0]}
+    function applyActionButtons(){deleteBtn.classList.toggle("hidden",!recordId.value||!canDo("delete"));}
+    function getPrimaryKey(){return currentTable==="admin_users"?"user_id":"id"}
+    function getRowPrimaryValue(row){const key=getPrimaryKey();return row?.[key]??row?.id??row?.user_id??""}
+    function getColumns(){const config=TABLES[currentTable];const key=getPrimaryKey();return [key,...config.fields.map(f=>f.name),"created_at"].filter((v,i,a)=>a.indexOf(v)===i)}
+    function getLabel(row){const field=TABLES[currentTable].labelField||"title";return row[field]||row.name||row.title||getRowPrimaryValue(row)}
     function formatCell(value){if(Array.isArray(value))return value.length?`<span class="badge"><i class="fa-solid fa-images"></i> ${value.length} صور</span>`:"";if(value===true)return `<span class="badge">نعم</span>`;if(value===false)return `<span class="badge off">لا</span>`;if(value===null||value===undefined)return "";const text=safe(value);return text.length>150?text.slice(0,150)+"...":text}
 
     function normalizeImages(value){
@@ -497,11 +1559,29 @@
     }
 
     function buildTabs(){
-      tabs.innerHTML=Object.entries(TABLES).map(([key,config])=>`
+      ensureVisibleCurrentTable();
+      tabs.innerHTML=Object.entries(TABLES).filter(([key])=>visibleTableKeys().includes(key)).map(([key,config])=>`
         <button class="tab ${key===currentTable?"active":""}" data-table="${key}">
           <span><i class="fa-solid ${config.icon}"></i> ${config.title}</span><small id="count_${key}">0</small>
         </button>`).join("");
-      tabs.querySelectorAll(".tab").forEach(btn=>btn.onclick=async()=>{currentTable=btn.dataset.table;document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));btn.classList.add("active");searchInput.value="";activeFilter.value="all";resetForm();await renderForm();await loadRows()});
+      tabs.querySelectorAll(".tab").forEach(btn=>btn.onclick=async()=>{
+        if(currentTable===btn.dataset.table){
+          btn.classList.add("tab-selected-now");
+          setTimeout(()=>btn.classList.remove("tab-selected-now"),750);
+          scrollFormIntoView(true);
+          return;
+        }
+        currentTable=btn.dataset.table;
+        document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active","tab-selected-now"));
+        btn.classList.add("active","tab-selected-now");
+        setTimeout(()=>btn.classList.remove("tab-selected-now"),750);
+        searchInput.value="";
+        activeFilter.value="all";
+        await renderForm();
+        resetForm();
+        scrollFormIntoView(true);
+        await loadRows();
+      });
     }
 
     async function loadStats(){
@@ -510,7 +1590,7 @@
       const labels={tv_news:"أخبار",activities:"أنشطة",courses:"دورات",student_issues:"شكاوى"};
       const icons={tv_news:"fa-tv",activities:"fa-calendar-check",courses:"fa-book-open-reader",student_issues:"fa-headset"};
       let stats=[];
-      for(const table of Object.keys(TABLES)){
+      for(const table of visibleTableKeys()){
         const {count}=await db.from(table).select("*",{count:"exact",head:true});
         const el=document.getElementById(`count_${table}`); if(el)el.textContent=count??0;
         if(important.includes(table))stats.push({table,count:count??0});
@@ -526,11 +1606,86 @@
       }
     }
 
+    function renderPermissionField(field){
+      const items=permissionTables().map(key=>{
+        const config=TABLES[key];
+        const desc=safe(config.desc||"إدارة محتوى هذا القسم من لوحة التحكم.");
+        return `<label class="permission-card" data-permission-key="${key}">
+          <input class="permission-input" type="checkbox" name="${field.name}" value="${key}">
+          <span class="permission-card-icon"><i class="fa-solid ${config.icon}"></i></span>
+          <span class="permission-card-text"><strong>${config.title}</strong><em>${desc}</em></span>
+          <span class="permission-card-check"><i class="fa-solid fa-plus"></i></span>
+        </label>`;
+      }).join("");
+      return `<div class="field full premium-permissions-field" id="allowedTablesPermissionBox">
+        <div class="permissions-shell">
+          <div class="permissions-header">
+            <div class="permissions-title-block">
+              <span class="permissions-title-icon"><i class="fa-solid fa-shield-halved"></i></span>
+              <span>
+                <label class="permissions-main-label">${field.label}</label>
+                <span class="permissions-subtitle">اختر الأقسام التي يستطيع هذا الأدمن إدارتها. المدير العام يتجاهل هذه القائمة ويملك كل الصلاحيات.</span>
+              </span>
+            </div>
+            <span class="permissions-counter"><i class="fa-solid fa-check-double"></i> <b id="permissionsSelectedCount">0</b> محدد</span>
+          </div>
+          <div class="permission-toolbar">
+            <button class="permission-mini-btn permission-select-all" type="button"><i class="fa-solid fa-list-check"></i> تحديد الكل</button>
+            <button class="permission-mini-btn permission-clear-all" type="button"><i class="fa-solid fa-eraser"></i> إلغاء التحديد</button>
+          </div>
+          <div class="permission-grid premium-permission-grid">${items}</div>
+          <div class="permissions-help-strip"><i class="fa-solid fa-circle-info"></i><span>اضغط على اسم أي قسم لتحديده أو إلغاء تحديده. القسم المختار يظهر بلون أزرق واضح.</span></div>
+        </div>
+      </div>`;
+    }
+
+    function updatePermissionCardStates(){
+      const cards=[...document.querySelectorAll(".permission-card")];
+      cards.forEach(card=>{
+        const input=card.querySelector(".permission-input");
+        card.classList.toggle("is-selected",!!input?.checked);
+      });
+      const count=document.getElementById("permissionsSelectedCount");
+      if(count)count.textContent=String(cards.filter(card=>card.querySelector(".permission-input")?.checked).length);
+    }
+
+    function bindPermissionCards(){
+      const cards=[...document.querySelectorAll(".permission-card")];
+      cards.forEach(card=>{
+        const input=card.querySelector(".permission-input");
+        if(!input)return;
+        input.onchange=updatePermissionCardStates;
+      });
+      document.querySelector(".permission-select-all")?.addEventListener("click",()=>{
+        cards.forEach(card=>{const input=card.querySelector(".permission-input");if(input)input.checked=true});
+        updatePermissionCardStates();
+      });
+      document.querySelector(".permission-clear-all")?.addEventListener("click",()=>{
+        cards.forEach(card=>{const input=card.querySelector(".permission-input");if(input)input.checked=false});
+        updatePermissionCardStates();
+      });
+      updatePermissionCardStates();
+    }
+
+    function scrollFormIntoView(highlight=true){
+      const formCard=document.querySelector(".form-card");
+      if(!formCard)return;
+      formCard.scrollIntoView({behavior:"smooth",block:"start"});
+      if(highlight){
+        formCard.classList.remove("form-focus");
+        void formCard.offsetWidth;
+        formCard.classList.add("form-focus");
+        setTimeout(()=>formCard.classList.remove("form-focus"),1500);
+      }
+    }
+
     async function renderForm(){
       const config=TABLES[currentTable]; tableTitle.textContent=config.title; tableDesc.textContent=config.desc;
       uploadState={}; await loadRelations();
       formFields.innerHTML=config.fields.map(field=>{
-        if(field.type==="boolean")return `<div class="field"><label>${field.label}</label><label class="check-row"><input type="checkbox" name="${field.name}" ${field.default?"checked":""} /> نعم</label></div>`;
+        if(field.name==="icon")return renderIconPickerField(field);
+        if(field.type==="permissions_check")return renderPermissionField(field);
+        if(field.type==="boolean"){const locked=(field.name==="is_active"&&!canDo("publish")&&currentTable!=="admin_users");return `<div class="field"><label>${field.label}</label><label class="check-row"><input type="checkbox" name="${field.name}" ${field.default&&!locked?"checked":""} ${locked?"disabled":""}/> نعم</label>${locked?`<div class="permission-lock">ليس لديك صلاحية النشر أو الإظهار، سيتم حفظ السجل كمخفي حتى يراجعه مدير عام.</div>`:""}</div>`;} 
         if(field.type==="textarea")return `<div class="field full"><label>${field.label}</label><textarea name="${field.name}" placeholder="${safe(field.placeholder||"")}" ${field.required?"required":""}></textarea></div>`;
         if(field.type==="image_upload"||field.type==="single_image_upload")return renderUploadField(field);
         if(field.type==="relation"){
@@ -540,13 +1695,16 @@
         return `<div class="field"><label>${field.label}</label><input type="${field.type}" name="${field.name}" placeholder="${safe(field.placeholder||"")}" ${field.required?"required":""} /></div>`;
       }).join("");
       bindUploadFields();
+      bindIconPickers();
+      bindPermissionCards();
     }
 
     function getFormPayload(){
       const config=TABLES[currentTable]; const formData=new FormData(dataForm); const payload={};
       config.fields.forEach(field=>{
         const input=dataForm.querySelector(`[name="${field.name}"]`);
-        if(field.type==="boolean")payload[field.name]=input.checked;
+        if(field.type==="permissions_check")payload[field.name]=Array.from(dataForm.querySelectorAll(`[name="${field.name}"]:checked`)).map(x=>x.value).join(",");
+        else if(field.type==="boolean")payload[field.name]=input.checked;
         else if(field.type==="number"){const value=formData.get(field.name);payload[field.name]=value===""||value===null?null:Number(value)}
         else if(field.type==="relation"){const value=formData.get(field.name);payload[field.name]=value===""||value===null?null:value}
         else if(field.type==="image_upload")payload[field.name]=uploadState[field.name]||[];
@@ -557,26 +1715,33 @@
     }
 
     function fillForm(row){
-      recordId.value=row.id; deleteBtn.classList.remove("hidden");
+      recordId.value=getRowPrimaryValue(row); applyActionButtons();
       TABLES[currentTable].fields.forEach(field=>{
         const input=dataForm.querySelector(`[name="${field.name}"]`);
         if(field.type==="image_upload"||field.type==="single_image_upload"){uploadState[field.name]=normalizeImages(row[field.name]);renderUploadedImages(field.name);return}
+        if(field.type==="permissions_check"){const allowed=parseAllowedTables(row[field.name]);dataForm.querySelectorAll(`[name="${field.name}"]`).forEach(ch=>ch.checked=allowed.includes(ch.value));return}
         if(!input)return;
         if(field.type==="boolean")input.checked=Boolean(row[field.name]); else input.value=row[field.name]??"";
       });
-      window.scrollTo({top:0,behavior:"smooth"});
+      bindIconPickers();
+      updatePermissionCardStates();
+      scrollFormIntoView(true);
     }
 
     function resetForm(){
-      dataForm.reset(); recordId.value=""; deleteBtn.classList.add("hidden"); uploadState={};
+      dataForm.reset(); recordId.value=""; uploadState={}; applyActionButtons();
       TABLES[currentTable].fields.forEach(field=>{
         if(field.type==="boolean"){const input=dataForm.querySelector(`[name="${field.name}"]`); if(input)input.checked=field.default!==false}
+        if(field.type==="permissions_check")dataForm.querySelectorAll(`[name="${field.name}"]`).forEach(ch=>ch.checked=false)
         if(field.type==="image_upload"||field.type==="single_image_upload"){uploadState[field.name]=[]; renderUploadedImages(field.name)}
       });
+      bindIconPickers();
+      updatePermissionCardStates();
     }
 
     async function loadRows(){
       if(!assertClient())return;
+      if(!canAccessTable(currentTable)){tableWrap.innerHTML=`<div class="danger-note">ليس لديك صلاحية فتح هذا القسم.</div>`;recordCards.innerHTML=tableWrap.innerHTML;return}
       tableWrap.innerHTML=`<div class="empty">جاري التحميل...</div>`; recordCards.innerHTML=`<div class="empty">جاري التحميل...</div>`;
       const config=TABLES[currentTable];
       const {data,error}=await db.from(currentTable).select("*").order(config.order.column,{ascending:config.order.ascending});
@@ -597,7 +1762,7 @@
     function renderTable(){
       if(!filteredRows.length){tableWrap.innerHTML=`<div class="empty">لا توجد سجلات مطابقة.</div>`;return}
       const columns=getColumns();
-      tableWrap.innerHTML=`<table id="dataTable"><thead><tr><th>إجراءات</th>${columns.map(c=>`<th>${safe(c)}</th>`).join("")}</tr></thead><tbody>${filteredRows.map(row=>`<tr><td><div class="row-actions"><button class="btn btn-soft edit-btn" data-id="${row.id}"><i class="fa-solid fa-pen"></i> تعديل</button><button class="btn btn-danger row-delete-btn" data-id="${row.id}"><i class="fa-solid fa-trash"></i></button></div></td>${columns.map(col=>`<td>${formatCell(row[col])}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+      tableWrap.innerHTML=`<table id="dataTable"><thead><tr><th>إجراءات</th>${columns.map(c=>`<th>${safe(c)}</th>`).join("")}</tr></thead><tbody>${filteredRows.map(row=>`<tr><td><div class="row-actions"><button class="btn btn-soft edit-btn" data-id="${row.id}"><i class="fa-solid fa-pen"></i> تعديل</button>${canDo("delete")?`<button class="btn btn-danger row-delete-btn" data-id="${row.id}"><i class="fa-solid fa-trash"></i></button>`:""}</div></td>${columns.map(col=>`<td>${formatCell(row[col])}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
       tableWrap.querySelectorAll(".edit-btn").forEach(btn=>btn.onclick=()=>{const row=currentRows.find(r=>String(r.id)===String(btn.dataset.id)); if(row)fillForm(row)});
       tableWrap.querySelectorAll(".row-delete-btn").forEach(btn=>btn.onclick=()=>deleteRecord(btn.dataset.id));
     }
@@ -605,15 +1770,20 @@
     function renderCards(){
       if(!filteredRows.length){recordCards.innerHTML=`<div class="empty">لا توجد سجلات مطابقة.</div>`;return}
       const columns=getColumns().filter(c=>c!=="created_at");
-      recordCards.innerHTML=filteredRows.map(row=>`<article class="record-card"><h3>${safe(getLabel(row))}</h3><div class="record-meta">${columns.slice(0,7).map(col=>`<div><b>${safe(col)}:</b> ${formatCell(row[col])}</div>`).join("")}</div><div class="row-actions"><button class="btn btn-soft edit-card-btn" data-id="${row.id}"><i class="fa-solid fa-pen"></i> تعديل</button><button class="btn btn-danger delete-card-btn" data-id="${row.id}"><i class="fa-solid fa-trash"></i> حذف</button></div></article>`).join("");
+      recordCards.innerHTML=filteredRows.map(row=>`<article class="record-card"><h3>${safe(getLabel(row))}</h3><div class="record-meta">${columns.slice(0,7).map(col=>`<div><b>${safe(col)}:</b> ${formatCell(row[col])}</div>`).join("")}</div><div class="row-actions"><button class="btn btn-soft edit-card-btn" data-id="${row.id}"><i class="fa-solid fa-pen"></i> تعديل</button>${canDo("delete")?`<button class="btn btn-danger delete-card-btn" data-id="${row.id}"><i class="fa-solid fa-trash"></i> حذف</button>`:""}</div></article>`).join("");
       recordCards.querySelectorAll(".edit-card-btn").forEach(btn=>btn.onclick=()=>{const row=currentRows.find(r=>String(r.id)===String(btn.dataset.id));if(row)fillForm(row)});
       recordCards.querySelectorAll(".delete-card-btn").forEach(btn=>btn.onclick=()=>deleteRecord(btn.dataset.id));
     }
 
     async function saveRecord(payload){
       if(!assertClient())return;
-      const id=recordId.value; let result;
-      if(id)result=await db.from(currentTable).update(payload).eq("id",id); else result=await db.from(currentTable).insert(payload);
+      const id=recordId.value;
+      if(id&&!canDo("update")){showToast("ليس لديك صلاحية التعديل في هذا القسم");return}
+      if(!id&&!canDo("insert")){showToast("ليس لديك صلاحية الإضافة في هذا القسم");return}
+      if("is_active" in payload&&!canDo("publish")&&currentTable!=="admin_users"){if(id)delete payload.is_active;else payload.is_active=false}
+      let result;
+      const keyField=getPrimaryKey();
+      if(id)result=await db.from(currentTable).update(payload).eq(keyField,id); else result=await db.from(currentTable).insert(payload);
       if(result.error){showToast("خطأ: "+result.error.message);return}
       showToast(id?"تم التعديل بنجاح":"تمت الإضافة بنجاح"); resetForm(); await loadRows();
     }
@@ -631,10 +1801,11 @@
 
     async function deleteRecord(id=recordId.value){
       if(!assertClient()||!id)return;
+      if(!canDo("delete")){showToast("ليس لديك صلاحية الحذف في هذا القسم");return}
       if(!confirm("هل أنت متأكد من حذف هذا السجل؟"))return;
-      const row=currentRows.find(r=>String(r.id)===String(id));
+      const row=currentRows.find(r=>String(getRowPrimaryValue(r))===String(id));
       await deleteStorageFilesFromRow(row);
-      const {error}=await db.from(currentTable).delete().eq("id",id);
+      const {error}=await db.from(currentTable).delete().eq(getPrimaryKey(),id);
       if(error){showToast("خطأ: "+error.message);return}
       showToast("تم الحذف"); resetForm(); await loadRows();
     }
@@ -645,6 +1816,79 @@
     function exportText(){const rows=rowsToPlainObjects();if(!rows.length)return showToast("لا توجد بيانات للتصدير");const text=rows.map((row,index)=>`# ${index+1}\n`+Object.entries(row).map(([k,v])=>`${k}: ${v}`).join("\n")).join("\n\n--------------------------\n\n");downloadFile(`${cleanFilename(TABLES[currentTable].title)}.txt`,text,"text/plain;charset=utf-8")}
     function exportExcel(){const rows=rowsToPlainObjects();if(!rows.length)return showToast("لا توجد بيانات للتصدير");const columns=Object.keys(rows[0]);const table=`<html dir="rtl"><head><meta charset="UTF-8"></head><body><table border="1"><thead><tr>${columns.map(c=>`<th>${safe(c)}</th>`).join("")}</tr></thead><tbody>${rows.map(row=>`<tr>${columns.map(c=>`<td>${safe(row[c])}</td>`).join("")}</tr>`).join("")}</tbody></table></body></html>`;downloadFile(`${cleanFilename(TABLES[currentTable].title)}.xls`,table,"application/vnd.ms-excel;charset=utf-8")}
     function printPDF(){if(!filteredRows.length)return showToast("لا توجد بيانات للطباعة");window.print()}
+
+
+
+    /* ===== Records rendering without pages =====
+       يعرض كل السجلات مباشرة بدون ترقيم صفحات أو اختيار عدد السجلات.
+       يبقى التبديل بين الجدول والبطاقات كما هو، وتبقى وظائف Supabase كما هي.
+    */
+    function removeRecordsPager(){
+      const pager=document.getElementById("recordsPager");
+      if(pager)pager.remove();
+    }
+
+    function enhancedThumbFromRow(row){
+      const img = row.image_url || (Array.isArray(row.gallery_images)?row.gallery_images[0]:null);
+      if(!img) return "";
+      return `<div class="record-thumb"><img src="${safe(img)}" alt="صورة السجل" loading="lazy"></div>`;
+    }
+
+    function enhancedRenderRecordViews(){
+      removeRecordsPager();
+      renderTable();
+      renderCards();
+    }
+
+    function applyFilters(){
+      const q=searchInput.value.trim().toLowerCase();
+      const active=activeFilter.value;
+      filteredRows=currentRows.filter(row=>{
+        const text=JSON.stringify(row).toLowerCase();
+        const matchesSearch=!q||text.includes(q);
+        let matchesActive=true;
+        if("is_active" in row){
+          if(active==="active")matchesActive=row.is_active===true;
+          if(active==="hidden")matchesActive=row.is_active===false;
+        }
+        return matchesSearch&&matchesActive;
+      });
+      enhancedRenderRecordViews();
+    }
+
+    function renderTable(){
+      removeRecordsPager();
+      if(!filteredRows.length){tableWrap.innerHTML=`<div class="empty">لا توجد سجلات مطابقة.</div>`;return}
+      const columns=getColumns();
+      tableWrap.innerHTML=`<table id="dataTable"><thead><tr><th>إجراءات</th>${columns.map(c=>`<th>${safe(c)}</th>`).join("")}</tr></thead><tbody>${filteredRows.map(row=>{
+        const keyValue=getRowPrimaryValue(row);
+        return `<tr><td><div class="row-actions"><button class="btn btn-soft edit-btn" data-id="${safe(keyValue)}"><i class="fa-solid fa-pen"></i> تعديل</button>${canDo("delete")?`<button class="btn btn-danger row-delete-btn" data-id="${safe(keyValue)}"><i class="fa-solid fa-trash"></i></button>`:""}</div></td>${columns.map(col=>`<td>${formatCell(row[col])}</td>`).join("")}</tr>`;
+      }).join("")}</tbody></table>`;
+      tableWrap.querySelectorAll(".edit-btn").forEach(btn=>btn.onclick=()=>{const row=currentRows.find(r=>String(getRowPrimaryValue(r))===String(btn.dataset.id)); if(row)fillForm(row)});
+      tableWrap.querySelectorAll(".row-delete-btn").forEach(btn=>btn.onclick=()=>deleteRecord(btn.dataset.id));
+    }
+
+    function renderCards(){
+      removeRecordsPager();
+      if(!filteredRows.length){recordCards.innerHTML=`<div class="empty">لا توجد سجلات مطابقة.</div>`;return}
+      const columns=getColumns().filter(c=>!["created_at","updated_at"].includes(c));
+      recordCards.innerHTML=filteredRows.map(row=>{
+        const keyValue=getRowPrimaryValue(row);
+        const visibleCols=columns.filter(col=>col!==getPrimaryKey() && col!==TABLES[currentTable].labelField).slice(0,7);
+        const activeBadge=("is_active" in row)?`<span class="badge ${row.is_active?"":"off"}"><i class="fa-solid ${row.is_active?"fa-eye":"fa-eye-slash"}"></i> ${row.is_active?"ظاهر":"مخفي"}</span>`:"";
+        return `<article class="record-card">
+          ${enhancedThumbFromRow(row)}
+          <h3>${safe(getLabel(row))}</h3>
+          <div style="margin-bottom:10px">${activeBadge}</div>
+          <div class="record-meta">${visibleCols.map(col=>`<div><b>${safe(col)}:</b> ${formatCell(row[col])||"—"}</div>`).join("")}</div>
+          <div class="row-actions"><button class="btn btn-soft edit-card-btn" data-id="${safe(keyValue)}"><i class="fa-solid fa-pen"></i> تعديل</button>${canDo("delete")?`<button class="btn btn-danger delete-card-btn" data-id="${safe(keyValue)}"><i class="fa-solid fa-trash"></i> حذف</button>`:""}</div>
+        </article>`;
+      }).join("");
+      recordCards.querySelectorAll(".edit-card-btn").forEach(btn=>btn.onclick=()=>{const row=currentRows.find(r=>String(getRowPrimaryValue(r))===String(btn.dataset.id));if(row)fillForm(row)});
+      recordCards.querySelectorAll(".delete-card-btn").forEach(btn=>btn.onclick=()=>deleteRecord(btn.dataset.id));
+    }
+
+    function renderPagination(){removeRecordsPager();}
 
     function openQuickAdd(){
       let html="";
@@ -714,10 +1958,11 @@
 
     async function afterLogin(session){
       if(!session)return;
-      const {data:admin,error}=await db.from("admin_users").select("*").eq("user_id",session.user.id).maybeSingle();
-      if(error||!admin){await db.auth.signOut();showToast("هذا الحساب ليس أدمن. أضف user_id في جدول admin_users.");return}
-      userEmail.textContent=session.user.email; loginWrap.style.display="none"; app.style.display="block";
-      buildTabs(); await renderForm(); resetForm(); await loadRows(); await loadStats();
+      const {data:admin,error}=await db.from("admin_users").select("*").eq("user_id",session.user.id).eq("is_active",true).maybeSingle();
+      if(error||!admin){await db.auth.signOut();showToast("هذا الحساب ليس أدمن أو تم تعطيله. أضف user_id في جدول admin_users.");return}
+      currentAdminProfile=admin;
+      userEmail.textContent=`${session.user.email} - ${isSuperAdmin()?"مدير عام":"أدمن محدود"}`; loginWrap.style.display="none"; app.style.display="block";
+      ensureVisibleCurrentTable(); buildTabs(); await renderForm(); resetForm(); await loadRows(); await loadStats();
     }
 
     async function init(){if(!assertClient())return;const {data}=await db.auth.getSession();if(data.session)await afterLogin(data.session)}
