@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /admin.html
+Disallow: /admin_plus.html
+Disallow: /admin_plus_*.html
 
 Sitemap: https://usf-flax.vercel.app/sitemap.xml
