@@ -1,7 +1,5 @@
 // api/sitemap.js
-const {
-  SITE_URL, SECTIONS, escapeXml, isoDate, responseHeaders, supabaseSelect
-} = require("./_seo-utils");
+const { SITE_URL, SECTIONS, escapeXml, isoDate, responseHeaders, supabaseSelect } = require("./_seo-utils");
 
 function urlBlock(loc, lastmod, changefreq, priority) {
   return `  <url>
@@ -14,7 +12,6 @@ function urlBlock(loc, lastmod, changefreq, priority) {
 
 module.exports = async function handler(req, res) {
   const urls = [];
-
   urls.push(urlBlock(`${SITE_URL}/`, isoDate(), "daily", "1.00"));
 
   for (const [key, section] of Object.entries(SECTIONS)) {

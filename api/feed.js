@@ -1,8 +1,5 @@
 // api/feed.js
-const {
-  SITE_URL, SITE_NAME, DEFAULT_DESCRIPTION, SECTIONS,
-  escapeXml, truncate, titleOf, textOf, urlFor, responseHeaders, supabaseSelect
-} = require("./_seo-utils");
+const { SITE_URL, SITE_NAME, DEFAULT_DESCRIPTION, SECTIONS, escapeXml, truncate, titleOf, textOf, urlFor, responseHeaders, supabaseSelect } = require("./_seo-utils");
 
 module.exports = async function handler(req, res) {
   const section = SECTIONS.news;
