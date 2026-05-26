@@ -1,8 +1,18 @@
-# حزمة SEO كاملة بنفس تصميم الموقع الرئيسي
+# حزمة SEO بنفس تصميم الموقع الرئيسي تمامًا
 
-## ماذا تحتوي الحزمة؟
+## الفرق في هذه النسخة
+
+هذه النسخة لا تستخدم تصميمًا جديدًا لصفحات SEO.
+تم استخراج CSS الأصلي من index.html ووضعه كما هو في:
+
+assets/usf-main-style.css
+
+ثم كل صفحات /news و /courses و /activities و /events وغيرها تستخدم نفس ملف CSS الأصلي.
+
+## الملفات
 
 - index.html
+- assets/usf-main-style.css
 - robots.txt
 - site.webmanifest
 - 404.html
@@ -13,51 +23,32 @@
 - api/sitemap.js
 - api/feed.js
 
-## ما الذي تفعله؟
+## الروابط التي تعمل
 
-تعطيك صفحات ديناميكية بنفس روح وتصميم الموقع الرئيسي:
-
-- /news
-- /news/:id
-- /activities
-- /activities/:id
-- /courses
-- /courses/:id
-- /committees
-- /committees/:id
-- /achievements
-- /achievements/:id
-- /events
-- /events/:id
-- /sitemap.xml
-- /feed.xml
+/news
+/news/:id
+/activities
+/activities/:id
+/courses
+/courses/:id
+/committees
+/committees/:id
+/achievements
+/achievements/:id
+/events
+/events/:id
+/sitemap.xml
+/feed.xml
 
 ## مهم
 
-احذف ملف sitemap.xml الثابت إذا كان موجودًا؛ لأن /sitemap.xml الآن يأتي من api/sitemap.js.
+احذف sitemap.xml الثابت إذا كان موجودًا.
 
-## متغيرات Vercel المطلوبة
+## Vercel Environment Variables
 
 SITE_URL=https://usf-flax.vercel.app
-
 SUPABASE_URL=https://bvkcfdagsfmqrhyqspan.supabase.co
+SUPABASE_ANON_KEY=مفتاح Supabase العام
 
-SUPABASE_ANON_KEY=ضع مفتاح Supabase العام
-
-إذا RLS يمنع قراءة البيانات:
-SUPABASE_SERVICE_ROLE_KEY=ضع service role داخل Vercel فقط
-
-لا تضع service role داخل index.html أبدًا.
-
-## بعد النشر اختبر
-
-https://usf-flax.vercel.app/news
-https://usf-flax.vercel.app/courses
-https://usf-flax.vercel.app/activities
-https://usf-flax.vercel.app/events
-https://usf-flax.vercel.app/sitemap.xml
-https://usf-flax.vercel.app/feed.xml
-
-## ملاحظة
-
-كل صفحة قسم وكل صفحة تفاصيل مصممة بنفس ألوان، هيدر، كروت، أزرار، وخلفية الموقع الرئيسي.
+إذا RLS يمنع القراءة:
+SUPABASE_SERVICE_ROLE_KEY=Service Role Key داخل Vercel فقط
