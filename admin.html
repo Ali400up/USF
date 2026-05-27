@@ -790,6 +790,133 @@
       .course-field-row{grid-template-columns:1fr}
     }
 
+  
+    .course-reg-summary{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:12px;
+      margin-bottom:14px;
+    }
+    .course-reg-stat{
+      padding:16px;
+      border-radius:22px;
+      background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(238,247,255,.96));
+      border:1px solid rgba(11,94,215,.14);
+      box-shadow:0 14px 34px rgba(11,94,215,.10);
+      color:var(--muted);
+      font-weight:900;
+    }
+    .course-reg-stat i{
+      width:42px;height:42px;display:grid;place-items:center;
+      border-radius:16px;
+      color:#fff;
+      background:linear-gradient(135deg,#00A6D6,#0B5ED7);
+      margin-bottom:8px;
+    }
+    .course-reg-stat strong{
+      display:block;
+      color:var(--primary);
+      font-size:26px;
+      line-height:1.2;
+    }
+    .course-reg-group{
+      margin-bottom:18px;
+      border:1px solid rgba(11,94,215,.16);
+      border-radius:28px;
+      overflow:hidden;
+      background:rgba(255,255,255,.62);
+      box-shadow:0 18px 48px rgba(11,94,215,.10);
+    }
+    .dark .course-reg-group{background:rgba(241,247,251,.05)}
+    .course-reg-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      padding:16px;
+      background:linear-gradient(135deg,rgba(11,94,215,.11),rgba(0,166,214,.08));
+      border-bottom:1px solid rgba(11,94,215,.12);
+    }
+    .course-reg-title{
+      display:flex;align-items:center;gap:12px;
+    }
+    .course-reg-title i{
+      width:48px;height:48px;display:grid;place-items:center;
+      color:#fff;border-radius:18px;
+      background:linear-gradient(135deg,#0B5ED7,#063B8F);
+      box-shadow:0 14px 34px rgba(11,94,215,.20);
+    }
+    .course-reg-title h3{margin:0;color:var(--text);font-size:18px;font-weight:900}
+    .course-reg-title p{margin:3px 0 0;color:var(--muted);font-size:13px;font-weight:800}
+    .course-reg-count{
+      display:inline-flex;align-items:center;gap:7px;
+      padding:9px 13px;border-radius:999px;
+      color:#fff;background:linear-gradient(135deg,#00A6D6,#0B5ED7);
+      font-size:13px;font-weight:900;
+    }
+    .course-reg-table-wrap{overflow:auto}
+    .course-reg-table{
+      min-width:1050px;
+      width:100%;
+      border-collapse:collapse;
+    }
+    .course-reg-table th,.course-reg-table td{
+      padding:11px 12px;
+      border-bottom:1px solid var(--border);
+      text-align:right;
+      vertical-align:top;
+      font-size:12.5px;
+    }
+    .course-reg-table th{
+      position:sticky;
+      top:0;
+      background:rgba(11,94,215,.08);
+      color:var(--primary);
+      font-weight:900;
+      z-index:1;
+    }
+    .course-reg-student-card{
+      border:1px solid rgba(11,94,215,.13);
+      border-radius:22px;
+      background:rgba(255,255,255,.72);
+      padding:14px;
+      display:grid;
+      gap:10px;
+      box-shadow:0 12px 28px rgba(11,94,215,.08);
+    }
+    .dark .course-reg-student-card{background:rgba(241,247,251,.05)}
+    .course-reg-student-card h4{
+      margin:0;
+      color:var(--primary);
+      font-size:16px;
+      font-weight:900;
+    }
+    .course-reg-fields-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
+    }
+    .course-reg-field{
+      padding:10px;
+      border-radius:16px;
+      background:rgba(11,94,215,.06);
+      border:1px solid rgba(11,94,215,.09);
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.7;
+      font-weight:800;
+    }
+    .course-reg-field b{
+      display:block;
+      color:var(--text);
+      margin-bottom:2px;
+    }
+    @media(max-width:850px){
+      .course-reg-summary{grid-template-columns:1fr}
+      .course-reg-fields-grid{grid-template-columns:1fr}
+    }
+
   </style>
 </head>
 
@@ -862,7 +989,11 @@
             <div class="export-actions">
               <button class="btn btn-soft" id="exportExcelBtn" type="button"><i class="fa-solid fa-file-excel"></i> Excel</button>
               <button class="btn btn-soft" id="exportCsvBtn" type="button"><i class="fa-solid fa-file-csv"></i> CSV</button>
+              <button class="btn btn-soft" id="exportJsonBtn" type="button"><i class="fa-solid fa-code"></i> JSON</button>
               <button class="btn btn-soft" id="exportTextBtn" type="button"><i class="fa-solid fa-file-lines"></i> TXT</button>
+              <button class="btn btn-soft" id="exportHtmlBtn" type="button"><i class="fa-solid fa-globe"></i> HTML</button>
+              <button class="btn btn-soft" id="exportXmlBtn" type="button"><i class="fa-solid fa-file-code"></i> XML</button>
+              <button class="btn btn-soft" id="exportWordBtn" type="button"><i class="fa-solid fa-file-word"></i> Word</button>
               <button class="btn btn-warning" id="printPdfBtn" type="button"><i class="fa-solid fa-file-pdf"></i> PDF/طباعة</button>
             </div>
           </div>
@@ -1078,12 +1209,13 @@
         ]
       },
       course_registrations: {
-        title:"طلبات تسجيل الدورات", desc:"عرض وتعديل وحذف طلبات تسجيل الطلاب.", icon:"fa-user-plus", order:{column:"created_at",ascending:false}, labelField:"student_full_name",
+        title:"تسجيلات الطلاب في الدورات", desc:"يتم عرض الطلاب مرتبين حسب الدورة المسجلين فيها، مع إظهار كل الحقول الديناميكية التي عبأها الطالب وإمكانية التصدير.", icon:"fa-user-plus", order:{column:"created_at",ascending:false}, labelField:"student_full_name",
         fields:[
-          {name:"course_id",label:"رقم الدورة",type:"number"},
+          {name:"course_id",label:"رقم الدورة",type:"text"},
           {name:"course_title",label:"اسم الدورة",type:"text"},
           {name:"student_full_name",label:"الاسم الكامل",type:"text",required:true},
-          {name:"academic_number",label:"الرقم الأكاديمي",type:"text",required:true},
+          {name:"academic_number",label:"الرقم الأكاديمي",type:"text"},
+          {name:"registration_data",label:"كل بيانات الطالب",type:"textarea"},
           {name:"status",label:"الحالة",type:"text",placeholder:"pending / accepted / rejected"}
         ]
       }
@@ -2334,12 +2466,197 @@
       showToast("تم الحذف"); resetForm(); await loadRows();
     }
 
-    function rowsToPlainObjects(){const columns=getColumns();return filteredRows.map(row=>{const obj={};columns.forEach(col=>obj[col]=Array.isArray(row[col])?row[col].join(" | "):(row[col]??""));return obj})}
+
+    function parseRegistrationData(value){
+      if(!value)return {};
+      if(typeof value==="object"&&!Array.isArray(value))return value;
+      if(typeof value==="string"){
+        try{
+          const parsed=JSON.parse(value);
+          return parsed&&typeof parsed==="object"&&!Array.isArray(parsed)?parsed:{};
+        }catch(_){return {}}
+      }
+      return {};
+    }
+
+    function formatDateAdmin(value){
+      if(!value)return "";
+      const date=new Date(value);
+      if(Number.isNaN(date.getTime()))return value;
+      try{return new Intl.DateTimeFormat("ar",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"}).format(date)}
+      catch(_){return date.toISOString()}
+    }
+
+    function courseGroupKey(row){
+      return row.course_title || row.course_id || "دورة غير محددة";
+    }
+
+    function groupCourseRegistrations(rows=filteredRows){
+      const groups=new Map();
+      rows.forEach(row=>{
+        const key=courseGroupKey(row);
+        if(!groups.has(key))groups.set(key,[]);
+        groups.get(key).push(row);
+      });
+      return Array.from(groups.entries()).map(([course,items])=>({course,items}));
+    }
+
+    function flattenCourseRegistrationRow(row){
+      const dynamic=parseRegistrationData(row.registration_data);
+      const obj={
+        "اسم الدورة": row.course_title || "",
+        "معرّف الدورة": row.course_id || "",
+        "اسم الطالب": row.student_full_name || "",
+        "الرقم الأكاديمي": row.academic_number || "",
+        "الحالة": row.status || "",
+        "تاريخ التسجيل": formatDateAdmin(row.created_at),
+        "رقم السجل": getRowPrimaryValue(row) || ""
+      };
+      Object.entries(dynamic).forEach(([key,value])=>{
+        if(value===null||value===undefined)return;
+        obj[key]=Array.isArray(value)?value.join(" | "):(typeof value==="object"?JSON.stringify(value):String(value));
+      });
+      return obj;
+    }
+
+    function flattenCourseRegistrationRows(rows=filteredRows){
+      return rows.map(row=>flattenCourseRegistrationRow(row));
+    }
+
+    function unionColumns(rows){
+      const columns=[];
+      rows.forEach(row=>Object.keys(row).forEach(key=>{if(!columns.includes(key))columns.push(key)}));
+      return columns;
+    }
+
+    function renderCourseRegistrationsSummary(groups,total){
+      return `<div class="course-reg-summary">
+        <div class="course-reg-stat"><i class="fa-solid fa-book-open-reader"></i><strong>${groups.length}</strong><span>عدد الدورات التي لديها تسجيلات</span></div>
+        <div class="course-reg-stat"><i class="fa-solid fa-users"></i><strong>${total}</strong><span>عدد الطلاب في النتائج الحالية</span></div>
+        <div class="course-reg-stat"><i class="fa-solid fa-filter"></i><strong>${filteredRows.length}</strong><span>بعد البحث والتصفية</span></div>
+      </div>`;
+    }
+
+    function renderCourseRegistrationsGroupedTable(){
+      if(!filteredRows.length){tableWrap.innerHTML=`<div class="empty">لا توجد تسجيلات مطابقة.</div>`;return}
+      const groups=groupCourseRegistrations(filteredRows);
+      const flat=flattenCourseRegistrationRows(filteredRows);
+      const columns=unionColumns(flat);
+      const globalIndex=new Map(filteredRows.map((row,index)=>[String(getRowPrimaryValue(row)),index+1]));
+
+      tableWrap.innerHTML=renderCourseRegistrationsSummary(groups,filteredRows.length)+groups.map(group=>{
+        const rows=group.items.map(row=>flattenCourseRegistrationRow(row));
+        return `<section class="course-reg-group">
+          <div class="course-reg-head">
+            <div class="course-reg-title">
+              <i class="fa-solid fa-book-open-reader"></i>
+              <div>
+                <h3>${safe(group.course)}</h3>
+                <p>الطلاب المسجلون في هذه الدورة فقط</p>
+              </div>
+            </div>
+            <span class="course-reg-count"><i class="fa-solid fa-users"></i> ${group.items.length} طالب</span>
+          </div>
+          <div class="course-reg-table-wrap">
+            <table class="course-reg-table">
+              <thead><tr><th>#</th>${columns.map(c=>`<th>${safe(c)}</th>`).join("")}<th>إجراءات</th></tr></thead>
+              <tbody>
+                ${group.items.map(row=>{
+                  const key=safe(getRowPrimaryValue(row));
+                  const obj=flattenCourseRegistrationRow(row);
+                  return `<tr>
+                    <td>${globalIndex.get(String(getRowPrimaryValue(row)))||""}</td>
+                    ${columns.map(col=>`<td>${safe(obj[col]??"")}</td>`).join("")}
+                    <td>
+                      <div class="row-actions">
+                        <button class="btn btn-soft edit-btn" data-id="${key}"><i class="fa-solid fa-pen"></i> تعديل</button>
+                        ${canDo("delete")?`<button class="btn btn-danger row-delete-btn" data-id="${key}"><i class="fa-solid fa-trash"></i></button>`:""}
+                      </div>
+                    </td>
+                  </tr>`;
+                }).join("")}
+              </tbody>
+            </table>
+          </div>
+        </section>`;
+      }).join("");
+      bindAdminRowButtons(tableWrap);
+    }
+
+    function renderCourseRegistrationsGroupedCards(){
+      if(!filteredRows.length){recordCards.innerHTML=`<div class="empty">لا توجد تسجيلات مطابقة.</div>`;return}
+      const groups=groupCourseRegistrations(filteredRows);
+      recordCards.innerHTML=renderCourseRegistrationsSummary(groups,filteredRows.length)+groups.map(group=>`<section class="course-reg-group">
+        <div class="course-reg-head">
+          <div class="course-reg-title">
+            <i class="fa-solid fa-book-open-reader"></i>
+            <div>
+              <h3>${safe(group.course)}</h3>
+              <p>كل بطاقة تمثل طالبًا مسجلًا في هذه الدورة</p>
+            </div>
+          </div>
+          <span class="course-reg-count"><i class="fa-solid fa-users"></i> ${group.items.length} طالب</span>
+        </div>
+        <div style="display:grid;gap:12px;padding:14px">
+          ${group.items.map(row=>{
+            const obj=flattenCourseRegistrationRow(row);
+            const key=safe(getRowPrimaryValue(row));
+            const fields=Object.entries(obj).filter(([k])=>!["اسم الدورة","اسم الطالب"].includes(k));
+            return `<article class="course-reg-student-card">
+              <h4><i class="fa-solid fa-user-graduate"></i> ${safe(obj["اسم الطالب"]||"طالب بدون اسم")}</h4>
+              <div class="course-reg-fields-grid">
+                ${fields.map(([k,v])=>`<div class="course-reg-field"><b>${safe(k)}</b>${safe(v||"—")}</div>`).join("")}
+              </div>
+              <div class="row-actions">
+                <button class="btn btn-soft edit-card-btn" data-id="${key}"><i class="fa-solid fa-pen"></i> تعديل</button>
+                ${canDo("delete")?`<button class="btn btn-danger delete-card-btn" data-id="${key}"><i class="fa-solid fa-trash"></i> حذف</button>`:""}
+              </div>
+            </article>`;
+          }).join("")}
+        </div>
+      </section>`).join("");
+      bindAdminRowButtons(recordCards);
+    }
+
+    function exportRows(){
+      return currentTable==="course_registrations" ? flattenCourseRegistrationRows(filteredRows) : rowsToPlainObjectsDefault();
+    }
+
+    function escapeXmlText(value){
+      return String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&apos;");
+    }
+
+    function exportHtmlDocument(rows,title){
+      const columns=rows.length?unionColumns(rows):[];
+      return `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>${safe(title)}</title><style>
+        body{font-family:Arial,Tahoma,sans-serif;direction:rtl;padding:24px;color:#172033}
+        h1{color:#0B5ED7}
+        table{width:100%;border-collapse:collapse;margin-top:16px}
+        th,td{border:1px solid #d7e3ef;padding:9px;text-align:right;font-size:12px;vertical-align:top}
+        th{background:#eef7ff;color:#0B5ED7}
+      </style></head><body><h1>${safe(title)}</h1><p>عدد السجلات: ${rows.length}</p><table><thead><tr>${columns.map(c=>`<th>${safe(c)}</th>`).join("")}</tr></thead><tbody>${rows.map(row=>`<tr>${columns.map(c=>`<td>${safe(row[c]??"")}</td>`).join("")}</tr>`).join("")}</tbody></table></body></html>`;
+    }
+
+    function rowsToPlainObjectsDefault(){const columns=getColumns();return filteredRows.map(row=>{const obj={};columns.forEach(col=>obj[col]=Array.isArray(row[col])?row[col].join(" | "):(typeof row[col]==="object"&&row[col]!==null?JSON.stringify(row[col]):(row[col]??"")));return obj})}
+    function rowsToPlainObjects(){return exportRows()}
     function downloadFile(filename,content,mime){const blob=new Blob([content],{type:mime});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)}
-    function exportCSV(){const rows=rowsToPlainObjects();if(!rows.length)return showToast("لا توجد بيانات للتصدير");const columns=Object.keys(rows[0]);const csv=[columns.join(","),...rows.map(row=>columns.map(col=>`"${String(row[col]).replace(/"/g,'""')}"`).join(","))].join("\n");downloadFile(`${cleanFilename(TABLES[currentTable].title)}.csv`,"\ufeff"+csv,"text/csv;charset=utf-8")}
-    function exportText(){const rows=rowsToPlainObjects();if(!rows.length)return showToast("لا توجد بيانات للتصدير");const text=rows.map((row,index)=>`# ${index+1}\n`+Object.entries(row).map(([k,v])=>`${k}: ${v}`).join("\n")).join("\n\n--------------------------\n\n");downloadFile(`${cleanFilename(TABLES[currentTable].title)}.txt`,text,"text/plain;charset=utf-8")}
-    function exportExcel(){const rows=rowsToPlainObjects();if(!rows.length)return showToast("لا توجد بيانات للتصدير");const columns=Object.keys(rows[0]);const table=`<html dir="rtl"><head><meta charset="UTF-8"></head><body><table border="1"><thead><tr>${columns.map(c=>`<th>${safe(c)}</th>`).join("")}</tr></thead><tbody>${rows.map(row=>`<tr>${columns.map(c=>`<td>${safe(row[c])}</td>`).join("")}</tr>`).join("")}</tbody></table></body></html>`;downloadFile(`${cleanFilename(TABLES[currentTable].title)}.xls`,table,"application/vnd.ms-excel;charset=utf-8")}
-    function printPDF(){if(!filteredRows.length)return showToast("لا توجد بيانات للطباعة");window.print()}
+    function exportCSV(){const rows=exportRows();if(!rows.length)return showToast("لا توجد بيانات للتصدير");const columns=unionColumns(rows);const csv=[columns.join(","),...rows.map(row=>columns.map(col=>`"${String(row[col]??"").replace(/"/g,'""')}"`).join(","))].join("\n");downloadFile(`${cleanFilename(TABLES[currentTable].title)}.csv`,"\ufeff"+csv,"text/csv;charset=utf-8")}
+    function exportText(){const rows=exportRows();if(!rows.length)return showToast("لا توجد بيانات للتصدير");const text=rows.map((row,index)=>`# ${index+1}\n`+Object.entries(row).map(([k,v])=>`${k}: ${v}`).join("\n")).join("\n\n--------------------------\n\n");downloadFile(`${cleanFilename(TABLES[currentTable].title)}.txt`,text,"text/plain;charset=utf-8")}
+    function exportJSON(){const rows=exportRows();if(!rows.length)return showToast("لا توجد بيانات للتصدير");downloadFile(`${cleanFilename(TABLES[currentTable].title)}.json`,JSON.stringify(rows,null,2),"application/json;charset=utf-8")}
+    function exportXML(){const rows=exportRows();if(!rows.length)return showToast("لا توجد بيانات للتصدير");const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<records>\n${rows.map(row=>`  <record>\n${Object.entries(row).map(([k,v])=>`    <field name="${escapeXmlText(k)}">${escapeXmlText(v)}</field>`).join("\n")}\n  </record>`).join("\n")}\n</records>`;downloadFile(`${cleanFilename(TABLES[currentTable].title)}.xml`,xml,"application/xml;charset=utf-8")}
+    function exportHTML(){const rows=exportRows();if(!rows.length)return showToast("لا توجد بيانات للتصدير");downloadFile(`${cleanFilename(TABLES[currentTable].title)}.html`,exportHtmlDocument(rows,TABLES[currentTable].title),"text/html;charset=utf-8")}
+    function exportWord(){const rows=exportRows();if(!rows.length)return showToast("لا توجد بيانات للتصدير");downloadFile(`${cleanFilename(TABLES[currentTable].title)}.doc`,exportHtmlDocument(rows,TABLES[currentTable].title),"application/msword;charset=utf-8")}
+    function exportExcel(){const rows=exportRows();if(!rows.length)return showToast("لا توجد بيانات للتصدير");const columns=unionColumns(rows);const table=`<html dir="rtl"><head><meta charset="UTF-8"></head><body><table border="1"><thead><tr>${columns.map(c=>`<th>${safe(c)}</th>`).join("")}</tr></thead><tbody>${rows.map(row=>`<tr>${columns.map(c=>`<td>${safe(row[c]??"")}</td>`).join("")}</tr>`).join("")}</tbody></table></body></html>`;downloadFile(`${cleanFilename(TABLES[currentTable].title)}.xls`,table,"application/vnd.ms-excel;charset=utf-8")}
+    function printPDF(){
+      const rows=exportRows();
+      if(!rows.length)return showToast("لا توجد بيانات للطباعة");
+      const w=window.open("","_blank");
+      if(!w)return window.print();
+      w.document.open();
+      w.document.write(exportHtmlDocument(rows,TABLES[currentTable].title));
+      w.document.close();
+      setTimeout(()=>{w.focus();w.print()},350);
+    }
 
 
 
@@ -2382,6 +2699,12 @@
 
     function renderTable(){
       removeRecordsPager();
+
+      if(currentTable==="course_registrations"){
+        renderCourseRegistrationsGroupedTable();
+        return;
+      }
+
       if(!filteredRows.length){tableWrap.innerHTML=`<div class="empty">لا توجد سجلات مطابقة.</div>`;return}
       const columns=getColumns();
 
@@ -2415,6 +2738,12 @@
 
     function renderCards(){
       removeRecordsPager();
+
+      if(currentTable==="course_registrations"){
+        renderCourseRegistrationsGroupedCards();
+        return;
+      }
+
       if(!filteredRows.length){recordCards.innerHTML=`<div class="empty">لا توجد سجلات مطابقة.</div>`;return}
       const columns=getColumns().filter(c=>!["created_at","updated_at"].includes(c));
 
@@ -2493,7 +2822,7 @@
     newBtn.onclick=resetForm; deleteBtn.onclick=()=>deleteRecord(); refreshBtn.onclick=loadRows;
     if(reloadAllBtn)reloadAllBtn.onclick=async()=>{await loadRows();await loadStats()};
     searchInput.oninput=applyFilters; activeFilter.onchange=applyFilters;
-    exportCsvBtn.onclick=exportCSV; exportTextBtn.onclick=exportText; exportExcelBtn.onclick=exportExcel; printPdfBtn.onclick=printPDF;
+    exportCsvBtn.onclick=exportCSV; exportTextBtn.onclick=exportText; exportExcelBtn.onclick=exportExcel; printPdfBtn.onclick=printPDF; if(window.exportJsonBtn)exportJsonBtn.onclick=exportJSON; if(window.exportHtmlBtn)exportHtmlBtn.onclick=exportHTML; if(window.exportXmlBtn)exportXmlBtn.onclick=exportXML; if(window.exportWordBtn)exportWordBtn.onclick=exportWord;
     quickAddBtn.onclick=openQuickAdd; closeQuickModal.onclick=()=>quickModal.classList.remove("show"); quickModal.onclick=e=>{if(e.target===quickModal)quickModal.classList.remove("show")};
     themeBtn.onclick=()=>{document.body.classList.toggle("dark");themeBtn.innerHTML=document.body.classList.contains("dark")?'<i class="fa-solid fa-sun"></i>':'<i class="fa-solid fa-moon"></i>'};
 
