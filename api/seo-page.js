@@ -1,10 +1,10 @@
 // api/seo-page.js
-// صفحة ID تعرض نفس تصميم عنصر الصفحة الرئيسية تمامًا، لكن بعنصر واحد فقط.
-// لا تعرض أزرار رجوع أو بيانات تقنية، ولا صفحات تفاصيل مختلفة.
+// صفحات ID بنفس شكل عناصر الصفحة الرئيسية تمامًا، لكن بعنصر واحد فقط.
+// جميع الأزرار الأصلية موجودة كما في الصفحة الرئيسية.
 
 const {
   SITE_URL, SITE_NAME, SECTIONS,
-  escapeHtml, escapeAttr, truncate, titleOf, textOf, imageOf, parseImages, urlFor,
+  escapeHtml, escapeAttr, truncate, titleOf, textOf, detailOf, imageOf, parseImages, urlFor,
   responseHeaders, supabaseSelect, htmlLayout, errorPage
 } = require("./_seo-utils");
 
@@ -80,6 +80,10 @@ function schemaFor(sectionKey, section, row, title, description, image, url) {
   return schema;
 }
 
+function jsData(value) {
+  return encodeURIComponent(JSON.stringify(value || {}));
+}
+
 function sectionCopy(sectionKey, section) {
   const copy = {
     news: ["آخر الأخبار", "نشرة أخبار الملتقى بطريقة تلفزيونية حديثة", "شاشة أخبار تعرض الخبر المحدد بنفس شكل الصفحة الرئيسية."],
@@ -117,6 +121,7 @@ function renderNews(sectionKey, section, row) {
   const category = row.category || "خبر";
   const ticker = row.ticker || title;
   const icon = safeIcon(row.icon, section.icon);
+  const encoded = jsData({ title, category, description: text, ticker, image, icon });
 
   return `<section id="latest-news" style="padding-top:122px">
     <div class="container">
@@ -125,16 +130,24 @@ function renderNews(sectionKey, section, row) {
         <div class="news-tv">
           <div class="news-screen">
             <div class="news-media">
-              ${image ? `<img alt="${escapeAttr(title)}" src="${escapeAttr(image)}" />` : ""}
+              ${image ? `<img id="newsImage" alt="${escapeAttr(title)}" src="${escapeAttr(image)}" />` : ""}
               <div class="news-shine"></div>
               <div class="news-live"><i class="fa-solid fa-circle"></i> آخر الأخبار</div>
             </div>
-            <div class="news-frame-ticker"><span>${escapeHtml(ticker)}</span></div>
+            <div class="news-frame-ticker"><span id="newsFrameTicker">${escapeHtml(ticker)}</span></div>
             <div class="news-caption">
-              <div class="news-category"><i class="${escapeAttr(icon)}"></i> ${escapeHtml(category)}</div>
-              <h3>${escapeHtml(title)}</h3>
-              <p>${escapeHtml(text)}</p>
+              <div class="news-category" id="newsCategory"><i class="${escapeAttr(icon)}"></i> ${escapeHtml(category)}</div>
+              <h3 id="newsTitle">${escapeHtml(title)}</h3>
+              <p id="newsDescription">${escapeHtml(text)}</p>
+              <button class="news-read-more show" id="newsReadMoreBtn" type="button" data-news="${encoded}">
+                <i class="fa-solid fa-up-right-and-down-left-from-center"></i> عرض المزيد
+              </button>
             </div>
+          </div>
+          <div class="news-control-panel">
+            <div class="news-progress" title="مدة عرض الخبر"><span id="newsProgress"></span></div>
+            <div class="news-dots" id="newsDots"><button class="news-dot active" type="button" aria-label="الخبر الحالي"></button></div>
+            <button class="news-brief-btn" id="newsBriefBtn" type="button"><i class="fa-solid fa-list-ul"></i> موجز</button>
           </div>
           <div class="tv-stand"></div>
         </div>
@@ -149,20 +162,29 @@ function renderActivity(sectionKey, section, row) {
   const image = imageOf(row);
   const icon = safeIcon(row.icon, section.icon);
   const meta = [];
-
-  if (row.category) meta.push(`<span><i class="fa-solid fa-tag"></i> ${escapeHtml(row.category)}</span>`);
-  if (row.status) meta.push(`<span><i class="fa-solid fa-signal"></i> ${escapeHtml(row.status)}</span>`);
+  if (row.activity_date) meta.push(`<span><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(prettyDate(row.activity_date))}</span>`);
   if (row.location) meta.push(`<span><i class="fa-solid fa-location-dot"></i> ${escapeHtml(row.location)}</span>`);
-  if (row.activity_date || row.event_date) meta.push(`<span><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(prettyDate(row.activity_date || row.event_date))}</span>`);
 
-  return `<article class="activity-card reveal show" style="max-width:420px;margin-inline:auto">
-    <div class="cover">
+  const payload = jsData(row);
+
+  return `<article class="activity-card reveal show delay-1" style="max-width:420px;margin-inline:auto">
+    <div class="cover ${row.is_light ? "light-cover" : ""}">
       ${image && !image.includes("og-image") ? `<img src="${escapeAttr(image)}" alt="${escapeAttr(title)}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.30">` : ""}
       <h3><i class="${escapeAttr(icon)}"></i> ${escapeHtml(title)}</h3>
     </div>
     <div class="card-body">
+      <h3>${escapeHtml(row.subtitle || title)}</h3>
       ${meta.length ? `<div class="activity-meta">${meta.join("")}</div>` : ""}
       <p>${escapeHtml(text)}</p>
+      <div class="tags">
+        <span class="tag"><i class="fa-solid fa-tag"></i> ${escapeHtml(row.tag_one || row.category || "نشاط")}</span>
+        <span class="tag"><i class="fa-solid fa-star"></i> ${escapeHtml(row.tag_two || "مميز")}</span>
+      </div>
+      <div class="activity-actions">
+        <button class="btn btn-dark activity-details-btn" type="button" data-activity="${payload}">
+          <i class="fa-solid fa-circle-info"></i> عرض تفاصيل النشاط والصور
+        </button>
+      </div>
     </div>
   </article>`;
 }
@@ -172,26 +194,34 @@ function renderCourse(section, row) {
   const text = textOf(row, section);
   const image = imageOf(row);
   const icon = safeIcon(row.icon, section.icon);
-  const category = row.category || row.course_category || "برنامج تدريبي";
+  const category = row.category || row.course_category || "academic";
+  const status = row.status || "متاح";
   const seatsTotal = Number(row.seats_total || row.capacity || 0);
   const seatsTaken = Number(row.seats_taken || row.registered_count || 0);
   const percent = seatsTotal > 0 ? Math.min(100, Math.max(0, Math.round((seatsTaken / seatsTotal) * 100))) : 0;
 
-  return `<article class="course-card reveal show" data-category="${escapeAttr(category)}" style="max-width:420px;margin-inline:auto">
-    <div class="cover">
+  return `<article class="course-card reveal show delay-1" data-category="${escapeAttr(category)}" style="max-width:420px;margin-inline:auto">
+    <div class="cover ${row.is_light ? "light-cover" : ""}">
       ${image && !image.includes("og-image") ? `<img src="${escapeAttr(image)}" alt="${escapeAttr(title)}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.30">` : ""}
       <h3><i class="${escapeAttr(icon)}"></i> ${escapeHtml(title)}</h3>
     </div>
     <div class="card-body">
-      <span class="tag"><i class="fa-solid fa-tag"></i> ${escapeHtml(category)}</span>
+      <div class="tags">
+        <span class="tag"><i class="fa-solid fa-layer-group"></i> ${escapeHtml(category)}</span>
+        <span class="tag"><i class="fa-solid fa-circle-check"></i> ${escapeHtml(status)}</span>
+      </div>
       <p>${escapeHtml(text)}</p>
-      ${seatsTotal > 0 ? `<div class="progress-block">
-        <div class="progress-info"><span>المقاعد المسجلة</span><strong>${escapeHtml(seatsTaken)} / ${escapeHtml(seatsTotal)}</strong></div>
+      <div class="course-meta-line"><span><i class="fa-solid fa-users"></i> الطلاب المسجلون</span><strong>${escapeHtml(seatsTaken)}</strong></div>
+      <div class="progress-block">
+        <div class="progress-info"><span>المقاعد</span><span>${escapeHtml(seatsTaken)} / ${escapeHtml(seatsTotal || "غير محدد")}</span></div>
         <div class="progress"><span style="--width:${percent}%"></span></div>
-      </div>` : ""}
-      <div class="course-meta-line">
-        <span><i class="fa-solid fa-circle-info"></i> ${escapeHtml(row.status || "متاحة")}</span>
-        ${row.start_date ? `<span><i class="fa-solid fa-calendar"></i> ${escapeHtml(prettyDate(row.start_date))}</span>` : ""}
+      </div>
+      <div class="course-more-box">${escapeHtml(row.details || "لا توجد تفاصيل إضافية بعد.")}</div>
+      <div class="course-actions">
+        <button class="btn btn-soft more-btn" type="button"><i class="fa-solid fa-circle-info"></i> المزيد</button>
+        <button class="btn ${String(status).includes("قريب") ? "btn-soft" : "btn-dark"} action-btn" type="button" data-course-id="${escapeAttr(row.id)}" data-course-title="${escapeAttr(title)}">
+          <i class="fa-solid ${String(status).includes("قريب") ? "fa-bell" : "fa-user-plus"}"></i>${String(status).includes("قريب") ? "تنبيه عند الفتح" : "طلب التسجيل"}
+        </button>
       </div>
     </div>
   </article>`;
@@ -199,108 +229,100 @@ function renderCourse(section, row) {
 
 function renderCommittee(section, row) {
   const title = titleOf(row, section);
-  const text = textOf(row, section);
+  const description = row.description || textOf(row, section);
   const icon = safeIcon(row.icon, section.icon);
-  const tasksText = row.tasks || row.responsibilities || row.description || "";
-  let tasks = [];
+  const tasks = [row.task_one, row.task_two, row.task_three].filter(Boolean).map(task => `<div class="committee-task"><i class="fa-solid fa-circle"></i><span>${escapeHtml(task)}</span></div>`).join("");
+  const linkText = row.link_text || "روابط اللجنة";
 
-  if (Array.isArray(tasksText)) tasks = tasksText;
-  else if (typeof tasksText === "string") {
-    try {
-      const parsed = JSON.parse(tasksText);
-      if (Array.isArray(parsed)) tasks = parsed;
-    } catch (_) {
-      tasks = tasksText.split(/\n|،|,/).map(x => x.trim()).filter(Boolean).slice(0, 3);
-    }
-  }
-
-  return `<article class="committee-card reveal show" style="max-width:420px;margin-inline:auto">
+  return `<div class="committee-card reveal show delay-1" style="max-width:420px;margin-inline:auto">
     <div class="avatar"><i class="${escapeAttr(icon)}"></i></div>
     <h3>${escapeHtml(title)}</h3>
-    <p>${escapeHtml(text)}</p>
-    ${tasks.length ? `<div class="committee-tasks">${tasks.slice(0,3).map(t => `<div class="committee-task"><i class="fa-solid fa-circle"></i> ${escapeHtml(t)}</div>`).join("")}</div>` : ""}
-  </article>`;
+    <p>${escapeHtml(description)}</p>
+    <div class="committee-tasks">${tasks}</div>
+    <div class="committee-actions">
+      <button class="btn btn-soft committee-detail-btn" type="button"
+        data-title="${escapeAttr(title)}"
+        data-icon="${escapeAttr(icon)}"
+        data-description="${escapeAttr(description)}"
+        data-task-one="${escapeAttr(row.task_one || "")}"
+        data-task-two="${escapeAttr(row.task_two || "")}"
+        data-task-three="${escapeAttr(row.task_three || "")}">
+        <i class="fa-solid fa-circle-info"></i> التفاصيل
+      </button>
+      <button class="btn btn-dark committee-links-btn" type="button"
+        data-committee-id="${escapeAttr(row.id)}"
+        data-title="${escapeAttr(title)}"
+        data-icon="${escapeAttr(icon)}">
+        <i class="fa-solid fa-link"></i> ${escapeHtml(linkText)}
+      </button>
+    </div>
+  </div>`;
 }
 
-async function renderCommitteeLinks(sectionKey, id) {
-  if (sectionKey !== "committees") return "";
-
+async function renderCommitteeLinksData(id) {
   try {
-    const links = await supabaseSelect("committee_links", {
+    return await supabaseSelect("committee_links", {
       filters: { committee_id: `eq.${id}`, is_active: "eq.true" },
       order: "sort_order.asc",
       limit: 100
     });
-
-    if (!links.length) return "";
-
-    return `<div class="committee-links-sheet reveal show" style="margin:22px auto 0;max-width:980px">
-      <div class="sheet-handle"></div>
-      <div class="sheet-head">
-        <div class="sheet-icon"><i class="fa-solid fa-link"></i></div>
-        <div>
-          <h3>روابط اللجنة والقنوات</h3>
-          <p>روابط مباشرة خاصة بهذه اللجنة.</p>
-        </div>
-      </div>
-      <div class="links-list">
-        ${links.map(link => {
-          const linkUrl = link.url || "#";
-          const isExternal = String(linkUrl).startsWith("http");
-          return `<article class="committee-link-card">
-            <div class="committee-link-icon"><i class="${escapeAttr(safeIcon(link.icon, "fa-solid fa-link"))}"></i></div>
-            <div>
-              <h4>${escapeHtml(link.title || "رابط اللجنة")}</h4>
-              <p>${escapeHtml(link.description || "رابط خاص بهذه اللجنة.")}</p>
-            </div>
-            <a class="btn btn-dark" href="${escapeAttr(linkUrl)}" ${isExternal ? 'target="_blank" rel="noopener"' : ""}>فتح</a>
-          </article>`;
-        }).join("")}
-      </div>
-    </div>`;
   } catch (_) {
-    return "";
+    return [];
   }
 }
 
 function renderAchievement(section, row) {
   const title = titleOf(row, section);
-  const text = textOf(row, section);
+  const text = textOf(row, section) || detailOf(row, section) || "إنجاز موثق يمكن إضافة وصفه وصوره من لوحة الإدارة.";
   const image = imageOf(row);
   const icon = safeIcon(row.icon, section.icon);
-  const date = row.achievement_date ? prettyDate(row.achievement_date) : "";
-  const value = row.value || "";
+  const date = row.achievement_date ? prettyDate(row.achievement_date) : "تاريخ قابل للإضافة";
+  const cat = row.category || "إنجاز";
 
-  return `<article class="achievement-card reveal show" style="max-width:420px;margin-inline:auto">
-    ${image && !image.includes("og-image") ? `<div style="height:180px;margin:-24px -18px 16px;overflow:hidden;border-radius:26px 26px 0 0"><img src="${escapeAttr(image)}" alt="${escapeAttr(title)}" style="width:100%;height:100%;object-fit:cover"></div>` : ""}
-    <div class="achievement-icon"><i class="${escapeAttr(icon)}"></i></div>
-    <div class="achievement-number">${escapeHtml(value || "✓")}</div>
-    <p>${escapeHtml(title)}</p>
-    ${text ? `<p style="margin-top:8px">${escapeHtml(text)}</p>` : ""}
-    ${date ? `<span class="tag" style="margin-top:12px"><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(date)}</span>` : ""}
+  return `<article class="achievement-story-card reveal show delay-1" style="max-width:520px;margin-inline:auto">
+    <div class="achievement-media">
+      ${image && !image.includes("og-image") ? `<img src="${escapeAttr(image)}" alt="${escapeAttr(title)}" loading="lazy" />` : ""}
+      <h3><i class="${escapeAttr(icon)}"></i> ${escapeHtml(title)}</h3>
+    </div>
+    <div class="achievement-body">
+      <div class="achievement-meta">
+        <span><i class="fa-solid fa-tag"></i> ${escapeHtml(cat)}</span>
+        <span><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(date)}</span>
+        ${row.value ? `<span><i class="fa-solid fa-chart-line"></i> ${escapeHtml(row.value)}</span>` : ""}
+      </div>
+      <p>${escapeHtml(text)}</p>
+      <div class="achievement-actions">
+        <button class="btn btn-dark achievement-detail-btn" type="button" data-achievement="${jsData(row)}"><i class="fa-solid fa-images"></i> عرض التفاصيل والصور</button>
+      </div>
+    </div>
   </article>`;
 }
 
 function renderInitiative(section, row) {
   const title = titleOf(row, section);
-  const text = textOf(row, section);
+  const text = textOf(row, section) || detailOf(row, section) || "مبادرة طلابية يمكن إضافة تفاصيلها من لوحة الإدارة.";
   const image = imageOf(row);
   const icon = safeIcon(row.icon, section.icon);
-  const meta = [];
+  const date = row.initiative_date ? prettyDate(row.initiative_date) : "تاريخ قابل للإضافة";
+  const cat = row.category || "مبادرة";
+  const status = row.status || "مقترحة";
 
-  if (row.category) meta.push(`<span><i class="fa-solid fa-tag"></i> ${escapeHtml(row.category)}</span>`);
-  if (row.status) meta.push(`<span><i class="fa-solid fa-signal"></i> ${escapeHtml(row.status)}</span>`);
-  if (row.initiative_date) meta.push(`<span><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(prettyDate(row.initiative_date))}</span>`);
-  if (row.target_group) meta.push(`<span><i class="fa-solid fa-users"></i> ${escapeHtml(row.target_group)}</span>`);
-
-  return `<article class="activity-card initiative-card reveal show" style="max-width:420px;margin-inline:auto">
-    <div class="cover">
-      ${image && !image.includes("og-image") ? `<img src="${escapeAttr(image)}" alt="${escapeAttr(title)}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.30">` : ""}
+  return `<article class="initiative-card reveal show delay-1" style="max-width:520px;margin-inline:auto">
+    <div class="initiative-media">
+      ${image && !image.includes("og-image") ? `<img src="${escapeAttr(image)}" alt="${escapeAttr(title)}" loading="lazy" />` : ""}
       <h3><i class="${escapeAttr(icon)}"></i> ${escapeHtml(title)}</h3>
     </div>
-    <div class="card-body">
-      ${meta.length ? `<div class="activity-meta">${meta.join("")}</div>` : ""}
+    <div class="initiative-body">
+      <div class="initiative-meta">
+        <span><i class="fa-solid fa-tag"></i> ${escapeHtml(cat)}</span>
+        <span><i class="fa-solid fa-signal"></i> ${escapeHtml(status)}</span>
+        <span><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(date)}</span>
+      </div>
       <p>${escapeHtml(text)}</p>
+      ${(row.organizer || row.target_group) ? `<div class="initiative-meta">${row.organizer ? `<span><i class="fa-solid fa-users-gear"></i> ${escapeHtml(row.organizer)}</span>` : ""}${row.target_group ? `<span><i class="fa-solid fa-user-group"></i> ${escapeHtml(row.target_group)}</span>` : ""}</div>` : ""}
+      <div class="initiative-actions">
+        <button class="btn btn-dark initiative-detail-btn" type="button" data-initiative="${jsData(row)}"><i class="fa-solid fa-circle-info"></i> تفاصيل المبادرة</button>
+      </div>
     </div>
   </article>`;
 }
@@ -308,34 +330,14 @@ function renderInitiative(section, row) {
 function renderEvent(section, row) {
   const title = titleOf(row, section);
   const text = row.location || textOf(row, section) || section.description;
-  return `<article class="timeline-card reveal show" style="max-width:900px;margin-inline:auto">
+  return `<article class="timeline-card reveal show delay-1" style="max-width:900px;margin-inline:auto">
     <div class="date-box">${escapeHtml(prettyDate(row.event_date || row.activity_date || row.created_at) || "قريبًا")}</div>
     <div class="timeline-content">
-      <h3>${escapeHtml(title)}</h3>
+      <h3><i class="${escapeAttr(safeIcon(row.icon, section.icon))}"></i> ${escapeHtml(title)}</h3>
       <p>${escapeHtml(text)}</p>
     </div>
-    <span class="timeline-status"><i class="fa-solid fa-calendar-days"></i> فعالية</span>
+    <div class="timeline-status"><i class="fa-solid fa-circle-check"></i> ${escapeHtml(row.status || "قريبًا")}</div>
   </article>`;
-}
-
-function renderGallery(sectionKey, row, section) {
-  const title = titleOf(row, section);
-  const image = imageOf(row);
-  const images = parseImages(row.gallery_images);
-  const all = [];
-  if (image && !image.includes("og-image")) all.push(image);
-  for (const src of images) {
-    if (src && !all.includes(src)) all.push(src);
-  }
-
-  if (!all.length) return "";
-
-  return `<div class="gallery-grid" style="margin-top:24px">
-    ${all.map((src, index) => `<article class="gallery-card ${index % 2 ? "light-gallery" : ""} reveal show" style="background-image:linear-gradient(135deg,rgba(11,94,215,.35),rgba(6,59,143,.65)),url('${escapeAttr(src)}');background-size:cover;background-position:center;min-height:260px">
-      <h3><i class="fa-solid fa-image"></i> صورة ${index + 1}</h3>
-      <p>${escapeHtml(title)}</p>
-    </article>`).join("")}
-  </div>`;
 }
 
 async function renderSingle(sectionKey, section, row) {
@@ -353,17 +355,204 @@ async function renderSingle(sectionKey, section, row) {
   else if (sectionKey === "events") item = renderEvent(section, row);
   else item = renderActivity(sectionKey, section, row);
 
-  const committeeLinks = await renderCommitteeLinks(sectionKey, row.id);
-  const gallery = ["committees", "events"].includes(sectionKey) ? "" : renderGallery(sectionKey, row, section);
-
   return `<section id="${escapeAttr(domId)}" style="padding-top:122px">
     <div class="container">
       ${renderHeader(sectionKey, section)}
       <div class="${escapeAttr(gridClass)}" style="${sectionKey === "events" ? "" : "grid-template-columns:1fr"}">${item}</div>
-      ${committeeLinks}
-      ${gallery}
     </div>
   </section>`;
+}
+
+function modalHtml() {
+  return `
+  <div class="modal-backdrop" id="newsFullModal">
+    <div class="news-brief-modal-box news-full-box">
+      <div class="news-brief-head">
+        <div class="news-brief-icon"><i class="fa-solid fa-newspaper"></i></div>
+        <div><h3 id="newsFullTitle">تفاصيل الخبر</h3><p id="newsFullCategory">آخر الأخبار</p></div>
+        <button class="news-brief-close" id="closeNewsFullModal" type="button"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="news-full-description" id="newsFullDescription"></div>
+      <div class="news-full-links" id="newsFullLinks"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" id="courseModal">
+    <div class="modal-box">
+      <button class="modal-close" id="closeCourseModal" type="button"><i class="fa-solid fa-xmark"></i></button>
+      <div class="modal-head"><div class="modal-icon"><i class="fa-solid fa-user-plus"></i></div><div><h3>التسجيل في الدورة</h3><p id="modalCourseName">الدورة</p></div></div>
+      <form id="courseRegistrationForm">
+        <input type="hidden" name="course_id" id="registrationCourseId">
+        <input type="hidden" name="course_title" id="registrationCourseTitle">
+        <div class="form-grid">
+          <label>الاسم الكامل<input name="student_full_name" required placeholder="اكتب اسمك الكامل"></label>
+          <label>الرقم الأكاديمي<input name="academic_number" required placeholder="اكتب رقمك الأكاديمي"></label>
+        </div>
+        <div class="modal-actions">
+          <button class="btn btn-dark" type="submit"><i class="fa-solid fa-paper-plane"></i> إرسال الطلب</button>
+          <button class="btn btn-soft" id="cancelCourseModal" type="button">إلغاء</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="committee-detail-backdrop" id="committeeDetailBackdrop">
+    <div class="committee-detail-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div class="sheet-icon" id="sheetIcon"><i class="fa-solid fa-sitemap"></i></div>
+        <div><h3 id="sheetTitle">تفاصيل اللجنة</h3><p id="sheetDescription">وصف اللجنة</p></div>
+        <button class="sheet-close" id="sheetClose" type="button"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="sheet-section"><h4>مهام اللجنة</h4><ul id="sheetTasks"></ul></div>
+      <div id="sheetLinkBox" style="display:none"></div>
+    </div>
+  </div>
+
+  <div class="committee-links-backdrop" id="committeeLinksBackdrop">
+    <div class="committee-links-sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div class="sheet-icon" id="linksSheetIcon"><i class="fa-solid fa-link"></i></div>
+        <div><h3 id="linksSheetTitle">روابط اللجنة</h3><p id="linksSheetSubtitle">روابط مهمة مع توضيح لمن كل رابط مخصص</p></div>
+        <button class="sheet-close" id="linksSheetClose" type="button"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="links-list" id="committeeLinksList"></div>
+    </div>
+  </div>
+
+  <div class="activity-details-backdrop" id="activityDetailsBackdrop">
+    <div class="activity-details-box">
+      <div class="activity-details-head">
+        <div class="activity-details-icon" id="activityDetailsIcon"><i class="fa-solid fa-images"></i></div>
+        <div><h3 id="activityDetailsTitle">تفاصيل النشاط</h3><p id="activityDetailsSubtitle">معرض الصور وتفاصيل النشاط</p></div>
+        <button class="activity-details-close" id="activityDetailsClose" type="button"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="activity-details-layout">
+        <div class="activity-details-gallery" id="activityDetailsGallery"></div>
+        <div class="activity-details-info">
+          <div class="activity-info-card"><h4><i class="fa-solid fa-circle-info"></i> الوصف</h4><p id="activityDetailsDescription"></p></div>
+          <div class="activity-info-card"><h4><i class="fa-solid fa-location-dot"></i> معلومات</h4><ul id="activityDetailsMeta"></ul></div>
+          <div class="activity-info-card"><h4><i class="fa-solid fa-list-check"></i> تفاصيل إضافية</h4><p id="activityDetailsLong"></p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="image-viewer" id="imageViewer"><button id="imageViewerClose" type="button"><i class="fa-solid fa-xmark"></i></button><img alt="صورة" id="imageViewerImg" src="" /></div>
+  `;
+}
+
+function pageScript(committeeLinks) {
+  const linksJson = JSON.stringify(committeeLinks || []);
+
+  return `<script>
+    function q(id){return document.getElementById(id)}
+    function safeText(v){return String(v||"")}
+    function formatDateArabic(v){try{return new Intl.DateTimeFormat("ar",{day:"2-digit",month:"long",year:"numeric"}).format(new Date(v))}catch(e){return v||""}}
+    function parseGalleryImages(value){if(!value)return[];if(Array.isArray(value))return value.filter(Boolean);if(typeof value==="string"){try{const parsed=JSON.parse(value);if(Array.isArray(parsed))return parsed.filter(Boolean)}catch(e){}return value.split(/\\n|,|\\|/).map(x=>x.trim()).filter(Boolean)}return[]}
+    function iconClass(v,f){return v&&String(v).startsWith("fa-")?v:f}
+    function openImageViewer(src){const box=q("imageViewer"),img=q("imageViewerImg");if(!box||!img)return;img.src=src;box.classList.add("show");document.body.style.overflow="hidden"}
+    function closeImageViewer(){const box=q("imageViewer");if(box)box.classList.remove("show");document.body.style.overflow=""}
+
+    const closeImage=q("imageViewerClose");if(closeImage)closeImage.onclick=closeImageViewer;
+    const imgViewer=q("imageViewer");if(imgViewer)imgViewer.onclick=e=>{if(e.target===imgViewer)closeImageViewer()};
+
+    document.querySelectorAll(".news-read-more").forEach(btn=>{
+      btn.onclick=()=>{
+        let item={};try{item=JSON.parse(decodeURIComponent(btn.dataset.news||"{}"))}catch(e){}
+        q("newsFullTitle").textContent=item.title||"تفاصيل الخبر";
+        q("newsFullCategory").textContent=item.category||"آخر الأخبار";
+        q("newsFullDescription").textContent=item.description||"";
+        q("newsFullLinks").innerHTML=(String(item.description||"").match(/https?:\\/\\/[^\\s<>()]+/g)||[]).map((url,i)=>'<a class="news-link-chip" href="'+url+'" target="_blank" rel="noopener"><i class="fa-solid fa-link"></i> رابط '+(i+1)+'</a>').join("");
+        q("newsFullModal").classList.add("show");
+        document.body.style.overflow="hidden";
+      };
+    });
+    const closeNews=q("closeNewsFullModal");if(closeNews)closeNews.onclick=()=>{q("newsFullModal").classList.remove("show");document.body.style.overflow=""};
+
+    document.querySelectorAll(".more-btn").forEach(btn=>{
+      btn.onclick=()=>{
+        const box=btn.closest(".course-card").querySelector(".course-more-box");
+        if(!box)return;
+        box.classList.toggle("show");
+        btn.innerHTML=box.classList.contains("show")?'<i class="fa-solid fa-chevron-up"></i> إخفاء المعلومات':'<i class="fa-solid fa-circle-info"></i> المزيد';
+      };
+    });
+
+    document.querySelectorAll(".action-btn").forEach(btn=>{
+      btn.onclick=()=>{
+        if(q("registrationCourseId"))q("registrationCourseId").value=btn.dataset.courseId||"";
+        if(q("registrationCourseTitle"))q("registrationCourseTitle").value=btn.dataset.courseTitle||"";
+        if(q("modalCourseName"))q("modalCourseName").textContent="الدورة: "+(btn.dataset.courseTitle||"دورة");
+        q("courseModal").classList.add("show");
+        document.body.style.overflow="hidden";
+      };
+    });
+    const closeCourse=q("closeCourseModal"),cancelCourse=q("cancelCourseModal");
+    function closeCourseModal(){q("courseModal").classList.remove("show");document.body.style.overflow=""}
+    if(closeCourse)closeCourse.onclick=closeCourseModal;
+    if(cancelCourse)cancelCourse.onclick=closeCourseModal;
+
+    document.querySelectorAll(".activity-details-btn").forEach(btn=>{
+      btn.onclick=()=>{
+        let activity={};try{activity=JSON.parse(decodeURIComponent(btn.dataset.activity||"{}"))}catch(e){}
+        const images=parseGalleryImages(activity.gallery_images||activity.images||activity.image_urls);
+        if(activity.image_url)images.unshift(activity.image_url);
+        q("activityDetailsIcon").innerHTML='<i class="'+iconClass(activity.icon,"fa-solid fa-images")+'"></i>';
+        q("activityDetailsTitle").textContent=activity.title||"تفاصيل النشاط";
+        q("activityDetailsSubtitle").textContent=activity.subtitle||activity.category||"معرض الصور وتفاصيل النشاط";
+        q("activityDetailsDescription").textContent=activity.description||"";
+        q("activityDetailsLong").textContent=activity.details||activity.long_description||"لا توجد تفاصيل إضافية.";
+        const meta=[
+          activity.activity_date?'<li><strong>التاريخ:</strong> '+formatDateArabic(activity.activity_date)+'</li>':"",
+          activity.location?'<li><strong>المكان:</strong> '+safeText(activity.location)+'</li>':"",
+          activity.category?'<li><strong>التصنيف:</strong> '+safeText(activity.category)+'</li>':""
+        ].filter(Boolean).join("");
+        q("activityDetailsMeta").innerHTML=meta||"<li>لا توجد معلومات إضافية.</li>";
+        q("activityDetailsGallery").innerHTML=images.length?images.map(url=>'<img src="'+url+'" alt="" loading="lazy" onclick="openImageViewer(\\''+url+'\\')" />').join(""):'<div class="empty-state" style="grid-column:1/-1;">لا توجد صور مضافة.</div>';
+        q("activityDetailsBackdrop").classList.add("show");
+        document.body.style.overflow="hidden";
+      };
+    });
+    const activityClose=q("activityDetailsClose");if(activityClose)activityClose.onclick=()=>{q("activityDetailsBackdrop").classList.remove("show");document.body.style.overflow=""};
+
+    document.querySelectorAll(".committee-detail-btn").forEach(btn=>{
+      btn.onclick=()=>{
+        q("sheetIcon").innerHTML='<i class="'+(btn.dataset.icon||"fa-solid fa-sitemap")+'"></i>';
+        q("sheetTitle").textContent=btn.dataset.title||"لجنة";
+        q("sheetDescription").textContent=btn.dataset.description||"";
+        const tasks=[btn.dataset.taskOne,btn.dataset.taskTwo,btn.dataset.taskThree].filter(Boolean);
+        q("sheetTasks").innerHTML=tasks.length?tasks.map(t=>'<li>'+safeText(t)+'</li>').join(""):'<li>لا توجد مهام مضافة بعد.</li>';
+        q("committeeDetailBackdrop").classList.add("show");
+        document.body.style.overflow="hidden";
+      };
+    });
+    const sheetClose=q("sheetClose");if(sheetClose)sheetClose.onclick=()=>{q("committeeDetailBackdrop").classList.remove("show");document.body.style.overflow=""};
+
+    const committeeLinks=${linksJson};
+    document.querySelectorAll(".committee-links-btn").forEach(btn=>{
+      btn.onclick=()=>{
+        q("linksSheetIcon").innerHTML='<i class="'+(btn.dataset.icon||"fa-solid fa-link")+'"></i>';
+        q("linksSheetTitle").textContent="روابط "+(btn.dataset.title||"اللجنة");
+        q("committeeLinksList").innerHTML=committeeLinks.length?committeeLinks.map(link=>{
+          const url=link.url||"#";
+          return '<article class="committee-link-card"><div class="committee-link-icon"><i class="'+iconClass(link.icon,"fa-solid fa-link")+'"></i></div><div><h4>'+safeText(link.title)+'</h4><p>'+safeText(link.description||"رابط خاص بهذه اللجنة.")+'</p></div><a class="btn btn-dark" href="'+url+'" '+(url.startsWith("http")?'target="_blank" rel="noopener"':'')+'><i class="fa-solid fa-arrow-up-right-from-square"></i> فتح</a></article>';
+        }).join(""):'<div class="links-empty">لا توجد روابط مضافة لهذه اللجنة حاليًا.</div>';
+        q("committeeLinksBackdrop").classList.add("show");
+        document.body.style.overflow="hidden";
+      };
+    });
+    const linksClose=q("linksSheetClose");if(linksClose)linksClose.onclick=()=>{q("committeeLinksBackdrop").classList.remove("show");document.body.style.overflow=""};
+
+    document.querySelectorAll(".achievement-detail-btn,.initiative-detail-btn").forEach(btn=>{
+      btn.onclick=()=>{
+        const payload=btn.dataset.achievement||btn.dataset.initiative||"";
+        let item={};try{item=JSON.parse(decodeURIComponent(payload))}catch(e){}
+        alert((item.title||"التفاصيل")+"\\n\\n"+(item.details||item.description||"لا توجد تفاصيل إضافية."));
+      };
+    });
+  </script>`;
 }
 
 module.exports = async function handler(req, res) {
@@ -390,12 +579,15 @@ module.exports = async function handler(req, res) {
       return;
     }
 
+    let committeeLinks = [];
+    if (sectionKey === "committees") committeeLinks = await renderCommitteeLinksData(id);
+
     const title = titleOf(row, section);
     const description = truncate(textOf(row, section) || section.description, 170);
     const image = imageOf(row);
     const url = urlFor(sectionKey, row);
     const schema = schemaFor(sectionKey, section, row, title, description, image, url);
-    const body = `<main>${await renderSingle(sectionKey, section, row)}</main>`;
+    const body = `<main>${await renderSingle(sectionKey, section, row)}</main>${modalHtml()}${pageScript(committeeLinks)}`;
 
     const html = htmlLayout({
       title: `${title} | ${section.label} | ${SITE_NAME}`,

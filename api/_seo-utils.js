@@ -285,7 +285,7 @@ async function supabaseSelect(table, options = {}) {
 }
 
 function navHtml(activePath = "") {
-  // نفس ناف الموقع الرئيسي، مع إضافة المبادرات والفعاليات في الناف السفلي.
+  // ناف مطابق للموقع الرئيسي، مع إضافة المبادرات والفعاليات في الأسفل.
   const links = [
     ["الرئيسية", "/", "fa-solid fa-house"],
     ["الأخبار", "/news", "fa-solid fa-newspaper"],
@@ -332,7 +332,7 @@ function navHtml(activePath = "") {
     </div>
   </nav>
 </header>
-<nav class="bottom-nav" style="grid-template-columns:repeat(6,1fr)">${bottomLinks}</nav>`;
+<nav class="bottom-nav" style="grid-template-columns:repeat(6,1fr);">${bottomLinks}</nav>`;
 }
 
 
