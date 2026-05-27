@@ -835,11 +835,35 @@
         ]
       },
       achievements: {
-        title:"الإنجازات", desc:"إدارة أرقام الإنجازات.", icon:"fa-trophy", order:{column:"sort_order",ascending:true}, labelField:"title",
+        title:"إنجازات الملتقى", desc:"إدارة الإنجازات الموثقة بالصور مثل التكريمات والبرامج المنجزة والمشاركات النوعية.", icon:"fa-trophy", order:{column:"sort_order",ascending:true}, labelField:"title",
         fields:[
-          {name:"title",label:"العنوان",type:"text",required:true},
-          {name:"value",label:"الرقم",type:"number"},
+          {name:"title",label:"اسم الإنجاز",type:"text",required:true},
+          {name:"description",label:"وصف مختصر",type:"textarea"},
+          {name:"details",label:"تفاصيل الإنجاز",type:"textarea"},
+          {name:"achievement_date",label:"تاريخ الإنجاز",type:"date"},
+          {name:"category",label:"التصنيف",type:"text",placeholder:"تكريم / برنامج / مشاركة / إنجاز"},
+          {name:"value",label:"رقم أو قيمة اختيارية",type:"number"},
           {name:"icon",label:"الأيقونة",type:"text",placeholder:"fa-solid fa-trophy"},
+          {name:"image_url",label:"صورة رئيسية للإنجاز",type:"single_image_upload",bucket:STORAGE_BUCKET,folder:"achievements"},
+          {name:"gallery_images",label:"صور الإنجاز / التكريم",type:"image_upload",bucket:STORAGE_BUCKET,folder:"achievements"},
+          {name:"sort_order",label:"الترتيب",type:"number"},
+          {name:"is_active",label:"ظاهر في الموقع",type:"boolean",default:true}
+        ]
+      },
+      student_initiatives: {
+        title:"المبادرات الطلابية", desc:"إدارة المبادرات الطلابية مثل تبادل الكتب، المبادرات الخيرية، حملات الدعم، والمقترحات التطوعية.", icon:"fa-hand-holding-heart", order:{column:"sort_order",ascending:true}, labelField:"title",
+        fields:[
+          {name:"title",label:"اسم المبادرة",type:"text",required:true},
+          {name:"description",label:"وصف مختصر",type:"textarea"},
+          {name:"details",label:"تفاصيل المبادرة",type:"textarea"},
+          {name:"initiative_date",label:"تاريخ المبادرة",type:"date"},
+          {name:"category",label:"التصنيف",type:"text",placeholder:"تعليمية / خيرية / تطوعية / مقترح"},
+          {name:"status",label:"الحالة",type:"text",placeholder:"مقترحة / قيد التنفيذ / مكتملة"},
+          {name:"organizer",label:"الجهة المنفذة",type:"text",placeholder:"اللجنة / الفريق / الطلاب"},
+          {name:"target_group",label:"الفئة المستهدفة",type:"text",placeholder:"طلاب الجامعة / المحتاجون / الخريجون"},
+          {name:"icon",label:"الأيقونة",type:"text",placeholder:"fa-solid fa-hand-holding-heart"},
+          {name:"image_url",label:"صورة رئيسية للمبادرة",type:"single_image_upload",bucket:STORAGE_BUCKET,folder:"initiatives"},
+          {name:"gallery_images",label:"صور المبادرة",type:"image_upload",bucket:STORAGE_BUCKET,folder:"initiatives"},
           {name:"sort_order",label:"الترتيب",type:"number"},
           {name:"is_active",label:"ظاهر في الموقع",type:"boolean",default:true}
         ]
@@ -859,6 +883,7 @@
         title:"الشكاوى والإشكاليات", desc:"متابعة طلبات الطلاب وتغيير حالتها أو حذفها.", icon:"fa-headset", order:{column:"created_at",ascending:false}, labelField:"title",
         fields:[
           {name:"student_name",label:"اسم الطالب",type:"text",required:true},
+          {name:"phone_number",label:"رقم الهاتف",type:"text",placeholder:"77xxxxxxx"},
           {name:"issue_type",label:"نوع الطلب",type:"text",required:true},
           {name:"title",label:"العنوان",type:"text",required:true},
           {name:"description",label:"التفاصيل",type:"textarea",required:true},
@@ -1586,9 +1611,9 @@
 
     async function loadStats(){
       if(!assertClient())return;
-      const important=["tv_news","activities","courses","student_issues"];
-      const labels={tv_news:"أخبار",activities:"أنشطة",courses:"دورات",student_issues:"شكاوى"};
-      const icons={tv_news:"fa-tv",activities:"fa-calendar-check",courses:"fa-book-open-reader",student_issues:"fa-headset"};
+      const important=["tv_news","activities","courses","achievements","student_initiatives","student_issues"];
+      const labels={tv_news:"أخبار",activities:"أنشطة",courses:"دورات",achievements:"إنجازات",student_initiatives:"مبادرات",student_issues:"شكاوى"};
+      const icons={tv_news:"fa-tv",activities:"fa-calendar-check",courses:"fa-book-open-reader",achievements:"fa-trophy",student_initiatives:"fa-hand-holding-heart",student_issues:"fa-headset"};
       let stats=[];
       for(const table of visibleTableKeys()){
         const {count}=await db.from(table).select("*",{count:"exact",head:true});

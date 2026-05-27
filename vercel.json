@@ -49,6 +49,14 @@
       "destination": "/api/seo-page?type=achievements&id=:id"
     },
     {
+      "source": "/initiatives",
+      "destination": "/api/section-page?section=initiatives"
+    },
+    {
+      "source": "/initiatives/:id",
+      "destination": "/api/seo-page?type=initiatives&id=:id"
+    },
+    {
       "source": "/events",
       "destination": "/api/section-page?section=events"
     },
