@@ -312,7 +312,20 @@ function htmlLayout({ title, description, canonical, image, activePath, body, sc
   const safeDescription = escapeAttr(truncate(description || DEFAULT_DESCRIPTION, 170));
   const safeCanonical = escapeAttr(canonical || SITE_URL + "/");
   const safeImage = escapeAttr(image || DEFAULT_IMAGE);
-  const jsonLd = schema ? `<script type="application/ld+json">${JSON.stringify(schema)}</script>` : "";
+  const baseWebSiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "ملتقى الطالب الجامعي",
+    "alternateName": [
+      "ملتقى الطالب الجامعي - جامعة العلوم والتكنولوجيا",
+      "USF UST",
+      "University Student Forum"
+    ],
+    "url": SITE_URL + "/"
+  };
+  const jsonLd = schema
+    ? `<script type="application/ld+json">${JSON.stringify(baseWebSiteSchema)}</script>\n  <script type="application/ld+json">${JSON.stringify(schema)}</script>`
+    : `<script type="application/ld+json">${JSON.stringify(baseWebSiteSchema)}</script>`;
 
   return `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -324,8 +337,14 @@ function htmlLayout({ title, description, canonical, image, activePath, body, sc
   <meta name="description" content="${safeDescription}" />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <link rel="canonical" href="${safeCanonical}" />
-  <link rel="icon" href="/logo.png" type="image/png" />
-  <link rel="apple-touch-icon" href="/logo.png" />
+  <!-- Favicons + App Icons -->
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png">
+  <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/site.webmanifest" />
   <meta property="og:locale" content="ar_AR" />
   <meta property="og:type" content="website" />
