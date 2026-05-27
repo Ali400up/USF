@@ -7,7 +7,7 @@ const SUPABASE_URL = (process.env.SUPABASE_URL || "https://bvkcfdagsfmqrhyqspan.
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || "";
 
 const SITE_NAME = "ملتقى الطالب الجامعي - جامعة العلوم والتكنولوجيا";
-const DEFAULT_DESCRIPTION = "الموقع الرسمي لملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا: أخبار الملتقى، اللجان، الأنشطة، الدورات، الفعاليات، الشكاوى والمقترحات وخدمات الطلاب.";
+const DEFAULT_DESCRIPTION = "ملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا: أخبار، أنشطة، دورات، لجان، فعاليات، ومتابعة لقضايا الطلاب.";
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
 
 const SECTIONS = {

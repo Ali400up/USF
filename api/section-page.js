@@ -1,7 +1,7 @@
 // api/section-page.js
-// نسخة 100% مطابقة لأقسام الصفحة الرئيسية:
+// صفحات الأقسام العامة:
 // لا نعيد تصميم الأقسام هنا، بل نعرض نفس index.html الأصلي ونخفي كل شيء إلا القسم المطلوب.
-// لذلك /news هو نفس تلفاز الصفحة الرئيسية، و /committees هو نفس كروت اللجان وروابط القنوات، وهكذا.
+// لذلك /news هو واجهة الأخبار، و /committees هو كروت اللجان وروابطها، وهكذا.
 
 const fs = require("fs");
 const path = require("path");
@@ -13,62 +13,62 @@ const SECTION_MAP = {
     id: "latest-news",
     path: "/news",
     title: "آخر الأخبار | ملتقى الطالب الجامعي",
-    description: "نشرة أخبار ملتقى الطالب الجامعي بنفس تصميم التلفاز الموجود في الصفحة الرئيسية."
+    description: "آخر أخبار الملتقى وما يهم الطالب أولًا."
   },
   activities: {
     id: "activities",
     path: "/activities",
     title: "الأنشطة والرحلات | ملتقى الطالب الجامعي",
-    description: "أنشطة وبرامج ملتقى الطالب الجامعي بنفس تصميم الصفحة الرئيسية."
+    description: "أنشطة الملتقى وبرامجه الطلابية."
   },
   courses: {
     id: "courses",
     path: "/courses",
     title: "الدورات | ملتقى الطالب الجامعي",
-    description: "الدورات والبرامج التدريبية بنفس تصميم الصفحة الرئيسية."
+    description: "دورات تصنع مهارة وفرصة بالواجهة العامة."
   },
   committees: {
     id: "committees",
     path: "/committees",
     title: "لجان الملتقى | ملتقى الطالب الجامعي",
-    description: "لجان ملتقى الطالب الجامعي وروابط القنوات بنفس تصميم الصفحة الرئيسية."
+    description: "لجان الملتقى وروابطها الرسمية للطلاب."
   },
   achievements: {
     id: "achievements",
     path: "/achievements",
     title: "الإنجازات | ملتقى الطالب الجامعي",
-    description: "إنجازات ملتقى الطالب الجامعي بنفس تصميم الصفحة الرئيسية."
+    description: "إنجازات الملتقى الموثقة."
   },
 
   initiatives: {
     id: "initiatives",
     path: "/initiatives",
     title: "المبادرات الطلابية | ملتقى الطالب الجامعي",
-    description: "قسم المبادرات الطلابية بنفس تصميم الصفحة الرئيسية."
+    description: "المبادرات الطلابية ومقترحات الطلاب."
   },
   events: {
     id: "timeline",
     path: "/events",
     title: "الفعاليات القادمة | ملتقى الطالب الجامعي",
-    description: "المواعيد والفعاليات القادمة بنفس تصميم Timeline في الصفحة الرئيسية."
+    description: "المواعيد والفعاليات القادمة بتصميم الفعاليات القادمة في الصفحة الرئيسية."
   },
   issues: {
     id: "issues",
     path: "/issues",
     title: "الشكاوى والمقترحات | ملتقى الطالب الجامعي",
-    description: "قسم الشكاوى والمقترحات بنفس تصميم الصفحة الرئيسية."
+    description: "قناة الشكاوى والمقترحات الطلابية."
   },
   about: {
     id: "about",
     path: "/about",
     title: "عن الملتقى | ملتقى الطالب الجامعي",
-    description: "التعريف بملتقى الطالب الجامعي بنفس تصميم الصفحة الرئيسية."
+    description: "التعريف بملتقى الطالب الجامعي."
   },
   goals: {
     id: "goals",
     path: "/goals",
     title: "أهداف الملتقى | ملتقى الطالب الجامعي",
-    description: "أهداف ملتقى الطالب الجامعي بنفس تصميم الصفحة الرئيسية."
+    description: "أهداف ملتقى الطالب الجامعي."
   }
 };
 
@@ -119,7 +119,7 @@ function injectCrop(html, key, section) {
 
   const cropCss = `
   <style id="usf-exact-cropped-section-style">
-    /* هذه الصفحة تعرض نفس قسم الصفحة الرئيسية فقط، بدون تغيير تصميم القسم */
+    /* عرض القسم المطلوب فقط */
     body.usf-exact-crop main > section,
     body.usf-exact-crop main > .ticker,
     body.usf-exact-crop .ticker {
