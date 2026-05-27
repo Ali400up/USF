@@ -1,11 +1,10 @@
 // api/seo-page.js
-// صفحة تفاصيل نظيفة وجميلة للمستخدمين.
-// لا تعرض حقول تقنية مثل icon أو is_light أو بيانات إضافية غير مفهومة.
-// تستخدم نفس CSS وكلاسات الموقع الرئيسي قدر الإمكان.
+// صفحة ID تعرض نفس تصميم عنصر الصفحة الرئيسية تمامًا، لكن بعنصر واحد فقط.
+// لا تعرض أزرار رجوع أو بيانات تقنية، ولا صفحات تفاصيل مختلفة.
 
 const {
   SITE_URL, SITE_NAME, SECTIONS,
-  escapeHtml, escapeAttr, truncate, titleOf, textOf, detailOf, imageOf, parseImages, urlFor,
+  escapeHtml, escapeAttr, truncate, titleOf, textOf, imageOf, parseImages, urlFor,
   responseHeaders, supabaseSelect, htmlLayout, errorPage
 } = require("./_seo-utils");
 
@@ -18,11 +17,7 @@ function prettyDate(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return String(value);
   try {
-    return new Intl.DateTimeFormat("ar", {
-      year: "numeric",
-      month: "long",
-      day: "2-digit"
-    }).format(date);
+    return new Intl.DateTimeFormat("ar", { day: "2-digit", month: "long", year: "numeric" }).format(date);
   } catch (_) {
     return date.toISOString().slice(0, 10);
   }
@@ -50,11 +45,7 @@ function schemaFor(sectionKey, section, row, title, description, image, url) {
     "description": description,
     "url": url,
     "image": image,
-    "isPartOf": {
-      "@type": "WebSite",
-      "name": SITE_NAME,
-      "url": SITE_URL + "/"
-    }
+    "isPartOf": { "@type": "WebSite", "name": SITE_NAME, "url": SITE_URL + "/" }
   };
 
   if (sectionKey === "news") {
@@ -71,25 +62,14 @@ function schemaFor(sectionKey, section, row, title, description, image, url) {
 
   if (sectionKey === "courses") {
     schema["@type"] = "Course";
-    schema.provider = {
-      "@type": "CollegeOrUniversity",
-      "name": "جامعة العلوم والتكنولوجيا",
-      "sameAs": SITE_URL
-    };
+    schema.provider = { "@type": "CollegeOrUniversity", "name": "جامعة العلوم والتكنولوجيا", "sameAs": SITE_URL };
   }
 
   if (sectionKey === "activities" || sectionKey === "events") {
     schema["@type"] = "Event";
     schema.startDate = row.event_date || row.activity_date || row.start_date || row.created_at || new Date().toISOString();
-    schema.location = {
-      "@type": "Place",
-      "name": row.location || "جامعة العلوم والتكنولوجيا"
-    };
-    schema.organizer = {
-      "@type": "Organization",
-      "name": SITE_NAME,
-      "url": SITE_URL + "/"
-    };
+    schema.location = { "@type": "Place", "name": row.location || "جامعة العلوم والتكنولوجيا" };
+    schema.organizer = { "@type": "Organization", "name": SITE_NAME, "url": SITE_URL + "/" };
   }
 
   if (sectionKey === "committees") {
@@ -100,163 +80,169 @@ function schemaFor(sectionKey, section, row, title, description, image, url) {
   return schema;
 }
 
+function sectionCopy(sectionKey, section) {
+  const copy = {
+    news: ["آخر الأخبار", "نشرة أخبار الملتقى بطريقة تلفزيونية حديثة", "شاشة أخبار تعرض الخبر المحدد بنفس شكل الصفحة الرئيسية."],
+    activities: ["الأنشطة", "أنشطة الملتقى وبرامجه", "عرض النشاط المحدد بنفس شكل كروت الأنشطة في الصفحة الرئيسية."],
+    courses: ["تسجيل الدورات", "الدورات والبرامج التدريبية", "عرض الدورة المحددة بنفس شكل كروت الدورات في الصفحة الرئيسية."],
+    committees: ["لجان ملتقى الطالب الجامعي", "اللجان الرئيسية التي يتعامل معها الطالب مباشرة", "عرض اللجنة المحددة وروابطها بنفس أسلوب الصفحة الرئيسية."],
+    achievements: ["إنجازات الملتقى", "إنجازات موثقة", "عرض الإنجاز المحدد بالصور والتفاصيل بنفس روح الموقع الرئيسي."],
+    initiatives: ["المبادرات الطلابية", "مبادرة طلابية", "عرض المبادرة المحددة بنفس شكل الموقع الرئيسي."],
+    events: ["Timeline", "المواعيد القادمة", "عرض الفعالية المحددة بنفس شكل خط الزمن في الصفحة الرئيسية."]
+  };
+  return copy[sectionKey] || [section.label, section.label, section.description];
+}
+
 function sectionDomId(sectionKey) {
   if (sectionKey === "news") return "latest-news";
   if (sectionKey === "events") return "timeline";
   return sectionKey;
 }
 
-function sectionDate(row, sectionKey) {
-  return row.event_date || row.activity_date || row.start_date || row.end_date || row.achievement_date || row.initiative_date || row.created_at || "";
-}
-
-function buildReadableTags(row, sectionKey) {
-  const tags = [];
-
-  if (row.category) {
-    tags.push(`<span class="tag"><i class="fa-solid fa-tag"></i> ${escapeHtml(row.category)}</span>`);
-  }
-
-  if (row.status) {
-    tags.push(`<span class="tag"><i class="fa-solid fa-signal"></i> ${escapeHtml(row.status)}</span>`);
-  }
-
-  if (row.location) {
-    tags.push(`<span class="tag"><i class="fa-solid fa-location-dot"></i> ${escapeHtml(row.location)}</span>`);
-  }
-
-  const date = sectionDate(row, sectionKey);
-  if (date) {
-    tags.push(`<span class="tag"><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(prettyDate(date))}</span>`);
-  }
-
-  if (row.organizer) {
-    tags.push(`<span class="tag"><i class="fa-solid fa-building"></i> ${escapeHtml(row.organizer)}</span>`);
-  }
-
-  if (row.target_group) {
-    tags.push(`<span class="tag"><i class="fa-solid fa-users"></i> ${escapeHtml(row.target_group)}</span>`);
-  }
-
-  const seatsTotal = row.seats_total || row.capacity;
-  const seatsTaken = row.seats_taken || row.registered_count;
-  if (seatsTotal) {
-    tags.push(`<span class="tag"><i class="fa-solid fa-users"></i> المقاعد: ${escapeHtml(seatsTaken || 0)} / ${escapeHtml(seatsTotal)}</span>`);
-  }
-
-  if (row.value) {
-    tags.push(`<span class="tag"><i class="fa-solid fa-chart-line"></i> ${escapeHtml(row.value)}</span>`);
-  }
-
-  return tags.join("");
-}
-
-function buildHighlights(row, sectionKey) {
-  const items = [];
-
-  if (row.organizer) items.push(["الجهة المنفذة", row.organizer, "fa-solid fa-building"]);
-  if (row.target_group) items.push(["الفئة المستهدفة", row.target_group, "fa-solid fa-users"]);
-  if (row.beneficiaries) items.push(["المستفيدون", row.beneficiaries, "fa-solid fa-hand-holding-heart"]);
-  if (row.requirements) items.push(["المتطلبات", row.requirements, "fa-solid fa-list-check"]);
-  if (row.expected_needs) items.push(["الاحتياجات", row.expected_needs, "fa-solid fa-box-open"]);
-  if (row.team) items.push(["الفريق", row.team, "fa-solid fa-people-group"]);
-  if (row.suggested_team) items.push(["الفريق المقترح", row.suggested_team, "fa-solid fa-people-group"]);
-
-  if (!items.length) return "";
-
-  return `<div class="activity-info-card reveal show">
-    <h4><i class="fa-solid fa-star"></i> نقاط مهمة</h4>
-    <div class="links-list">
-      ${items.map(([label, value, icon]) => `<article class="committee-link-card">
-        <div class="committee-link-icon"><i class="${icon}"></i></div>
-        <div>
-          <h4>${escapeHtml(label)}</h4>
-          <p style="white-space:pre-line">${escapeHtml(value)}</p>
-        </div>
-      </article>`).join("")}
+function renderHeader(sectionKey, section) {
+  const [kicker, title, desc] = sectionCopy(sectionKey, section);
+  return `<div class="section-header reveal show">
+    <div>
+      <div class="section-kicker">${escapeHtml(kicker)}</div>
+      <h2 class="section-title">${escapeHtml(title)}</h2>
     </div>
+    <p class="section-desc">${escapeHtml(desc)}</p>
   </div>`;
 }
 
-function buildTasks(row) {
-  const tasks = [
-    row.task_one,
-    row.task_two,
-    row.task_three,
-    ...normalizeArray(row.tasks),
-    ...normalizeArray(row.responsibilities)
-  ].filter(Boolean);
+function renderNews(sectionKey, section, row) {
+  const title = titleOf(row, section);
+  const text = textOf(row, section);
+  const image = imageOf(row);
+  const category = row.category || "خبر";
+  const ticker = row.ticker || title;
+  const icon = safeIcon(row.icon, section.icon);
 
-  if (!tasks.length) return "";
-
-  return `<div class="activity-info-card reveal show">
-    <h4><i class="fa-solid fa-list-check"></i> المهام والمسؤوليات</h4>
-    <ul>
-      ${tasks.map(task => `<li>${escapeHtml(task)}</li>`).join("")}
-    </ul>
-  </div>`;
-}
-
-function extractLinksFromText(text = "") {
-  const urls = [];
-  const regex = /(https?:\/\/[^\s<>"')]+|t\.me\/[^\s<>"')]+|www\.[^\s<>"')]+)/gi;
-  let match;
-  while ((match = regex.exec(text))) {
-    let url = match[0].trim();
-    if (url.startsWith("www.")) url = "https://" + url;
-    if (url.startsWith("t.me/")) url = "https://" + url;
-    if (!urls.includes(url)) urls.push(url);
-  }
-  return urls;
-}
-
-function buildLinks(row, details) {
-  const links = [];
-  if (row.url) links.push(String(row.url));
-
-  extractLinksFromText(`${row.description || ""}\n${row.details || ""}\n${row.ticker || ""}\n${details || ""}`).forEach(url => {
-    if (!links.includes(url)) links.push(url);
-  });
-
-  if (!links.length) return "";
-
-  return `<div class="activity-info-card reveal show">
-    <h4><i class="fa-solid fa-link"></i> روابط مهمة</h4>
-    <div class="links-list">
-      ${links.map((url, i) => `<article class="committee-link-card">
-        <div class="committee-link-icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
-        <div>
-          <h4>${escapeHtml(row.link_text || `رابط ${i + 1}`)}</h4>
-          <p>${escapeHtml(url)}</p>
+  return `<section id="latest-news" style="padding-top:122px">
+    <div class="container">
+      ${renderHeader(sectionKey, section)}
+      <div class="news-studio reveal show delay-1">
+        <div class="news-tv">
+          <div class="news-screen">
+            <div class="news-media">
+              ${image ? `<img alt="${escapeAttr(title)}" src="${escapeAttr(image)}" />` : ""}
+              <div class="news-shine"></div>
+              <div class="news-live"><i class="fa-solid fa-circle"></i> آخر الأخبار</div>
+            </div>
+            <div class="news-frame-ticker"><span>${escapeHtml(ticker)}</span></div>
+            <div class="news-caption">
+              <div class="news-category"><i class="${escapeAttr(icon)}"></i> ${escapeHtml(category)}</div>
+              <h3>${escapeHtml(title)}</h3>
+              <p>${escapeHtml(text)}</p>
+            </div>
+          </div>
+          <div class="tv-stand"></div>
         </div>
-        <a class="btn btn-dark" href="${escapeAttr(url)}" target="_blank" rel="noopener">فتح</a>
-      </article>`).join("")}
+      </div>
     </div>
-  </div>`;
+  </section>`;
 }
 
-async function buildCommitteeLinks(sectionKey, id) {
+function renderActivity(sectionKey, section, row) {
+  const title = titleOf(row, section);
+  const text = textOf(row, section);
+  const image = imageOf(row);
+  const icon = safeIcon(row.icon, section.icon);
+  const meta = [];
+
+  if (row.category) meta.push(`<span><i class="fa-solid fa-tag"></i> ${escapeHtml(row.category)}</span>`);
+  if (row.status) meta.push(`<span><i class="fa-solid fa-signal"></i> ${escapeHtml(row.status)}</span>`);
+  if (row.location) meta.push(`<span><i class="fa-solid fa-location-dot"></i> ${escapeHtml(row.location)}</span>`);
+  if (row.activity_date || row.event_date) meta.push(`<span><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(prettyDate(row.activity_date || row.event_date))}</span>`);
+
+  return `<article class="activity-card reveal show" style="max-width:420px;margin-inline:auto">
+    <div class="cover">
+      ${image && !image.includes("og-image") ? `<img src="${escapeAttr(image)}" alt="${escapeAttr(title)}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.30">` : ""}
+      <h3><i class="${escapeAttr(icon)}"></i> ${escapeHtml(title)}</h3>
+    </div>
+    <div class="card-body">
+      ${meta.length ? `<div class="activity-meta">${meta.join("")}</div>` : ""}
+      <p>${escapeHtml(text)}</p>
+    </div>
+  </article>`;
+}
+
+function renderCourse(section, row) {
+  const title = titleOf(row, section);
+  const text = textOf(row, section);
+  const image = imageOf(row);
+  const icon = safeIcon(row.icon, section.icon);
+  const category = row.category || row.course_category || "برنامج تدريبي";
+  const seatsTotal = Number(row.seats_total || row.capacity || 0);
+  const seatsTaken = Number(row.seats_taken || row.registered_count || 0);
+  const percent = seatsTotal > 0 ? Math.min(100, Math.max(0, Math.round((seatsTaken / seatsTotal) * 100))) : 0;
+
+  return `<article class="course-card reveal show" data-category="${escapeAttr(category)}" style="max-width:420px;margin-inline:auto">
+    <div class="cover">
+      ${image && !image.includes("og-image") ? `<img src="${escapeAttr(image)}" alt="${escapeAttr(title)}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.30">` : ""}
+      <h3><i class="${escapeAttr(icon)}"></i> ${escapeHtml(title)}</h3>
+    </div>
+    <div class="card-body">
+      <span class="tag"><i class="fa-solid fa-tag"></i> ${escapeHtml(category)}</span>
+      <p>${escapeHtml(text)}</p>
+      ${seatsTotal > 0 ? `<div class="progress-block">
+        <div class="progress-info"><span>المقاعد المسجلة</span><strong>${escapeHtml(seatsTaken)} / ${escapeHtml(seatsTotal)}</strong></div>
+        <div class="progress"><span style="--width:${percent}%"></span></div>
+      </div>` : ""}
+      <div class="course-meta-line">
+        <span><i class="fa-solid fa-circle-info"></i> ${escapeHtml(row.status || "متاحة")}</span>
+        ${row.start_date ? `<span><i class="fa-solid fa-calendar"></i> ${escapeHtml(prettyDate(row.start_date))}</span>` : ""}
+      </div>
+    </div>
+  </article>`;
+}
+
+function renderCommittee(section, row) {
+  const title = titleOf(row, section);
+  const text = textOf(row, section);
+  const icon = safeIcon(row.icon, section.icon);
+  const tasksText = row.tasks || row.responsibilities || row.description || "";
+  let tasks = [];
+
+  if (Array.isArray(tasksText)) tasks = tasksText;
+  else if (typeof tasksText === "string") {
+    try {
+      const parsed = JSON.parse(tasksText);
+      if (Array.isArray(parsed)) tasks = parsed;
+    } catch (_) {
+      tasks = tasksText.split(/\n|،|,/).map(x => x.trim()).filter(Boolean).slice(0, 3);
+    }
+  }
+
+  return `<article class="committee-card reveal show" style="max-width:420px;margin-inline:auto">
+    <div class="avatar"><i class="${escapeAttr(icon)}"></i></div>
+    <h3>${escapeHtml(title)}</h3>
+    <p>${escapeHtml(text)}</p>
+    ${tasks.length ? `<div class="committee-tasks">${tasks.slice(0,3).map(t => `<div class="committee-task"><i class="fa-solid fa-circle"></i> ${escapeHtml(t)}</div>`).join("")}</div>` : ""}
+  </article>`;
+}
+
+async function renderCommitteeLinks(sectionKey, id) {
   if (sectionKey !== "committees") return "";
 
   try {
     const links = await supabaseSelect("committee_links", {
-      filters: {
-        committee_id: `eq.${id}`,
-        is_active: "eq.true"
-      },
+      filters: { committee_id: `eq.${id}`, is_active: "eq.true" },
       order: "sort_order.asc",
       limit: 100
     });
 
-    if (!links.length) {
-      return `<div class="activity-info-card reveal show">
-        <h4><i class="fa-solid fa-link"></i> روابط اللجنة والقنوات</h4>
-        <div class="links-empty">لا توجد روابط مضافة لهذه اللجنة حاليًا.</div>
-      </div>`;
-    }
+    if (!links.length) return "";
 
-    return `<div class="activity-info-card reveal show">
-      <h4><i class="fa-solid fa-link"></i> روابط اللجنة والقنوات</h4>
+    return `<div class="committee-links-sheet reveal show" style="margin:22px auto 0;max-width:980px">
+      <div class="sheet-handle"></div>
+      <div class="sheet-head">
+        <div class="sheet-icon"><i class="fa-solid fa-link"></i></div>
+        <div>
+          <h3>روابط اللجنة والقنوات</h3>
+          <p>روابط مباشرة خاصة بهذه اللجنة.</p>
+        </div>
+      </div>
       <div class="links-list">
         ${links.map(link => {
           const linkUrl = link.url || "#";
@@ -272,25 +258,112 @@ async function buildCommitteeLinks(sectionKey, id) {
         }).join("")}
       </div>
     </div>`;
-  } catch (error) {
+  } catch (_) {
     return "";
   }
 }
 
-function buildGallery(image, images, title) {
+function renderAchievement(section, row) {
+  const title = titleOf(row, section);
+  const text = textOf(row, section);
+  const image = imageOf(row);
+  const icon = safeIcon(row.icon, section.icon);
+  const date = row.achievement_date ? prettyDate(row.achievement_date) : "";
+  const value = row.value || "";
+
+  return `<article class="achievement-card reveal show" style="max-width:420px;margin-inline:auto">
+    ${image && !image.includes("og-image") ? `<div style="height:180px;margin:-24px -18px 16px;overflow:hidden;border-radius:26px 26px 0 0"><img src="${escapeAttr(image)}" alt="${escapeAttr(title)}" style="width:100%;height:100%;object-fit:cover"></div>` : ""}
+    <div class="achievement-icon"><i class="${escapeAttr(icon)}"></i></div>
+    <div class="achievement-number">${escapeHtml(value || "✓")}</div>
+    <p>${escapeHtml(title)}</p>
+    ${text ? `<p style="margin-top:8px">${escapeHtml(text)}</p>` : ""}
+    ${date ? `<span class="tag" style="margin-top:12px"><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(date)}</span>` : ""}
+  </article>`;
+}
+
+function renderInitiative(section, row) {
+  const title = titleOf(row, section);
+  const text = textOf(row, section);
+  const image = imageOf(row);
+  const icon = safeIcon(row.icon, section.icon);
+  const meta = [];
+
+  if (row.category) meta.push(`<span><i class="fa-solid fa-tag"></i> ${escapeHtml(row.category)}</span>`);
+  if (row.status) meta.push(`<span><i class="fa-solid fa-signal"></i> ${escapeHtml(row.status)}</span>`);
+  if (row.initiative_date) meta.push(`<span><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(prettyDate(row.initiative_date))}</span>`);
+  if (row.target_group) meta.push(`<span><i class="fa-solid fa-users"></i> ${escapeHtml(row.target_group)}</span>`);
+
+  return `<article class="activity-card initiative-card reveal show" style="max-width:420px;margin-inline:auto">
+    <div class="cover">
+      ${image && !image.includes("og-image") ? `<img src="${escapeAttr(image)}" alt="${escapeAttr(title)}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.30">` : ""}
+      <h3><i class="${escapeAttr(icon)}"></i> ${escapeHtml(title)}</h3>
+    </div>
+    <div class="card-body">
+      ${meta.length ? `<div class="activity-meta">${meta.join("")}</div>` : ""}
+      <p>${escapeHtml(text)}</p>
+    </div>
+  </article>`;
+}
+
+function renderEvent(section, row) {
+  const title = titleOf(row, section);
+  const text = row.location || textOf(row, section) || section.description;
+  return `<article class="timeline-card reveal show" style="max-width:900px;margin-inline:auto">
+    <div class="date-box">${escapeHtml(prettyDate(row.event_date || row.activity_date || row.created_at) || "قريبًا")}</div>
+    <div class="timeline-content">
+      <h3>${escapeHtml(title)}</h3>
+      <p>${escapeHtml(text)}</p>
+    </div>
+    <span class="timeline-status"><i class="fa-solid fa-calendar-days"></i> فعالية</span>
+  </article>`;
+}
+
+function renderGallery(sectionKey, row, section) {
+  const title = titleOf(row, section);
+  const image = imageOf(row);
+  const images = parseImages(row.gallery_images);
   const all = [];
-  if (image) all.push(image);
+  if (image && !image.includes("og-image")) all.push(image);
   for (const src of images) {
     if (src && !all.includes(src)) all.push(src);
   }
 
-  if (!all.length) {
-    return `<div class="links-empty">لا توجد صور مضافة حاليًا.</div>`;
-  }
+  if (!all.length) return "";
 
-  return `<div class="activity-details-gallery reveal show">
-    ${all.map(src => `<img src="${escapeAttr(src)}" alt="${escapeAttr(title)}" loading="lazy" onclick="openCleanImage('${escapeAttr(src)}')">`).join("")}
+  return `<div class="gallery-grid" style="margin-top:24px">
+    ${all.map((src, index) => `<article class="gallery-card ${index % 2 ? "light-gallery" : ""} reveal show" style="background-image:linear-gradient(135deg,rgba(11,94,215,.35),rgba(6,59,143,.65)),url('${escapeAttr(src)}');background-size:cover;background-position:center;min-height:260px">
+      <h3><i class="fa-solid fa-image"></i> صورة ${index + 1}</h3>
+      <p>${escapeHtml(title)}</p>
+    </article>`).join("")}
   </div>`;
+}
+
+async function renderSingle(sectionKey, section, row) {
+  if (sectionKey === "news") return renderNews(sectionKey, section, row);
+
+  const domId = sectionDomId(sectionKey);
+  const gridClass = sectionKey === "events" ? "timeline-wrap" : (section.gridClass || "activities-grid");
+  let item = "";
+
+  if (sectionKey === "activities") item = renderActivity(sectionKey, section, row);
+  else if (sectionKey === "courses") item = renderCourse(section, row);
+  else if (sectionKey === "committees") item = renderCommittee(section, row);
+  else if (sectionKey === "achievements") item = renderAchievement(section, row);
+  else if (sectionKey === "initiatives") item = renderInitiative(section, row);
+  else if (sectionKey === "events") item = renderEvent(section, row);
+  else item = renderActivity(sectionKey, section, row);
+
+  const committeeLinks = await renderCommitteeLinks(sectionKey, row.id);
+  const gallery = ["committees", "events"].includes(sectionKey) ? "" : renderGallery(sectionKey, row, section);
+
+  return `<section id="${escapeAttr(domId)}" style="padding-top:122px">
+    <div class="container">
+      ${renderHeader(sectionKey, section)}
+      <div class="${escapeAttr(gridClass)}" style="${sectionKey === "events" ? "" : "grid-template-columns:1fr"}">${item}</div>
+      ${committeeLinks}
+      ${gallery}
+    </div>
+  </section>`;
 }
 
 module.exports = async function handler(req, res) {
@@ -318,125 +391,11 @@ module.exports = async function handler(req, res) {
     }
 
     const title = titleOf(row, section);
-    const description = truncate(textOf(row, section) || detailOf(row, section) || section.description, 170);
-    const details = detailOf(row, section) || textOf(row, section) || description;
+    const description = truncate(textOf(row, section) || section.description, 170);
     const image = imageOf(row);
-    const images = parseImages(row.gallery_images);
     const url = urlFor(sectionKey, row);
-    const icon = safeIcon(row.icon, section.icon);
     const schema = schemaFor(sectionKey, section, row, title, description, image, url);
-    const domId = sectionDomId(sectionKey);
-    const tags = buildReadableTags(row, sectionKey);
-    const tasks = buildTasks(row);
-    const highlights = buildHighlights(row, sectionKey);
-    const links = buildLinks(row, details);
-    const committeeLinks = await buildCommitteeLinks(sectionKey, id);
-    const gallery = buildGallery(image, images, title);
-
-    const css = `
-      <style>
-        .clean-detail-page{padding-top:112px}
-        .clean-detail-page .activity-details-box{width:100%;max-height:none;overflow:visible;border-radius:38px}
-        .clean-detail-page .activity-details-head{margin-bottom:20px}
-        .clean-detail-page .activity-details-head h3{font-size:clamp(24px,3.4vw,44px)}
-        .clean-detail-page .activity-details-head p{max-width:900px}
-        .clean-main-image{width:100%;height:360px;object-fit:cover;border-radius:30px;border:1px solid var(--border);box-shadow:0 24px 60px rgba(11,94,215,.16);margin-bottom:14px;cursor:pointer}
-        .clean-detail-page .activity-info-card{position:relative;overflow:hidden}
-        .clean-detail-page .activity-info-card:before{content:"";position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg,var(--section-color,var(--primary)),var(--primary-light))}
-        .clean-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-        .clean-viewer{position:fixed;inset:0;z-index:6000;display:none;place-items:center;padding:18px;background:rgba(3,12,22,.82);backdrop-filter:blur(12px)}
-        .clean-viewer.show{display:grid}
-        .clean-viewer img{max-width:min(1120px,100%);max-height:86vh;border-radius:24px;box-shadow:0 30px 90px rgba(0,0,0,.45)}
-        .clean-viewer button{position:absolute;top:18px;left:18px;width:46px;height:46px;border:1px solid rgba(255,255,255,.28);border-radius:17px;color:white;background:rgba(255,255,255,.12);cursor:pointer}
-        @media(max-width:760px){.clean-detail-page{padding-top:92px}.clean-detail-page .activity-details-box{padding:17px;border-radius:30px}.clean-main-image{height:235px;border-radius:24px}.clean-actions{display:grid}.clean-actions .btn{width:100%}}
-      </style>
-    `;
-
-    const body = `
-      ${css}
-      <main class="clean-detail-page">
-        <section id="${escapeAttr(domId)}">
-          <div class="container">
-            <div class="section-header reveal show">
-              <div>
-                <div class="section-kicker"><i class="${escapeAttr(section.icon)}"></i> ${escapeHtml(section.label)}</div>
-                <h1 class="section-title">${escapeHtml(title)}</h1>
-              </div>
-              <p class="section-desc">${escapeHtml(description)}</p>
-            </div>
-
-            <div class="activity-details-box reveal show">
-              <div class="sheet-handle"></div>
-
-              <div class="activity-details-head">
-                <div class="activity-details-icon"><i class="${escapeAttr(icon)}"></i></div>
-                <div>
-                  <h3>${escapeHtml(title)}</h3>
-                  <p>${escapeHtml(description)}</p>
-                  <div class="clean-actions">
-                    <a class="btn btn-dark" href="${escapeAttr(section.path)}"><i class="fa-solid fa-arrow-right"></i> العودة إلى ${escapeHtml(section.label)}</a>
-                    <a class="btn btn-light" href="${escapeAttr(section.mainAnchor || "/")}"><i class="fa-solid fa-location-arrow"></i> عرض داخل الرئيسية</a>
-                    <a class="btn btn-soft" href="/"><i class="fa-solid fa-house"></i> الرئيسية</a>
-                  </div>
-                </div>
-                <a class="activity-details-close" href="${escapeAttr(section.path)}" aria-label="رجوع"><i class="fa-solid fa-arrow-right"></i></a>
-              </div>
-
-              <div class="activity-details-layout">
-                <div class="activity-details-info">
-                  ${image ? `<img class="clean-main-image reveal show" src="${escapeAttr(image)}" alt="${escapeAttr(title)}" onclick="openCleanImage('${escapeAttr(image)}')">` : ""}
-
-                  <div class="activity-info-card reveal show">
-                    <h4><i class="${escapeAttr(icon)}"></i> التفاصيل</h4>
-                    <p style="white-space:pre-line">${escapeHtml(details)}</p>
-                  </div>
-
-                  ${tags ? `<div class="activity-info-card reveal show">
-                    <h4><i class="fa-solid fa-circle-info"></i> معلومات مهمة</h4>
-                    <div class="tags">${tags}</div>
-                  </div>` : ""}
-
-                  ${highlights}
-                  ${tasks}
-                  ${committeeLinks}
-                  ${links}
-                </div>
-
-                <div class="activity-details-info">
-                  <div class="activity-info-card reveal show">
-                    <h4><i class="fa-solid fa-images"></i> الصور والتغطية</h4>
-                    <p>اضغط على أي صورة لعرضها بحجم أكبر.</p>
-                  </div>
-                  ${gallery}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <div class="clean-viewer" id="cleanViewer" onclick="closeCleanImage()">
-          <button type="button" onclick="closeCleanImage();event.stopPropagation()"><i class="fa-solid fa-xmark"></i></button>
-          <img id="cleanViewerImg" src="" alt="عرض الصورة">
-        </div>
-
-        <script>
-          function openCleanImage(src){
-            var viewer = document.getElementById('cleanViewer');
-            var img = document.getElementById('cleanViewerImg');
-            if(!viewer || !img) return;
-            img.src = src;
-            viewer.classList.add('show');
-          }
-          function closeCleanImage(){
-            var viewer = document.getElementById('cleanViewer');
-            if(viewer) viewer.classList.remove('show');
-          }
-          document.addEventListener('keydown', function(e){
-            if(e.key === 'Escape') closeCleanImage();
-          });
-        </script>
-      </main>
-    `;
+    const body = `<main>${await renderSingle(sectionKey, section, row)}</main>`;
 
     const html = htmlLayout({
       title: `${title} | ${section.label} | ${SITE_NAME}`,
@@ -452,6 +411,6 @@ module.exports = async function handler(req, res) {
     res.end(html);
   } catch (error) {
     res.writeHead(500, responseHeaders());
-    res.end(errorPage(`تعذر تحميل التفاصيل: ${error.message}`));
+    res.end(errorPage(`تعذر تحميل العنصر: ${error.message}`));
   }
 };

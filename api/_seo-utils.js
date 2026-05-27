@@ -285,7 +285,7 @@ async function supabaseSelect(table, options = {}) {
 }
 
 function navHtml(activePath = "") {
-  // نفس أسماء وكلاسات الهيدر في index.html مع إضافة المبادرات للناف السفلي.
+  // نفس ناف الموقع الرئيسي، مع إضافة المبادرات والفعاليات في الناف السفلي.
   const links = [
     ["الرئيسية", "/", "fa-solid fa-house"],
     ["الأخبار", "/news", "fa-solid fa-newspaper"],
@@ -306,6 +306,7 @@ function navHtml(activePath = "") {
     ["الأخبار", "/news", "fa-solid fa-newspaper"],
     ["الدورات", "/courses", "fa-solid fa-book-open-reader"],
     ["المبادرات", "/initiatives", "fa-solid fa-hand-holding-heart"],
+    ["الفعاليات", "/events", "fa-solid fa-calendar-days"],
     ["اللجان", "/committees", "fa-solid fa-sitemap"]
   ].map(([label, href, icon]) => {
     const active = activePath === href ? "active" : "";
@@ -331,7 +332,7 @@ function navHtml(activePath = "") {
     </div>
   </nav>
 </header>
-<nav class="bottom-nav">${bottomLinks}</nav>`;
+<nav class="bottom-nav" style="grid-template-columns:repeat(6,1fr)">${bottomLinks}</nav>`;
 }
 
 
