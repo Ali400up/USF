@@ -1,406 +1,251 @@
 // api/section-page.js
-// صفحات الأقسام هنا مصممة كأنها "نفس قسم الصفحة الرئيسية مقصوص وحده"
-// الأخبار = نفس شاشة التلفاز.
-// الدورات = نفس كروت الدورات والفلاتر.
-// الأنشطة = نفس كروت الأنشطة.
-// اللجان = نفس كروت اللجان.
-// الإنجازات = نفس كروت الإنجازات.
-// الفعاليات = نفس الـ Timeline.
+// نسخة 100% مطابقة لأقسام الصفحة الرئيسية:
+// لا نعيد تصميم الأقسام هنا، بل نعرض نفس index.html الأصلي ونخفي كل شيء إلا القسم المطلوب.
+// لذلك /news هو نفس تلفاز الصفحة الرئيسية، و /committees هو نفس كروت اللجان وروابط القنوات، وهكذا.
 
-const {
-  SITE_URL, SITE_NAME, SECTIONS,
-  escapeHtml, escapeAttr, truncate, titleOf, textOf, imageOf,
-  responseHeaders, supabaseSelect, htmlLayout, errorPage
-} = require("./_seo-utils");
+const fs = require("fs");
+const path = require("path");
 
-const SECTION_COPY = {
+const SITE_URL = (process.env.SITE_URL || "https://usf-flax.vercel.app").replace(/\/+$/, "");
+
+const SECTION_MAP = {
   news: {
     id: "latest-news",
-    kicker: "آخر الأخبار",
-    title: "نشرة أخبار الملتقى بطريقة تلفزيونية حديثة",
-    desc: "شاشة أخبار مدمجة تعرض الصورة كاملة مع شريط موجز داخل إطار التلفاز."
+    path: "/news",
+    title: "آخر الأخبار | ملتقى الطالب الجامعي",
+    description: "نشرة أخبار ملتقى الطالب الجامعي بنفس تصميم التلفاز الموجود في الصفحة الرئيسية."
   },
   activities: {
     id: "activities",
-    kicker: "الأنشطة",
-    title: "أنشطة الملتقى وبرامجه",
-    desc: "مساحة لعرض أحدث الأنشطة والبرامج الطلابية، مع تفاصيل كل نشاط وصوره."
+    path: "/activities",
+    title: "الأنشطة والرحلات | ملتقى الطالب الجامعي",
+    description: "أنشطة وبرامج ملتقى الطالب الجامعي بنفس تصميم الصفحة الرئيسية."
   },
   courses: {
     id: "courses",
-    kicker: "تسجيل الدورات",
-    title: "الدورات والبرامج التدريبية",
-    desc: "استعرض الدورات المتاحة، اقرأ تفاصيل كل دورة، ثم سجّل بياناتك بسهولة عند فتح التسجيل."
+    path: "/courses",
+    title: "الدورات | ملتقى الطالب الجامعي",
+    description: "الدورات والبرامج التدريبية بنفس تصميم الصفحة الرئيسية."
   },
   committees: {
     id: "committees",
-    kicker: "لجان ملتقى الطالب الجامعي",
-    title: "اللجان الرئيسية التي يتعامل معها الطالب مباشرة",
-    desc: "يتكون ملتقى الطالب الجامعي من عدد من اللجان الرئيسية التي تعمل بشكل منظم لخدمة الطالب الجامعي، وتغطي الجوانب العلمية، التدريبية، الإعلامية، والأنشطة الطلابية، إضافة إلى متابعة قضايا الطلاب ومقترحاتهم."
+    path: "/committees",
+    title: "لجان الملتقى | ملتقى الطالب الجامعي",
+    description: "لجان ملتقى الطالب الجامعي وروابط القنوات بنفس تصميم الصفحة الرئيسية."
   },
   achievements: {
     id: "achievements",
-    kicker: "إنجازات الملتقى",
-    title: "أثر الملتقى وإنجازاته",
-    desc: "أرقام مختصرة تعكس حضور الملتقى وأنشطته وخدماته للطلاب."
+    path: "/achievements",
+    title: "الإنجازات | ملتقى الطالب الجامعي",
+    description: "إنجازات ملتقى الطالب الجامعي بنفس تصميم الصفحة الرئيسية."
   },
   events: {
     id: "timeline",
-    kicker: "Timeline",
-    title: "المواعيد القادمة",
-    desc: "تابع أهم المواعيد والفعاليات القادمة للملتقى أولًا بأول."
+    path: "/events",
+    title: "الفعاليات القادمة | ملتقى الطالب الجامعي",
+    description: "المواعيد والفعاليات القادمة بنفس تصميم Timeline في الصفحة الرئيسية."
+  },
+  issues: {
+    id: "issues",
+    path: "/issues",
+    title: "الشكاوى والمقترحات | ملتقى الطالب الجامعي",
+    description: "قسم الشكاوى والمقترحات بنفس تصميم الصفحة الرئيسية."
+  },
+  about: {
+    id: "about",
+    path: "/about",
+    title: "عن الملتقى | ملتقى الطالب الجامعي",
+    description: "التعريف بملتقى الطالب الجامعي بنفس تصميم الصفحة الرئيسية."
+  },
+  goals: {
+    id: "goals",
+    path: "/goals",
+    title: "أهداف الملتقى | ملتقى الطالب الجامعي",
+    description: "أهداف ملتقى الطالب الجامعي بنفس تصميم الصفحة الرئيسية."
   }
 };
 
-function safeIcon(value, fallback) {
-  return value && String(value).startsWith("fa-") ? value : fallback;
+function escapeHtml(value = "") {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\"/g, "&quot;");
 }
 
-function dateText(value) {
-  if (!value) return "قريبًا";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return escapeHtml(value);
-  try {
-    return new Intl.DateTimeFormat("ar", { day: "2-digit", month: "long" }).format(date);
-  } catch (_) {
-    return escapeHtml(value);
-  }
-}
+function findIndexFile() {
+  const candidates = [
+    path.join(process.cwd(), "index.html"),
+    path.join(process.cwd(), "public", "index.html"),
+    path.join(__dirname, "..", "index.html")
+  ];
 
-function renderSectionHeader(sectionKey, section) {
-  const copy = SECTION_COPY[sectionKey] || {
-    id: sectionKey,
-    kicker: section.label,
-    title: section.label,
-    desc: section.description
-  };
-
-  return `<div class="section-header reveal show">
-    <div>
-      <div class="section-kicker">${escapeHtml(copy.kicker)}</div>
-      <h2 class="section-title">${escapeHtml(copy.title)}</h2>
-    </div>
-    <p class="section-desc">${escapeHtml(copy.desc)}</p>
-  </div>`;
-}
-
-function renderNewsTv(section, rows) {
-  const items = rows.map(row => ({
-    id: row.id,
-    category: row.category || "خبر",
-    title: titleOf(row, section),
-    description: textOf(row, section),
-    ticker: row.ticker || titleOf(row, section) || "خبر جديد من ملتقى الطالب الجامعي",
-    image: imageOf(row),
-    icon: safeIcon(row.icon, section.icon)
-  }));
-
-  const first = items[0];
-
-  if (!first) {
-    return `<section id="latest-news" style="padding-top:122px">
-      <div class="container">
-        ${renderSectionHeader("news", section)}
-        <div class="news-studio reveal show delay-1">
-          <div class="news-tv">
-            <div class="news-screen">
-              <div class="news-media">
-                <div class="news-shine"></div>
-                <div class="news-live"><i class="fa-solid fa-circle"></i> آخر الأخبار</div>
-              </div>
-              <div class="news-frame-ticker"><span>لا توجد أخبار مضافة من قاعدة البيانات حاليًا.</span></div>
-              <div class="news-caption">
-                <div class="news-category"><i class="fa-solid fa-database"></i> قاعدة البيانات</div>
-                <h3>لا توجد أخبار لعرضها</h3>
-                <p>أضف خبرًا من لوحة التحكم واجعل خيار الظهور في الموقع مفعّلًا.</p>
-              </div>
-            </div>
-            <div class="news-control-panel">
-              <div class="news-progress" title="مدة عرض الخبر"><span></span></div>
-              <div class="news-dots"></div>
-              <a class="news-brief-btn" href="/"><i class="fa-solid fa-house"></i> الرئيسية</a>
-            </div>
-            <div class="tv-stand"></div>
-          </div>
-        </div>
-      </div>
-    </section>`;
+  for (const file of candidates) {
+    if (fs.existsSync(file)) return file;
   }
 
-  const dots = items.map((item, index) => {
-    const active = index === 0 ? "active" : "";
-    return `<a class="news-dot ${active}" href="/news/${encodeURIComponent(item.id)}" aria-label="خبر ${index + 1}"></a>`;
-  }).join("");
-
-  const briefItems = items.map((item, index) => {
-    const active = index === 0 ? "active" : "";
-    const thumb = item.image
-      ? `<img class="news-brief-thumb" src="${escapeAttr(item.image)}" alt="${escapeAttr(item.title)}" />`
-      : `<span class="news-brief-thumb" style="display:grid;place-items:center;background:rgba(11,94,215,.10);color:var(--primary);"><i class="${escapeAttr(item.icon)}"></i></span>`;
-
-    return `<a class="news-brief-item ${active}" href="/news/${encodeURIComponent(item.id)}">
-      ${thumb}
-      <span class="news-brief-content">
-        <strong>${escapeHtml(item.title)}</strong>
-        <span>${escapeHtml(truncate(item.description, 120))}</span>
-      </span>
-      <span class="news-brief-tag">${escapeHtml(item.category)}</span>
-    </a>`;
-  }).join("");
-
-  return `<section id="latest-news" style="padding-top:122px">
-    <div class="container">
-      ${renderSectionHeader("news", section)}
-      <div class="news-studio reveal show delay-1">
-        <div class="news-tv" id="newsTv">
-          <div class="news-screen">
-            <div class="news-media">
-              ${first.image ? `<a href="/news/${encodeURIComponent(first.id)}"><img alt="${escapeAttr(first.title)}" src="${escapeAttr(first.image)}" /></a>` : ""}
-              <div class="news-shine"></div>
-              <div class="news-live"><i class="fa-solid fa-circle"></i> آخر الأخبار</div>
-            </div>
-            <div class="news-frame-ticker"><span>${escapeHtml(first.ticker)}</span></div>
-            <div class="news-caption">
-              <div class="news-category"><i class="${escapeAttr(first.icon)}"></i> ${escapeHtml(first.category)}</div>
-              <h3>${escapeHtml(first.title)}</h3>
-              <p>${escapeHtml(first.description)}</p>
-              <a class="news-read-more show" href="/news/${encodeURIComponent(first.id)}"><i class="fa-solid fa-up-right-and-down-left-from-center"></i> عرض المزيد</a>
-            </div>
-          </div>
-          <div class="news-control-panel">
-            <div class="news-progress" title="مدة عرض الخبر"><span></span></div>
-            <div class="news-dots">${dots}</div>
-            <a class="news-brief-btn" href="#newsBriefListFull"><i class="fa-solid fa-list-ul"></i> موجز</a>
-          </div>
-          <div class="tv-stand"></div>
-        </div>
-      </div>
-
-      <div class="news-brief-modal-box reveal show" id="newsBriefListFull" style="margin-top:22px">
-        <div class="news-brief-head">
-          <div class="news-brief-icon"><i class="fa-solid fa-newspaper"></i></div>
-          <div>
-            <h3>موجز الأخبار</h3>
-            <p>اختر أي خبر لفتح صفحته الكاملة بنفس تصميم الموقع.</p>
-          </div>
-          <a class="news-brief-close" href="#latest-news"><i class="fa-solid fa-arrow-up"></i></a>
-        </div>
-        <div class="news-brief-list">${briefItems}</div>
-      </div>
-    </div>
-  </section>`;
+  throw new Error("index.html not found. ضع index.html في جذر المشروع بجانب vercel.json");
 }
 
-function renderActivityCard(sectionKey, section, row) {
-  const title = titleOf(row, section);
-  const text = textOf(row, section);
-  const image = imageOf(row);
-  const url = `${section.path}/${encodeURIComponent(row.id)}`;
-  const meta = [];
+function injectSeo(html, section) {
+  const title = escapeHtml(section.title);
+  const description = escapeHtml(section.description);
+  const canonical = `${SITE_URL}${section.path}`;
 
-  if (row.category) meta.push(`<span><i class="fa-solid fa-tag"></i> ${escapeHtml(row.category)}</span>`);
-  if (row.status) meta.push(`<span><i class="fa-solid fa-signal"></i> ${escapeHtml(row.status)}</span>`);
-  if (row.location) meta.push(`<span><i class="fa-solid fa-location-dot"></i> ${escapeHtml(row.location)}</span>`);
-  if (row.activity_date || row.event_date) meta.push(`<span><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(row.activity_date || row.event_date)}</span>`);
+  html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${title}</title>`);
+  html = html.replace(/<meta\s+name=["']description["'][^>]*>/i, `<meta name="description" content="${description}" />`);
+  html = html.replace(/<link\s+rel=["']canonical["'][^>]*>/i, `<link rel="canonical" href="${canonical}" />`);
+  html = html.replace(/<meta\s+property=["']og:title["'][^>]*>/i, `<meta property="og:title" content="${title}" />`);
+  html = html.replace(/<meta\s+property=["']og:description["'][^>]*>/i, `<meta property="og:description" content="${description}" />`);
+  html = html.replace(/<meta\s+property=["']og:url["'][^>]*>/i, `<meta property="og:url" content="${canonical}" />`);
 
-  return `<article class="activity-card reveal show">
-    <div class="cover">
-      ${image && !image.includes("og-image") ? `<img src="${escapeAttr(image)}" alt="${escapeAttr(title)}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.30">` : ""}
-      <h3><i class="${escapeAttr(safeIcon(row.icon, section.icon))}"></i> ${escapeHtml(title)}</h3>
-    </div>
-    <div class="card-body">
-      ${meta.length ? `<div class="activity-meta">${meta.join("")}</div>` : ""}
-      <p>${escapeHtml(truncate(text, 190))}</p>
-      <div class="activity-actions">
-        <a class="btn btn-dark" href="${escapeAttr(url)}"><i class="fa-solid fa-arrow-left"></i> عرض التفاصيل</a>
-      </div>
-    </div>
-  </article>`;
+  if (!/<meta\s+name=["']robots["']/i.test(html)) {
+    html = html.replace("</head>", `  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />\n</head>`);
+  }
+
+  return html;
 }
 
-function renderCourseCard(section, row) {
-  const title = titleOf(row, section);
-  const text = textOf(row, section);
-  const image = imageOf(row);
-  const url = `${section.path}/${encodeURIComponent(row.id)}`;
-  const category = row.category || row.course_category || "برنامج تدريبي";
-  const seatsTotal = Number(row.seats_total || row.capacity || 0);
-  const seatsTaken = Number(row.seats_taken || row.registered_count || 0);
-  const percent = seatsTotal > 0 ? Math.min(100, Math.max(0, Math.round((seatsTaken / seatsTotal) * 100))) : 0;
+function injectCrop(html, key, section) {
+  const target = section.id;
+  const canonical = `${SITE_URL}${section.path}`;
 
-  return `<article class="course-card reveal show" data-category="${escapeAttr(category)}">
-    <div class="cover">
-      ${image && !image.includes("og-image") ? `<img src="${escapeAttr(image)}" alt="${escapeAttr(title)}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.30">` : ""}
-      <h3><i class="${escapeAttr(safeIcon(row.icon, section.icon))}"></i> ${escapeHtml(title)}</h3>
-    </div>
-    <div class="card-body">
-      <span class="tag"><i class="fa-solid fa-tag"></i> ${escapeHtml(category)}</span>
-      <p>${escapeHtml(truncate(text, 180))}</p>
-      ${seatsTotal > 0 ? `<div class="progress-block">
-        <div class="progress-info"><span>المقاعد المسجلة</span><strong>${escapeHtml(seatsTaken)} / ${escapeHtml(seatsTotal)}</strong></div>
-        <div class="progress"><span style="--width:${percent}%"></span></div>
-      </div>` : ""}
-      <div class="course-meta-line">
-        <span><i class="fa-solid fa-circle-info"></i> ${escapeHtml(row.status || "متاحة")}</span>
-        ${row.start_date ? `<span><i class="fa-solid fa-calendar"></i> ${escapeHtml(row.start_date)}</span>` : ""}
-      </div>
-      <div class="course-actions">
-        <a class="btn btn-dark" href="${escapeAttr(url)}"><i class="fa-solid fa-arrow-left"></i> عرض التفاصيل</a>
-      </div>
-    </div>
-  </article>`;
-}
-
-function renderCommitteeCard(section, row) {
-  const title = titleOf(row, section);
-  const text = textOf(row, section);
-  const url = `${section.path}/${encodeURIComponent(row.id)}`;
-
-  const tasksText = row.tasks || row.responsibilities || row.description || "";
-  let tasks = [];
-  if (Array.isArray(tasksText)) tasks = tasksText;
-  else if (typeof tasksText === "string") {
-    try {
-      const parsed = JSON.parse(tasksText);
-      if (Array.isArray(parsed)) tasks = parsed;
-    } catch (_) {
-      tasks = tasksText.split(/\n|،|,/).map(x => x.trim()).filter(Boolean).slice(0, 3);
+  const cropCss = `
+  <style id="usf-exact-cropped-section-style">
+    /* هذه الصفحة تعرض نفس قسم الصفحة الرئيسية فقط، بدون تغيير تصميم القسم */
+    body.usf-exact-crop main > section,
+    body.usf-exact-crop main > .ticker,
+    body.usf-exact-crop .ticker {
+      display: none !important;
     }
-  }
 
-  return `<article class="committee-card reveal show">
-    <div class="avatar"><i class="${escapeAttr(safeIcon(row.icon, section.icon))}"></i></div>
-    <h3>${escapeHtml(title)}</h3>
-    <p>${escapeHtml(truncate(text, 150))}</p>
-    ${tasks.length ? `<div class="committee-tasks">${tasks.slice(0,3).map(t => `<div class="committee-task"><i class="fa-solid fa-circle"></i> ${escapeHtml(t)}</div>`).join("")}</div>` : ""}
-    <div class="committee-actions">
-      <a class="btn btn-soft" href="${escapeAttr(url)}"><i class="fa-solid fa-circle-info"></i> عرض التفاصيل</a>
-    </div>
-  </article>`;
-}
+    body.usf-exact-crop main > section#${target} {
+      display: block !important;
+      padding-top: 126px !important;
+      min-height: calc(100svh - 96px);
+    }
 
-function renderAchievementCard(section, row) {
-  const title = titleOf(row, section);
-  return `<article class="achievement-card reveal show">
-    <div class="achievement-icon"><i class="${escapeAttr(safeIcon(row.icon, section.icon))}"></i></div>
-    <div class="achievement-number">${escapeHtml(row.value || row.number || "—")}</div>
-    <p>${escapeHtml(title)}</p>
-  </article>`;
-}
+    body.usf-exact-crop .reveal {
+      opacity: 1 !important;
+      transform: none !important;
+      transition-delay: 0s !important;
+    }
 
-function renderEventCard(section, row) {
-  const title = titleOf(row, section);
-  const text = row.location || textOf(row, section) || section.description;
-  const url = `${section.path}/${encodeURIComponent(row.id)}`;
+    body.usf-exact-crop .topbar .nav {
+      box-shadow: var(--shadow) !important;
+    }
 
-  return `<article class="timeline-card reveal show">
-    <div class="date-box">${dateText(row.event_date || row.activity_date || row.created_at)}</div>
-    <div class="timeline-content">
-      <h3>${escapeHtml(title)}</h3>
-      <p>${escapeHtml(text)}</p>
-    </div>
-    <a class="timeline-status" href="${escapeAttr(url)}"><i class="fa-solid fa-arrow-left"></i> التفاصيل</a>
-  </article>`;
-}
+    body.usf-exact-crop .footer {
+      margin-top: 0 !important;
+    }
 
-function renderItems(sectionKey, section, rows) {
-  if (!rows.length) return `<div class="empty-state">لا توجد عناصر منشورة حاليًا في قسم ${escapeHtml(section.label)}.</div>`;
+    body.usf-exact-crop .bottom-nav a[href="#home"] {
+      display: grid;
+    }
 
-  if (sectionKey === "activities") return rows.map(row => renderActivityCard(sectionKey, section, row)).join("\n");
-  if (sectionKey === "courses") return rows.map(row => renderCourseCard(section, row)).join("\n");
-  if (sectionKey === "committees") return rows.map(row => renderCommitteeCard(section, row)).join("\n");
-  if (sectionKey === "achievements") return rows.map(row => renderAchievementCard(section, row)).join("\n");
-  if (sectionKey === "events") return rows.map(row => renderEventCard(section, row)).join("\n");
+    @media(max-width:760px){
+      body.usf-exact-crop main > section#${target} {
+        padding-top: 96px !important;
+      }
+    }
+  </style>`;
 
-  return rows.map(row => renderActivityCard(sectionKey, section, row)).join("\n");
-}
+  const cropScript = `
+  <script id="usf-exact-cropped-section-script">
+    (function(){
+      const sectionKey = ${JSON.stringify(key)};
+      const targetId = ${JSON.stringify(target)};
+      const sectionPath = ${JSON.stringify(section.path)};
+      const mainUrl = "/#" + targetId;
 
-function renderCroppedSection(sectionKey, section, rows) {
-  if (sectionKey === "news") return renderNewsTv(section, rows);
+      document.body.classList.add("usf-exact-crop", "usf-exact-crop-" + sectionKey);
+      document.body.setAttribute("data-section", sectionKey);
 
-  const copy = SECTION_COPY[sectionKey] || {
-    id: sectionKey,
-    kicker: section.label,
-    title: section.label,
-    desc: section.description
+      // اجعل الشعار يرجع للرئيسية بدل #home داخل صفحة القسم.
+      document.querySelectorAll(".brand").forEach(a => a.setAttribute("href", "/"));
+
+      // عدّل روابط القائمة حتى لا تذهب إلى أقسام مخفية داخل الصفحة الحالية.
+      const pageMap = {
+        "#home":"/",
+        "#about":"/about",
+        "#latest-news":"/news",
+        "#activities":"/activities",
+        "#courses":"/courses",
+        "#committees":"/committees",
+        "#achievements":"/achievements",
+        "#issues":"/issues",
+        "#timeline":"/events",
+        "#goals":"/goals"
+      };
+
+      document.querySelectorAll('a[href^="#"]').forEach(a => {
+        const old = a.getAttribute("href");
+        if (pageMap[old]) a.setAttribute("href", pageMap[old]);
+      });
+
+      // فعل رابط القسم الحالي في الهيدر والقائمة السفلية.
+      document.querySelectorAll(".nav-links a, .bottom-nav a").forEach(a => {
+        const href = a.getAttribute("href") || "";
+        if (href === sectionPath || href === mainUrl || href === "/#" + targetId) a.classList.add("active");
+        else a.classList.remove("active");
+      });
+
+      // اجعل زر موجز الأخبار وروابط اللجان والمودالات تعمل كما هي لأننا لم نغير كود الصفحة الأصلي.
+      setTimeout(() => {
+        const target = document.getElementById(targetId);
+        if (target) window.scrollTo({ top: 0, behavior: "auto" });
+      }, 60);
+    })();
+  </script>`;
+
+  html = html.replace("</head>", `${cropCss}\n</head>`);
+  html = html.replace(/<body([^>]*)>/i, `<body$1 class="usf-exact-crop usf-exact-crop-${key}" data-section="${key}">`);
+  html = html.replace("</body>", `${cropScript}\n</body>`);
+
+  // أضف structured data بسيط للقسم.
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": section.title,
+    "description": section.description,
+    "url": canonical,
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "ملتقى الطالب الجامعي",
+      "url": SITE_URL + "/"
+    }
   };
 
-  const gridClass = sectionKey === "events"
-    ? "timeline-wrap"
-    : section.gridClass || "activities-grid";
+  html = html.replace("</head>", `  <script type="application/ld+json">${JSON.stringify(schema)}</script>\n</head>`);
 
-  const filters = sectionKey === "courses"
-    ? `<div class="filters reveal show">
-        <button class="filter-btn active" type="button"><i class="fa-solid fa-border-all"></i> الكل</button>
-        <button class="filter-btn" type="button"><i class="fa-solid fa-laptop-code"></i> تقنية</button>
-        <button class="filter-btn" type="button"><i class="fa-solid fa-person-chalkboard"></i> مهارات</button>
-        <button class="filter-btn" type="button"><i class="fa-solid fa-graduation-cap"></i> أكاديمية</button>
-      </div>`
-    : "";
-
-  return `<section id="${escapeAttr(copy.id)}" style="padding-top:122px">
-    <div class="container">
-      ${renderSectionHeader(sectionKey, section)}
-      ${filters}
-      <div class="${escapeAttr(gridClass)}">${renderItems(sectionKey, section, rows)}</div>
-    </div>
-  </section>`;
+  return html;
 }
 
 module.exports = async function handler(req, res) {
-  const sectionKey = String(req.query.section || "news");
-  const section = SECTIONS[sectionKey];
-
-  if (!section) {
-    res.writeHead(404, responseHeaders());
-    res.end(errorPage("القسم غير موجود"));
-    return;
-  }
-
   try {
-    const filters = {};
-    if (section.activeField) filters[section.activeField] = "eq.true";
+    const key = String(req.query.section || "news").trim();
+    const section = SECTION_MAP[key];
 
-    const rows = await supabaseSelect(section.table, {
-      filters,
-      order: sectionKey === "news" ? "sort_order.asc,created_at.desc" : section.order,
-      limit: 1000
-    });
+    if (!section) {
+      res.statusCode = 404;
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      res.end(`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>القسم غير موجود</title></head><body><h1>القسم غير موجود</h1><p>هذا القسم غير معرف.</p><a href="/">العودة للرئيسية</a></body></html>`);
+      return;
+    }
 
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "CollectionPage",
-      "name": `${section.label} | ${SITE_NAME}`,
-      "description": section.description,
-      "url": `${SITE_URL}${section.path}`,
-      "mainEntity": {
-        "@type": "ItemList",
-        "numberOfItems": rows.length,
-        "itemListElement": rows.map((row, index) => ({
-          "@type": "ListItem",
-          "position": index + 1,
-          "name": titleOf(row, section),
-          "url": `${SITE_URL}${section.path}/${row.id}`
-        }))
-      }
-    };
+    const indexFile = findIndexFile();
+    let html = fs.readFileSync(indexFile, "utf8");
 
-    const body = `<main>${renderCroppedSection(sectionKey, section, rows)}</main>`;
+    html = injectSeo(html, section);
+    html = injectCrop(html, key, section);
 
-    const html = htmlLayout({
-      title: `${section.label} | ${SITE_NAME}`,
-      description: section.description,
-      canonical: `${SITE_URL}${section.path}`,
-      image: `${SITE_URL}/og-image.png`,
-      activePath: section.path,
-      body,
-      schema
-    });
-
-    res.writeHead(200, responseHeaders());
+    res.statusCode = 200;
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "s-maxage=120, stale-while-revalidate=600");
     res.end(html);
   } catch (error) {
-    res.writeHead(500, responseHeaders());
-    res.end(errorPage(`تعذر تحميل ${section.label}: ${error.message}`));
+    res.statusCode = 500;
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.end(`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>خطأ</title></head><body><h1>تعذر تحميل القسم</h1><pre>${escapeHtml(error.message)}</pre></body></html>`);
   }
 };
