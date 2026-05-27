@@ -94,6 +94,26 @@
     .export-actions{display:flex;gap:8px;flex-wrap:wrap}.table-wrap{overflow:auto;border:1px solid var(--border);border-radius:24px;background:rgba(255,255,255,.48)}.dark .table-wrap{background:rgba(241,247,251,.04)}
     table{width:100%;border-collapse:collapse;min-width:920px}th,td{padding:12px;border-bottom:1px solid var(--border);text-align:right;vertical-align:top;font-size:13px}th{color:var(--primary);font-weight:900;background:rgba(11,94,215,.07);position:sticky;top:0;z-index:1}td{color:var(--text);font-weight:760;line-height:1.7}
     .row-actions{display:flex;gap:7px;flex-wrap:wrap}.row-actions .btn{padding:8px 10px;font-size:12px}
+    .copy-view-btn{
+      color:#fff!important;
+      border:0!important;
+      background:linear-gradient(135deg,#00A6D6,#0B5ED7,#063B8F)!important;
+      box-shadow:0 12px 30px rgba(11,94,215,.22)!important;
+      position:relative;overflow:hidden;
+    }
+    .copy-view-btn:before{
+      content:"";position:absolute;inset:0 auto 0 -70%;
+      width:55%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);
+      transform:skewX(-18deg);transition:.45s var(--ease);
+    }
+    .copy-view-btn:hover:before{left:120%}
+    .copy-view-btn:hover,.open-view-btn:hover{transform:translateY(-3px)}
+    .open-view-btn{
+      color:var(--primary)!important;
+      border:1px solid rgba(11,94,215,.20)!important;
+      background:linear-gradient(135deg,rgba(255,255,255,.92),rgba(238,247,255,.96))!important;
+      box-shadow:0 10px 24px rgba(11,94,215,.12)!important;
+    }
     .record-cards{display:none;gap:12px}.record-card{padding:15px;border:1px solid var(--border);border-radius:22px;background:rgba(255,255,255,.54);box-shadow:0 12px 35px rgba(11,94,215,.08)}.dark .record-card{background:rgba(241,247,251,.05)}
     .record-card h3{font-size:17px;font-weight:900;margin-bottom:8px;color:var(--primary)}.record-meta{display:grid;gap:6px;margin-bottom:12px}.record-meta div{font-size:12.5px;color:var(--muted);font-weight:800;line-height:1.7}.record-meta b{color:var(--text)}
     .badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;background:rgba(11,94,215,.08);color:var(--primary)}.badge.off{background:rgba(211,47,47,.08);color:var(--danger)}
@@ -1484,6 +1504,76 @@
     function getRowPrimaryValue(row){const key=getPrimaryKey();return row?.[key]??row?.id??row?.user_id??""}
     function getColumns(){const config=TABLES[currentTable];const key=getPrimaryKey();return [key,...config.fields.map(f=>f.name),"created_at"].filter((v,i,a)=>a.indexOf(v)===i)}
     function getLabel(row){const field=TABLES[currentTable].labelField||"title";return row[field]||row.name||row.title||getRowPrimaryValue(row)}
+
+    const VIEW_ROUTES = {
+      tv_news:"/news",
+      activities:"/activities",
+      courses:"/courses",
+      committees:"/committees",
+      achievements:"/achievements",
+      student_initiatives:"/initiatives",
+      events:"/events"
+    };
+
+    function getPublicDisplayId(row){
+      if(!row)return "";
+      // الأخبار تستخدم public_id إذا موجود حتى يكون الرابط بسيط مثل /news/1
+      if(currentTable==="tv_news") return row.public_id || row.id || "";
+      return row.id || "";
+    }
+
+    function getViewLink(row){
+      const route = VIEW_ROUTES[currentTable];
+      const id = getPublicDisplayId(row);
+      if(!route || !id)return "";
+      return `${window.location.origin}${route}/${encodeURIComponent(id)}`;
+    }
+
+    function renderViewLinkButtons(row){
+      const link = getViewLink(row);
+      if(!link)return "";
+      const rowKey = safe(getRowPrimaryValue(row));
+      return `
+        <button class="btn copy-view-btn" type="button" data-id="${rowKey}" title="نسخ رابط العرض">
+          <i class="fa-solid fa-copy"></i> نسخ رابط العرض
+        </button>
+        <a class="btn open-view-btn" href="${safe(link)}" target="_blank" rel="noopener" title="فتح رابط العرض">
+          <i class="fa-solid fa-up-right-from-square"></i>
+        </a>
+      `;
+    }
+
+    async function copyViewLink(rowId){
+      const row = currentRows.find(r=>String(getRowPrimaryValue(r))===String(rowId));
+      const link = getViewLink(row);
+      if(!link){showToast("لا يوجد رابط عرض لهذا السجل");return}
+      try{
+        if(navigator.clipboard && window.isSecureContext){
+          await navigator.clipboard.writeText(link);
+        }else{
+          const textarea=document.createElement("textarea");
+          textarea.value=link;
+          textarea.style.position="fixed";
+          textarea.style.opacity="0";
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand("copy");
+          textarea.remove();
+        }
+        showToast("تم نسخ رابط العرض");
+      }catch(error){
+        showToast("تعذر النسخ، الرابط: "+link);
+      }
+    }
+
+    function bindRowActionButtons(root){
+      root.querySelectorAll(".edit-btn,.edit-card-btn").forEach(btn=>btn.onclick=()=>{
+        const row=currentRows.find(r=>String(getRowPrimaryValue(r))===String(btn.dataset.id));
+        if(row)fillForm(row);
+      });
+      root.querySelectorAll(".row-delete-btn,.delete-card-btn").forEach(btn=>btn.onclick=()=>deleteRecord(btn.dataset.id));
+      root.querySelectorAll(".copy-view-btn").forEach(btn=>btn.onclick=()=>copyViewLink(btn.dataset.id));
+    }
     function formatCell(value){if(Array.isArray(value))return value.length?`<span class="badge"><i class="fa-solid fa-images"></i> ${value.length} صور</span>`:"";if(value===true)return `<span class="badge">نعم</span>`;if(value===false)return `<span class="badge off">لا</span>`;if(value===null||value===undefined)return "";const text=safe(value);return text.length>150?text.slice(0,150)+"...":text}
 
     function normalizeImages(value){
@@ -1803,17 +1893,15 @@
     function renderTable(){
       if(!filteredRows.length){tableWrap.innerHTML=`<div class="empty">لا توجد سجلات مطابقة.</div>`;return}
       const columns=getColumns();
-      tableWrap.innerHTML=`<table id="dataTable"><thead><tr><th>إجراءات</th>${columns.map(c=>`<th>${safe(c)}</th>`).join("")}</tr></thead><tbody>${filteredRows.map(row=>`<tr><td><div class="row-actions"><button class="btn btn-soft edit-btn" data-id="${row.id}"><i class="fa-solid fa-pen"></i> تعديل</button>${canDo("delete")?`<button class="btn btn-danger row-delete-btn" data-id="${row.id}"><i class="fa-solid fa-trash"></i></button>`:""}</div></td>${columns.map(col=>`<td>${formatCell(row[col])}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
-      tableWrap.querySelectorAll(".edit-btn").forEach(btn=>btn.onclick=()=>{const row=currentRows.find(r=>String(r.id)===String(btn.dataset.id)); if(row)fillForm(row)});
-      tableWrap.querySelectorAll(".row-delete-btn").forEach(btn=>btn.onclick=()=>deleteRecord(btn.dataset.id));
+      tableWrap.innerHTML=`<table id="dataTable"><thead><tr><th>إجراءات</th>${columns.map(c=>`<th>${safe(c)}</th>`).join("")}</tr></thead><tbody>${filteredRows.map(row=>`<tr><td><div class="row-actions">${renderViewLinkButtons(row)}<button class="btn btn-soft edit-btn" data-id="${safe(getRowPrimaryValue(row))}"><i class="fa-solid fa-pen"></i> تعديل</button>${canDo("delete")?`<button class="btn btn-danger row-delete-btn" data-id="${safe(getRowPrimaryValue(row))}"><i class="fa-solid fa-trash"></i></button>`:""}</div></td>${columns.map(col=>`<td>${formatCell(row[col])}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+      bindRowActionButtons(tableWrap);
     }
 
     function renderCards(){
       if(!filteredRows.length){recordCards.innerHTML=`<div class="empty">لا توجد سجلات مطابقة.</div>`;return}
       const columns=getColumns().filter(c=>c!=="created_at");
-      recordCards.innerHTML=filteredRows.map(row=>`<article class="record-card"><h3>${safe(getLabel(row))}</h3><div class="record-meta">${columns.slice(0,7).map(col=>`<div><b>${safe(col)}:</b> ${formatCell(row[col])}</div>`).join("")}</div><div class="row-actions"><button class="btn btn-soft edit-card-btn" data-id="${row.id}"><i class="fa-solid fa-pen"></i> تعديل</button>${canDo("delete")?`<button class="btn btn-danger delete-card-btn" data-id="${row.id}"><i class="fa-solid fa-trash"></i> حذف</button>`:""}</div></article>`).join("");
-      recordCards.querySelectorAll(".edit-card-btn").forEach(btn=>btn.onclick=()=>{const row=currentRows.find(r=>String(r.id)===String(btn.dataset.id));if(row)fillForm(row)});
-      recordCards.querySelectorAll(".delete-card-btn").forEach(btn=>btn.onclick=()=>deleteRecord(btn.dataset.id));
+      recordCards.innerHTML=filteredRows.map(row=>`<article class="record-card"><h3>${safe(getLabel(row))}</h3><div class="record-meta">${columns.slice(0,7).map(col=>`<div><b>${safe(col)}:</b> ${formatCell(row[col])}</div>`).join("")}</div><div class="row-actions">${renderViewLinkButtons(row)}<button class="btn btn-soft edit-card-btn" data-id="${safe(getRowPrimaryValue(row))}"><i class="fa-solid fa-pen"></i> تعديل</button>${canDo("delete")?`<button class="btn btn-danger delete-card-btn" data-id="${safe(getRowPrimaryValue(row))}"><i class="fa-solid fa-trash"></i> حذف</button>`:""}</div></article>`).join("");
+      bindRowActionButtons(recordCards);
     }
 
     async function saveRecord(payload){
