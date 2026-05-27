@@ -1,32 +1,86 @@
 {
   "rewrites": [
-    { "source": "/sitemap.xml", "destination": "/api/sitemap" },
-    { "source": "/feed.xml", "destination": "/api/feed" },
-
-    { "source": "/news", "destination": "/api/section-page?section=news" },
-    { "source": "/news/:id", "destination": "/api/seo-page?type=news&id=:id" },
-
-    { "source": "/activities", "destination": "/api/section-page?section=activities" },
-    { "source": "/activities/:id", "destination": "/api/seo-page?type=activities&id=:id" },
-
-    { "source": "/courses", "destination": "/api/section-page?section=courses" },
-    { "source": "/courses/:id", "destination": "/api/seo-page?type=courses&id=:id" },
-
-    { "source": "/committees", "destination": "/api/section-page?section=committees" },
-    { "source": "/committees/:id", "destination": "/api/seo-page?type=committees&id=:id" },
-
-    { "source": "/achievements", "destination": "/api/section-page?section=achievements" },
-    { "source": "/achievements/:id", "destination": "/api/seo-page?type=achievements&id=:id" },
-
-    { "source": "/events", "destination": "/api/section-page?section=events" },
-    { "source": "/events/:id", "destination": "/api/seo-page?type=events&id=:id" }
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
+    },
+    {
+      "source": "/feed.xml",
+      "destination": "/api/feed"
+    },
+    {
+      "source": "/news",
+      "destination": "/api/section-page?section=news"
+    },
+    {
+      "source": "/news/:id",
+      "destination": "/api/seo-page?type=news&id=:id"
+    },
+    {
+      "source": "/activities",
+      "destination": "/api/section-page?section=activities"
+    },
+    {
+      "source": "/activities/:id",
+      "destination": "/api/seo-page?type=activities&id=:id"
+    },
+    {
+      "source": "/courses",
+      "destination": "/api/section-page?section=courses"
+    },
+    {
+      "source": "/courses/:id",
+      "destination": "/api/seo-page?type=courses&id=:id"
+    },
+    {
+      "source": "/committees",
+      "destination": "/api/section-page?section=committees"
+    },
+    {
+      "source": "/committees/:id",
+      "destination": "/api/seo-page?type=committees&id=:id"
+    },
+    {
+      "source": "/achievements",
+      "destination": "/api/section-page?section=achievements"
+    },
+    {
+      "source": "/achievements/:id",
+      "destination": "/api/seo-page?type=achievements&id=:id"
+    },
+    {
+      "source": "/events",
+      "destination": "/api/section-page?section=events"
+    },
+    {
+      "source": "/events/:id",
+      "destination": "/api/seo-page?type=events&id=:id"
+    },
+    {
+      "source": "/issues",
+      "destination": "/api/section-page?section=issues"
+    },
+    {
+      "source": "/about",
+      "destination": "/api/section-page?section=about"
+    },
+    {
+      "source": "/goals",
+      "destination": "/api/section-page?section=goals"
+    }
   ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        }
       ]
     }
   ]
