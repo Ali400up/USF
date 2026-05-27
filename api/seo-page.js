@@ -567,7 +567,17 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const filters = { id: `eq.${id}` };
+    const filters = {};
+
+    // للأخبار فقط:
+    // إذا كان الرابط رقم بسيط مثل /news/1 نبحث في public_id.
+    // وإذا كان الرابط UUID قديم مثل /news/a1db... نبحث في id حتى لا تتعطل الروابط القديمة.
+    if (sectionKey === "news" && /^\\d+$/.test(id)) {
+      filters.public_id = `eq.${id}`;
+    } else {
+      filters.id = `eq.${id}`;
+    }
+
     if (section.activeField) filters[section.activeField] = "eq.true";
 
     const rows = await supabaseSelect(section.table, { filters, limit: 1 });

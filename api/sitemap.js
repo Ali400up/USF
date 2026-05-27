@@ -27,7 +27,12 @@ module.exports = async function handler(req, res) {
       for (const row of rows) {
         if (!row.id) continue;
         const lastmod = row.updated_at || row.created_at || row.event_date || row.activity_date || new Date().toISOString();
-        urls.push(urlBlock(`${SITE_URL}${section.path}/${encodeURIComponent(row.id)}`, isoDate(lastmod), section.changefreq, section.priority));
+
+        // في قسم الأخبار نستخدم public_id البسيط إذا موجود.
+        // مثال: /news/1 بدل UUID الطويل.
+        const publicLinkId = key === "news" && row.public_id ? row.public_id : row.id;
+
+        urls.push(urlBlock(`${SITE_URL}${section.path}/${encodeURIComponent(publicLinkId)}`, isoDate(lastmod), section.changefreq, section.priority));
       }
     } catch (error) {
       console.error("Sitemap section error:", key, error.message);
