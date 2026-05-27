@@ -285,13 +285,14 @@ async function supabaseSelect(table, options = {}) {
 }
 
 function navHtml(activePath = "") {
-  // نفس أسماء وكلاسات الهيدر في index.html
+  // نفس أسماء وكلاسات الهيدر في index.html مع إضافة المبادرات للناف السفلي.
   const links = [
     ["الرئيسية", "/", "fa-solid fa-house"],
     ["الأخبار", "/news", "fa-solid fa-newspaper"],
     ["الأنشطة", "/activities", "fa-solid fa-calendar-check"],
     ["الدورات", "/courses", "fa-solid fa-book-open-reader"],
     ["اللجان", "/committees", "fa-solid fa-sitemap"],
+    ["المبادرات", "/initiatives", "fa-solid fa-hand-holding-heart"],
     ["الفعاليات", "/events", "fa-solid fa-calendar-days"]
   ];
 
@@ -300,7 +301,13 @@ function navHtml(activePath = "") {
     return `<a class="${active}" href="${href}"><i class="${icon}"></i> ${escapeHtml(label)}</a>`;
   }).join("");
 
-  const bottomLinks = links.slice(0, 5).map(([label, href, icon]) => {
+  const bottomLinks = [
+    ["الرئيسية", "/", "fa-solid fa-house"],
+    ["الأخبار", "/news", "fa-solid fa-newspaper"],
+    ["الدورات", "/courses", "fa-solid fa-book-open-reader"],
+    ["المبادرات", "/initiatives", "fa-solid fa-hand-holding-heart"],
+    ["اللجان", "/committees", "fa-solid fa-sitemap"]
+  ].map(([label, href, icon]) => {
     const active = activePath === href ? "active" : "";
     return `<a class="${active}" href="${href}"><i class="${icon}"></i><span>${escapeHtml(label)}</span></a>`;
   }).join("");
@@ -326,6 +333,7 @@ function navHtml(activePath = "") {
 </header>
 <nav class="bottom-nav">${bottomLinks}</nav>`;
 }
+
 
 function htmlLayout({ title, description, canonical, image, activePath, body, schema }) {
   const safeTitle = escapeAttr(title || SITE_NAME);
