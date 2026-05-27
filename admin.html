@@ -752,6 +752,44 @@
       border:1px solid rgba(11,94,215,.12);
     }
 
+  
+    .course-fields-builder{
+      grid-column:1/-1;
+      padding:16px;
+      border:1px solid rgba(11,94,215,.16);
+      border-radius:26px;
+      background:linear-gradient(135deg,rgba(255,255,255,.82),rgba(238,247,255,.92));
+      box-shadow:0 18px 45px rgba(11,94,215,.10);
+    }
+    .course-fields-head{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;
+    }
+    .course-fields-head h3{margin:0;color:var(--text);font-size:18px;font-weight:900}
+    .course-fields-head p{margin:3px 0 0;color:var(--muted);font-size:13px;font-weight:800;line-height:1.7}
+    .course-fields-list{display:grid;gap:12px}
+    .course-field-row{
+      display:grid;
+      grid-template-columns:1.2fr .9fr .9fr .8fr .55fr auto;
+      gap:9px;
+      align-items:end;
+      padding:12px;
+      border-radius:20px;
+      background:rgba(255,255,255,.78);
+      border:1px solid rgba(11,94,215,.12);
+    }
+    .course-field-row label{display:grid;gap:6px;color:var(--muted);font-size:12px;font-weight:900}
+    .course-field-row input,.course-field-row select{
+      width:100%;min-height:40px;border:1px solid var(--border);border-radius:14px;background:var(--glass);color:var(--text);padding:8px 10px;font-weight:800;
+    }
+    .course-field-row .required-box{display:flex;align-items:center;gap:7px;height:40px}
+    .course-field-remove{height:40px;border-radius:14px!important}
+    .course-fields-preview{
+      margin-top:12px;padding:12px;border-radius:20px;background:rgba(11,94,215,.06);border:1px dashed rgba(11,94,215,.18);color:var(--muted);font-size:13px;font-weight:800;line-height:1.8;
+    }
+    @media(max-width:900px){
+      .course-field-row{grid-template-columns:1fr}
+    }
+
   </style>
 </head>
 
@@ -924,6 +962,7 @@
           {name:"status",label:"الحالة",type:"text",placeholder:"متاح"},
           {name:"seats_total",label:"إجمالي المقاعد",type:"number"},
           {name:"seats_taken",label:"عدد الطلاب المسجلين",type:"number"},
+          {name:"registration_fields",label:"حقول نموذج التسجيل التي تظهر للطالب",type:"course_registration_fields"},
           {name:"is_light",label:"كرت فاتح",type:"boolean",default:false},
           {name:"is_active",label:"ظاهر في الموقع",type:"boolean",default:true}
         ]
@@ -1852,11 +1891,148 @@
       }
     }
 
+
+    function normalizeCourseRegistrationFields(value){
+      if(!value)return [];
+      if(Array.isArray(value))return value;
+      if(typeof value==="string"){
+        try{
+          const parsed=JSON.parse(value);
+          return Array.isArray(parsed)?parsed:[];
+        }catch(_){return []}
+      }
+      return [];
+    }
+
+    function defaultCourseRegistrationFields(){
+      return [
+        {label:"الاسم الرباعي بالعربي", type:"text", required:true, placeholder:"اكتب اسمك الرباعي بالعربي", options:""},
+        {label:"الاسم بالإنجليزية", type:"text", required:false, placeholder:"English full name", options:""},
+        {label:"رقم الهاتف", type:"tel", required:true, placeholder:"مثال: 77xxxxxxx", options:""},
+        {label:"التخصص", type:"text", required:false, placeholder:"اكتب تخصصك", options:""}
+      ];
+    }
+
+    function renderCourseRegistrationFieldsBuilder(field){
+      return `<div class="course-fields-builder" data-course-fields-builder>
+        <div class="course-fields-head">
+          <div>
+            <h3><i class="fa-solid fa-list-check"></i> ${safe(field.label)}</h3>
+            <p>أضف الحقول التي تريد أن تظهر للطالب عند الضغط على زر التسجيل في هذه الدورة. يمكنك تسمية كل حقل وتحديد نوعه وهل هو إجباري.</p>
+          </div>
+          <div class="row-actions">
+            <button class="btn btn-primary" type="button" id="addCourseRegField"><i class="fa-solid fa-plus"></i> إضافة حقل</button>
+            <button class="btn btn-soft" type="button" id="addDefaultCourseRegFields"><i class="fa-solid fa-wand-magic-sparkles"></i> مثال جاهز</button>
+          </div>
+        </div>
+        <div class="course-fields-list" id="courseRegFieldsList"></div>
+        <input type="hidden" name="${field.name}" id="courseRegistrationFieldsJson" />
+        <div class="course-fields-preview" id="courseRegFieldsPreview">لا توجد حقول مخصصة بعد. إذا تركتها فارغة سيظهر نموذج افتراضي بسيط.</div>
+      </div>`;
+    }
+
+    function courseFieldRowTemplate(item={}, index=0){
+      const type=item.type||"text";
+      return `<div class="course-field-row" data-index="${index}">
+        <label>اسم الحقل الذي يظهر للطالب
+          <input class="course-reg-label" value="${safe(item.label||"")}" placeholder="مثال: الاسم الرباعي بالعربي">
+        </label>
+        <label>نوع الإدخال
+          <select class="course-reg-type">
+            ${[
+              ["text","نص"],
+              ["textarea","نص طويل"],
+              ["number","رقم"],
+              ["tel","رقم هاتف"],
+              ["email","بريد إلكتروني"],
+              ["date","تاريخ"],
+              ["select","اختيار من قائمة"]
+            ].map(([v,t])=>`<option value="${v}" ${type===v?"selected":""}>${t}</option>`).join("")}
+          </select>
+        </label>
+        <label>نص توضيحي
+          <input class="course-reg-placeholder" value="${safe(item.placeholder||"")}" placeholder="مثال: اكتب اسمك هنا">
+        </label>
+        <label>خيارات القائمة
+          <input class="course-reg-options" value="${safe(item.options||"")}" placeholder="للقائمة فقط: طب، هندسة، حاسبات">
+        </label>
+        <label class="required-box">
+          <input class="course-reg-required" type="checkbox" ${item.required?"checked":""}> إجباري
+        </label>
+        <button class="btn btn-danger course-field-remove" type="button"><i class="fa-solid fa-trash"></i></button>
+      </div>`;
+    }
+
+    function getCourseRegFieldsFromBuilder(){
+      const list=document.getElementById("courseRegFieldsList");
+      if(!list)return [];
+      return Array.from(list.querySelectorAll(".course-field-row")).map(row=>({
+        label: row.querySelector(".course-reg-label")?.value.trim()||"",
+        type: row.querySelector(".course-reg-type")?.value||"text",
+        required: Boolean(row.querySelector(".course-reg-required")?.checked),
+        placeholder: row.querySelector(".course-reg-placeholder")?.value.trim()||"",
+        options: row.querySelector(".course-reg-options")?.value.trim()||""
+      })).filter(x=>x.label);
+    }
+
+    function syncCourseRegFieldsJson(){
+      const input=document.getElementById("courseRegistrationFieldsJson");
+      const preview=document.getElementById("courseRegFieldsPreview");
+      const fields=getCourseRegFieldsFromBuilder();
+      if(input)input.value=JSON.stringify(fields);
+      if(preview){
+        preview.innerHTML=fields.length
+          ? `<b>ستظهر للطالب ${fields.length} حقول:</b><br>${fields.map((f,i)=>`${i+1}. ${safe(f.label)} ${f.required?"<b style='color:#0B5ED7'>(إجباري)</b>":""}`).join("<br>")}`
+          : "لا توجد حقول مخصصة بعد. إذا تركتها فارغة سيظهر نموذج افتراضي بسيط.";
+      }
+    }
+
+    function addCourseRegField(item={}){
+      const list=document.getElementById("courseRegFieldsList");
+      if(!list)return;
+      const index=list.querySelectorAll(".course-field-row").length;
+      list.insertAdjacentHTML("beforeend", courseFieldRowTemplate(item,index));
+      bindCourseRegFieldsBuilder();
+      syncCourseRegFieldsJson();
+    }
+
+    function bindCourseRegFieldsBuilder(){
+      const list=document.getElementById("courseRegFieldsList");
+      if(!list)return;
+      list.querySelectorAll("input,select").forEach(el=>{
+        el.oninput=syncCourseRegFieldsJson;
+        el.onchange=syncCourseRegFieldsJson;
+      });
+      list.querySelectorAll(".course-field-remove").forEach(btn=>{
+        btn.onclick=()=>{
+          btn.closest(".course-field-row").remove();
+          syncCourseRegFieldsJson();
+        };
+      });
+    }
+
+    function initCourseRegFieldsBuilder(fields=[]){
+      const list=document.getElementById("courseRegFieldsList");
+      if(!list)return;
+      list.innerHTML="";
+      normalizeCourseRegistrationFields(fields).forEach(item=>addCourseRegField(item));
+      const addBtn=document.getElementById("addCourseRegField");
+      if(addBtn)addBtn.onclick=()=>addCourseRegField({label:"",type:"text",required:false,placeholder:"",options:""});
+      const defaultBtn=document.getElementById("addDefaultCourseRegFields");
+      if(defaultBtn)defaultBtn.onclick=()=>{
+        list.innerHTML="";
+        defaultCourseRegistrationFields().forEach(item=>addCourseRegField(item));
+        syncCourseRegFieldsJson();
+      };
+      syncCourseRegFieldsJson();
+    }
+
     async function renderForm(){
       const config=TABLES[currentTable]; tableTitle.textContent=config.title; tableDesc.textContent=config.desc;
       uploadState={}; await loadRelations();
       formFields.innerHTML=config.fields.map(field=>{
         if(field.name==="icon")return renderIconPickerField(field);
+        if(field.type==="course_registration_fields")return renderCourseRegistrationFieldsBuilder(field);
         if(field.type==="permissions_check")return renderPermissionField(field);
         if(field.type==="boolean"){const locked=(field.name==="is_active"&&!canDo("publish")&&currentTable!=="admin_users");return `<div class="field"><label>${field.label}</label><label class="check-row"><input type="checkbox" name="${field.name}" ${field.default&&!locked?"checked":""} ${locked?"disabled":""}/> نعم</label>${locked?`<div class="permission-lock">ليس لديك صلاحية النشر أو الإظهار، سيتم حفظ السجل كمخفي حتى يراجعه مدير عام.</div>`:""}</div>`;} 
         if(field.type==="textarea")return `<div class="field full"><label>${field.label}</label><textarea name="${field.name}" placeholder="${safe(field.placeholder||"")}" ${field.required?"required":""}></textarea></div>`;
@@ -1870,13 +2046,15 @@
       bindUploadFields();
       bindIconPickers();
       bindPermissionCards();
+      if(currentTable==="courses")initCourseRegFieldsBuilder([]);
     }
 
     function getFormPayload(){
       const config=TABLES[currentTable]; const formData=new FormData(dataForm); const payload={};
       config.fields.forEach(field=>{
         const input=dataForm.querySelector(`[name="${field.name}"]`);
-        if(field.type==="permissions_check")payload[field.name]=Array.from(dataForm.querySelectorAll(`[name="${field.name}"]:checked`)).map(x=>x.value).join(",");
+        if(field.type==="course_registration_fields")payload[field.name]=getCourseRegFieldsFromBuilder();
+        else if(field.type==="permissions_check")payload[field.name]=Array.from(dataForm.querySelectorAll(`[name="${field.name}"]:checked`)).map(x=>x.value).join(",");
         else if(field.type==="boolean")payload[field.name]=input.checked;
         else if(field.type==="number"){const value=formData.get(field.name);payload[field.name]=value===""||value===null?null:Number(value)}
         else if(field.type==="relation"){const value=formData.get(field.name);payload[field.name]=value===""||value===null?null:value}
@@ -1891,6 +2069,7 @@
       recordId.value=getRowPrimaryValue(row); applyActionButtons();
       TABLES[currentTable].fields.forEach(field=>{
         const input=dataForm.querySelector(`[name="${field.name}"]`);
+        if(field.type==="course_registration_fields"){initCourseRegFieldsBuilder(row[field.name]);return}
         if(field.type==="image_upload"||field.type==="single_image_upload"){uploadState[field.name]=normalizeImages(row[field.name]);renderUploadedImages(field.name);return}
         if(field.type==="permissions_check"){const allowed=parseAllowedTables(row[field.name]);dataForm.querySelectorAll(`[name="${field.name}"]`).forEach(ch=>ch.checked=allowed.includes(ch.value));return}
         if(!input)return;
@@ -1905,6 +2084,7 @@
       dataForm.reset(); recordId.value=""; uploadState={}; applyActionButtons();
       TABLES[currentTable].fields.forEach(field=>{
         if(field.type==="boolean"){const input=dataForm.querySelector(`[name="${field.name}"]`); if(input)input.checked=field.default!==false}
+        if(field.type==="course_registration_fields")initCourseRegFieldsBuilder([])
         if(field.type==="permissions_check")dataForm.querySelectorAll(`[name="${field.name}"]`).forEach(ch=>ch.checked=false)
         if(field.type==="image_upload"||field.type==="single_image_upload"){uploadState[field.name]=[]; renderUploadedImages(field.name)}
       });
