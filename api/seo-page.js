@@ -441,7 +441,7 @@ function modalHtml() {
             return '<div class="field full"><label><i class="fa-solid fa-pen-to-square"></i> '+label+'</label><textarea name="'+name+'" data-label="'+label+'" placeholder="'+placeholder+'" '+required+'></textarea></div>';
           }
           if(type==="select"){
-            var options=String(field.options||"").split(/,|،|\n/).map(function(x){return x.trim()}).filter(Boolean);
+            var options=String(field.options||"").split(/,|،|\\n/).map(function(x){return x.trim()}).filter(Boolean);
             return '<div class="field full"><label><i class="fa-solid fa-list"></i> '+label+'</label><select name="'+name+'" data-label="'+label+'" '+required+'><option value="">اختر...</option>'+options.map(function(opt){return '<option value="'+safe(opt)+'">'+safe(opt)+'</option>'}).join("")+'</select></div>';
           }
           var htmlType=["text","number","tel","email","date"].includes(type)?type:"text";
@@ -556,6 +556,129 @@ function modalHtml() {
   </div>
 
   <div class="image-viewer" id="imageViewer"><button id="imageViewerClose" type="button"><i class="fa-solid fa-xmark"></i></button><img alt="صورة" id="imageViewerImg" src="" /></div>
+  
+<script id="course-page-buttons-safe-fix">
+(function(){
+  function q(id){return document.getElementById(id)}
+  function safe(v){return String(v||"")}
+  function defaultFields(){
+    return [
+      {label:"الاسم الكامل",type:"text",required:true,placeholder:"اكتب اسمك الرباعي"},
+      {label:"الرقم الأكاديمي",type:"text",required:true,placeholder:"مثال: 202412345"}
+    ];
+  }
+  function parseFields(value){
+    if(!value)return [];
+    try{
+      var parsed=JSON.parse(decodeURIComponent(value));
+      return Array.isArray(parsed)?parsed:[];
+    }catch(e){
+      try{
+        var parsed2=JSON.parse(value);
+        return Array.isArray(parsed2)?parsed2:[];
+      }catch(_){return []}
+    }
+  }
+  function fieldKey(label,index){
+    return "field_"+index+"_"+String(label||"").replace(/[^\u0600-\u06FFa-zA-Z0-9]+/g,"_").replace(/^_+|_+$/g,"").slice(0,32);
+  }
+  function splitOptions(value){
+    return String(value||"").replace(/\r/g,"").split(/\n|,|،/).map(function(x){return x.trim()}).filter(Boolean);
+  }
+  function renderFields(fields){
+    var box=q("dynamicCourseFields");
+    if(!box)return;
+    var finalList=(Array.isArray(fields)&&fields.length)?fields:defaultFields();
+    box.innerHTML=finalList.map(function(field,index){
+      var label=safe(field.label||("حقل "+(index+1)));
+      var type=field.type||"text";
+      var required=field.required?"required":"";
+      var placeholder=safe(field.placeholder||"");
+      var name=fieldKey(label,index);
+      if(type==="textarea"){
+        return '<div class="field full"><label><i class="fa-solid fa-pen-to-square"></i> '+label+'</label><textarea name="'+name+'" data-label="'+label+'" placeholder="'+placeholder+'" '+required+'></textarea></div>';
+      }
+      if(type==="select"){
+        var options=splitOptions(field.options);
+        return '<div class="field full"><label><i class="fa-solid fa-list"></i> '+label+'</label><select name="'+name+'" data-label="'+label+'" '+required+'><option value="">اختر...</option>'+options.map(function(opt){return '<option value="'+safe(opt)+'">'+safe(opt)+'</option>'}).join("")+'</select></div>';
+      }
+      var htmlType=["text","number","tel","email","date"].includes(type)?type:"text";
+      var icon=htmlType==="tel"?"fa-phone":htmlType==="email"?"fa-envelope":htmlType==="number"?"fa-hashtag":htmlType==="date"?"fa-calendar-days":"fa-user";
+      return '<div class="field full"><label><i class="fa-solid '+icon+'"></i> '+label+'</label><input name="'+name+'" data-label="'+label+'" placeholder="'+placeholder+'" '+required+' type="'+htmlType+'" /></div>';
+    }).join("");
+  }
+  function openModal(btn){
+    var modal=q("courseModal");
+    if(!modal)return;
+    if(q("registrationCourseId"))q("registrationCourseId").value=btn.getAttribute("data-course-id")||"";
+    if(q("registrationCourseTitle"))q("registrationCourseTitle").value=btn.getAttribute("data-course-title")||"";
+    if(q("modalCourseName"))q("modalCourseName").textContent="الدورة: "+(btn.getAttribute("data-course-title")||"دورة");
+    renderFields(parseFields(btn.getAttribute("data-registration-fields")||"[]"));
+    modal.classList.add("show");
+    document.body.style.overflow="hidden";
+  }
+  function closeModal(){
+    var modal=q("courseModal");
+    if(modal)modal.classList.remove("show");
+    document.body.style.overflow="";
+  }
+  function getRegData(){
+    var data={};
+    document.querySelectorAll("#dynamicCourseFields input,#dynamicCourseFields textarea,#dynamicCourseFields select").forEach(function(input){
+      data[input.dataset.label||input.name]=input.value||"";
+    });
+    return data;
+  }
+  function pick(data,keys){
+    var entries=Object.entries(data||{});
+    var found=entries.find(function(pair){return keys.some(function(k){return String(pair[0]).includes(k)})});
+    return found?found[1]:"";
+  }
+  document.addEventListener("click",function(e){
+    var more=e.target.closest&&e.target.closest(".more-btn");
+    if(more){
+      var card=more.closest(".course-card");
+      var box=card&&card.querySelector(".course-more-box");
+      if(box){
+        box.classList.toggle("show");
+        more.innerHTML=box.classList.contains("show")?'<i class="fa-solid fa-chevron-up"></i> إخفاء المعلومات':'<i class="fa-solid fa-circle-info"></i> المزيد';
+      }
+    }
+    var action=e.target.closest&&e.target.closest(".action-btn");
+    if(action){openModal(action)}
+    if(e.target&&e.target.id==="closeCourseModal")closeModal();
+    if(e.target&&e.target.id==="cancelCourseModal")closeModal();
+    if(e.target&&e.target.id==="courseModal")closeModal();
+  });
+  setTimeout(function(){
+    var form=q("courseRegistrationForm");
+    if(!form||form.dataset.safeBound)return;
+    form.dataset.safeBound="1";
+    form.addEventListener("submit",async function(e){
+      e.preventDefault();
+      var data=getRegData();
+      var payload={
+        course_id:q("registrationCourseId")?q("registrationCourseId").value:null,
+        course_title:q("registrationCourseTitle")?q("registrationCourseTitle").value:"",
+        student_full_name:pick(data,["الاسم","name","Name"])||Object.values(data)[0]||"",
+        academic_number:pick(data,["أكاديمي","اكاديمي","academic","الرقم الجامعي"])||"",
+        registration_data:data
+      };
+      try{
+        var response=await fetch("/api/course-registration",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+        var result=await response.json().catch(function(){return {}});
+        if(!response.ok)throw new Error(result.error||"تعذر إرسال طلب التسجيل");
+        alert("تم إرسال طلب التسجيل بنجاح");
+        closeModal();
+        form.reset();
+      }catch(error){
+        alert(error.message||"تعذر إرسال طلب التسجيل");
+      }
+    });
+  },0);
+})();
+</script>
+
   `;
 }
 
@@ -599,7 +722,7 @@ function pageScript(committeeLinks) {
     function normalizeCourseRegFields(value){if(!value)return[];if(Array.isArray(value))return value;if(typeof value==="string"){try{const p=JSON.parse(value);return Array.isArray(p)?p:[]}catch(e){return[]}}return[]}
     function defaultCourseRegFields(){return[{label:"الاسم الكامل",type:"text",required:true,placeholder:"اكتب اسمك الرباعي"},{label:"الرقم الأكاديمي",type:"text",required:true,placeholder:"مثال: 202412345"}]}
     function fieldKey(label,index){return "field_"+index+"_"+String(label||"").replace(/[^\u0600-\u06FFa-zA-Z0-9]+/g,"_").replace(/^_+|_+$/g,"").slice(0,32)}
-    function renderDynamicCourseFields(fields){const box=q("dynamicCourseFields");if(!box)return;const list=normalizeCourseRegFields(fields);const finalList=list.length?list:defaultCourseRegFields();box.innerHTML=finalList.map((field,index)=>{const label=safeText(field.label||("حقل "+(index+1))),type=field.type||"text",req=field.required?"required":"",ph=safeText(field.placeholder||""),name=fieldKey(label,index);if(type==="textarea")return '<div class="field full"><label><i class="fa-solid fa-pen-to-square"></i> '+label+'</label><textarea name="'+name+'" data-label="'+label+'" placeholder="'+ph+'" '+req+'></textarea></div>';if(type==="select"){const opts=String(field.options||"").split(/,|،|\n/).map(x=>x.trim()).filter(Boolean);return '<div class="field full"><label><i class="fa-solid fa-list"></i> '+label+'</label><select name="'+name+'" data-label="'+label+'" '+req+'><option value="">اختر...</option>'+opts.map(o=>'<option value="'+safeText(o)+'">'+safeText(o)+'</option>').join("")+'</select></div>'}const htmlType=["text","number","tel","email","date"].includes(type)?type:"text";return '<div class="field full"><label><i class="fa-solid fa-user"></i> '+label+'</label><input name="'+name+'" data-label="'+label+'" placeholder="'+ph+'" '+req+' type="'+htmlType+'" /></div>'}).join("")}
+    function renderDynamicCourseFields(fields){const box=q("dynamicCourseFields");if(!box)return;const list=normalizeCourseRegFields(fields);const finalList=list.length?list:defaultCourseRegFields();box.innerHTML=finalList.map((field,index)=>{const label=safeText(field.label||("حقل "+(index+1))),type=field.type||"text",req=field.required?"required":"",ph=safeText(field.placeholder||""),name=fieldKey(label,index);if(type==="textarea")return '<div class="field full"><label><i class="fa-solid fa-pen-to-square"></i> '+label+'</label><textarea name="'+name+'" data-label="'+label+'" placeholder="'+ph+'" '+req+'></textarea></div>';if(type==="select"){const opts=String(field.options||"").split(/,|،|\\n/).map(x=>x.trim()).filter(Boolean);return '<div class="field full"><label><i class="fa-solid fa-list"></i> '+label+'</label><select name="'+name+'" data-label="'+label+'" '+req+'><option value="">اختر...</option>'+opts.map(o=>'<option value="'+safeText(o)+'">'+safeText(o)+'</option>').join("")+'</select></div>'}const htmlType=["text","number","tel","email","date"].includes(type)?type:"text";return '<div class="field full"><label><i class="fa-solid fa-user"></i> '+label+'</label><input name="'+name+'" data-label="'+label+'" placeholder="'+ph+'" '+req+' type="'+htmlType+'" /></div>'}).join("")}
     document.querySelectorAll(".action-btn").forEach(btn=>{
       btn.onclick=()=>{
         if(q("registrationCourseId"))q("registrationCourseId").value=btn.dataset.courseId||"";
