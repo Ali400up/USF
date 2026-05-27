@@ -4,7 +4,7 @@
   <!-- الصفحة الرئيسية -->
   <url>
     <loc>https://usf-flax.vercel.app/</loc>
-    <lastmod>2026-05-26</lastmod>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -12,7 +12,7 @@
   <!-- آخر الأخبار -->
   <url>
     <loc>https://usf-flax.vercel.app/news</loc>
-    <lastmod>2026-05-26</lastmod>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -20,7 +20,7 @@
   <!-- الأنشطة والرحلات -->
   <url>
     <loc>https://usf-flax.vercel.app/activities</loc>
-    <lastmod>2026-05-26</lastmod>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -28,7 +28,7 @@
   <!-- الدورات -->
   <url>
     <loc>https://usf-flax.vercel.app/courses</loc>
-    <lastmod>2026-05-26</lastmod>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
@@ -36,7 +36,7 @@
   <!-- اللجان -->
   <url>
     <loc>https://usf-flax.vercel.app/committees</loc>
-    <lastmod>2026-05-26</lastmod>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -44,7 +44,7 @@
   <!-- الإنجازات -->
   <url>
     <loc>https://usf-flax.vercel.app/achievements</loc>
-    <lastmod>2026-05-26</lastmod>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -52,7 +52,7 @@
   <!-- الفعاليات القادمة -->
   <url>
     <loc>https://usf-flax.vercel.app/events</loc>
-    <lastmod>2026-05-26</lastmod>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -60,7 +60,7 @@
   <!-- الشكاوى والمقترحات -->
   <url>
     <loc>https://usf-flax.vercel.app/issues</loc>
-    <lastmod>2026-05-26</lastmod>
+    <lastmod>2026-05-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
