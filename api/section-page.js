@@ -39,6 +39,13 @@ const SECTION_MAP = {
     title: "الإنجازات | ملتقى الطالب الجامعي",
     description: "إنجازات ملتقى الطالب الجامعي بنفس تصميم الصفحة الرئيسية."
   },
+
+  initiatives: {
+    id: "initiatives",
+    path: "/initiatives",
+    title: "المبادرات الطلابية | ملتقى الطالب الجامعي",
+    description: "قسم المبادرات الطلابية بنفس تصميم الصفحة الرئيسية."
+  },
   events: {
     id: "timeline",
     path: "/events",
@@ -173,6 +180,7 @@ function injectCrop(html, key, section) {
         "#courses":"/courses",
         "#committees":"/committees",
         "#achievements":"/achievements",
+        "#initiatives":"/initiatives",
         "#issues":"/issues",
         "#timeline":"/events",
         "#goals":"/goals"
