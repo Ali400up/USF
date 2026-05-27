@@ -130,7 +130,7 @@ function renderNews(sectionKey, section, row) {
         <div class="news-tv">
           <div class="news-screen">
             <div class="news-media">
-              ${image ? `<img id="newsImage" alt="${escapeAttr(title)}" src="${escapeAttr(image)}" />` : ""}
+              ${image ? `<img id="newsImage" alt="${escapeAttr(title)}" src="${escapeAttr(image)}" style="cursor:pointer" onclick="openImageViewer(\'${escapeAttr(image)}\')" title="اضغط لعرض الصورة" />` : ""}
               <div class="news-shine"></div>
               <div class="news-live"><i class="fa-solid fa-circle"></i> آخر الأخبار</div>
             </div>
