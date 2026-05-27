@@ -1,620 +1,13 @@
 // api/seo-page.js
-// تصميم فاخر ومنظم جدًا لصفحات التفاصيل عند الدخول برابط ID.
-// يعمل مع: /news/:id /courses/:id /activities/:id /events/:id /committees/:id /achievements/:id /initiatives/:id
+// تصميم صفحات التفاصيل بنفس روح وشكل الموقع الرئيسي تمامًا.
+// استخدمت نفس كلاسات الموقع الرئيسي الموجودة في assets/usf-main-style.css
+// بدون تصميم مختلف أو ألوان غريبة.
 
 const {
   SITE_URL, SITE_NAME, SECTIONS,
   escapeHtml, escapeAttr, truncate, titleOf, textOf, detailOf, imageOf, parseImages, urlFor,
-  responseHeaders, supabaseSelect, htmlLayout, errorPage
+  responseHeaders, supabaseSelect, htmlLayout, errorPage, isoDate
 } = require("./_seo-utils");
-
-const premiumDetailCss = `
-<style>
-  .id-premium-page{
-    --detail-color: var(--section-color, #0B5ED7);
-    --detail-color-dark:#063B8F;
-    --detail-accent:#64B5F6;
-    --detail-soft:rgba(11,94,215,.10);
-    position:relative;
-    overflow:hidden;
-    padding-top:104px;
-  }
-
-  .id-premium-page:before,
-  .id-premium-page:after{
-    content:"";
-    position:fixed;
-    z-index:-1;
-    width:520px;
-    height:520px;
-    border-radius:50%;
-    filter:blur(36px);
-    opacity:.18;
-    pointer-events:none;
-    background:var(--detail-color);
-    animation:idOrb 16s cubic-bezier(.2,.8,.2,1) infinite alternate;
-  }
-
-  .id-premium-page:before{top:70px;right:-210px}
-  .id-premium-page:after{bottom:-210px;left:-190px;background:var(--detail-accent);animation-delay:1.5s}
-
-  @keyframes idOrb{
-    to{transform:translate3d(54px,-42px,0) scale(1.12)}
-  }
-
-  .id-hero-wrap{
-    padding:28px 0 30px;
-  }
-
-  .id-hero-card{
-    position:relative;
-    overflow:hidden;
-    border-radius:46px;
-    min-height:480px;
-    color:#fff;
-    border:1px solid rgba(255,255,255,.22);
-    box-shadow:0 38px 110px rgba(11,94,215,.25);
-    isolation:isolate;
-    background:
-      radial-gradient(circle at 18% 16%,rgba(255,255,255,.26),transparent 24%),
-      radial-gradient(circle at 84% 22%,rgba(100,181,246,.24),transparent 28%),
-      linear-gradient(135deg,var(--detail-color),#0B5ED7 55%,#063B8F);
-  }
-
-  .id-hero-bg{
-    position:absolute;
-    inset:0;
-    z-index:-3;
-    opacity:.22;
-    background-size:cover;
-    background-position:center;
-    filter:saturate(1.15) contrast(1.05);
-    transform:scale(1.04);
-  }
-
-  .id-hero-card:before{
-    content:"";
-    position:absolute;
-    inset:0;
-    z-index:-2;
-    background:
-      linear-gradient(90deg,rgba(3,12,22,.82),rgba(3,12,22,.45) 48%,rgba(3,12,22,.18)),
-      repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 6px);
-  }
-
-  .id-hero-card:after{
-    content:"";
-    position:absolute;
-    top:-70%;
-    left:-25%;
-    width:32%;
-    height:210%;
-    transform:rotate(18deg);
-    background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);
-    animation:idShine 5.8s linear infinite;
-    z-index:-1;
-  }
-
-  @keyframes idShine{
-    0%{left:-38%;opacity:0}
-    16%{opacity:.88}
-    42%{left:120%;opacity:0}
-    100%{left:120%;opacity:0}
-  }
-
-  .id-hero-inner{
-    position:relative;
-    z-index:2;
-    display:grid;
-    grid-template-columns:minmax(0,1.03fr) minmax(320px,.72fr);
-    gap:28px;
-    align-items:center;
-    padding:42px;
-    min-height:480px;
-  }
-
-  .id-breadcrumb{
-    display:flex;
-    flex-wrap:wrap;
-    align-items:center;
-    gap:8px;
-    margin-bottom:18px;
-    color:rgba(255,255,255,.80);
-    font-size:13px;
-    font-weight:900;
-  }
-
-  .id-breadcrumb a{
-    color:#fff;
-    display:inline-flex;
-    align-items:center;
-    gap:7px;
-    padding:8px 12px;
-    border-radius:999px;
-    background:rgba(255,255,255,.12);
-    border:1px solid rgba(255,255,255,.16);
-    backdrop-filter:blur(12px);
-  }
-
-  .id-badge{
-    display:inline-flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:16px;
-    padding:10px 14px;
-    border-radius:999px;
-    background:rgba(255,255,255,.14);
-    border:1px solid rgba(255,255,255,.18);
-    color:#EAF6FF;
-    font-weight:900;
-    box-shadow:0 16px 38px rgba(0,0,0,.14);
-  }
-
-  .id-badge i{
-    width:34px;
-    height:34px;
-    display:grid;
-    place-items:center;
-    border-radius:13px;
-    color:var(--detail-color);
-    background:#fff;
-  }
-
-  .id-hero-title{
-    font-size:clamp(34px,5.5vw,72px);
-    line-height:1.18;
-    font-weight:900;
-    letter-spacing:-1.6px;
-    margin-bottom:16px;
-    text-shadow:0 18px 46px rgba(0,0,0,.28);
-  }
-
-  .id-hero-desc{
-    max-width:840px;
-    color:rgba(255,255,255,.86);
-    font-size:17px;
-    line-height:2.05;
-    font-weight:800;
-    margin-bottom:24px;
-  }
-
-  .id-actions{
-    display:flex;
-    align-items:center;
-    flex-wrap:wrap;
-    gap:11px;
-  }
-
-  .id-actions .btn{
-    min-height:50px;
-    border-radius:19px;
-  }
-
-  .id-hero-media{
-    position:relative;
-    padding:14px;
-    border-radius:34px;
-    background:rgba(255,255,255,.14);
-    border:1px solid rgba(255,255,255,.20);
-    box-shadow:0 26px 72px rgba(0,0,0,.28);
-    backdrop-filter:blur(20px);
-    transform:perspective(1000px) rotateY(-4deg);
-    transition:.45s cubic-bezier(.2,.8,.2,1);
-  }
-
-  .id-hero-media:hover{
-    transform:perspective(1000px) rotateY(0deg) translateY(-6px);
-  }
-
-  .id-main-image{
-    width:100%;
-    height:330px;
-    object-fit:cover;
-    border-radius:26px;
-    border:1px solid rgba(255,255,255,.20);
-    box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),0 20px 56px rgba(0,0,0,.28);
-    background:#061525;
-  }
-
-  .id-image-fallback{
-    height:330px;
-    display:grid;
-    place-items:center;
-    border-radius:26px;
-    background:linear-gradient(135deg,rgba(255,255,255,.20),rgba(255,255,255,.07));
-    color:#fff;
-    font-size:82px;
-  }
-
-  .id-live-strip{
-    position:absolute;
-    right:26px;
-    top:26px;
-    display:inline-flex;
-    align-items:center;
-    gap:7px;
-    padding:8px 12px;
-    border-radius:999px;
-    color:#fff;
-    background:rgba(220,38,38,.92);
-    font-size:12px;
-    font-weight:900;
-    box-shadow:0 14px 34px rgba(220,38,38,.28);
-  }
-
-  .id-live-strip i{
-    animation:idPulse 1.1s ease-in-out infinite;
-  }
-
-  @keyframes idPulse{50%{transform:scale(1.3);opacity:.55}}
-
-  .id-mini-stats{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:10px;
-    margin-top:12px;
-  }
-
-  .id-mini-stat{
-    padding:12px;
-    border-radius:18px;
-    background:rgba(255,255,255,.12);
-    border:1px solid rgba(255,255,255,.16);
-    color:rgba(255,255,255,.84);
-    font-weight:900;
-    line-height:1.5;
-    font-size:12px;
-  }
-
-  .id-mini-stat strong{
-    display:block;
-    color:#fff;
-    font-size:14px;
-    margin-top:2px;
-  }
-
-  .id-body-section{
-    padding:46px 0 78px;
-  }
-
-  .id-layout{
-    display:grid;
-    grid-template-columns:minmax(0,1fr) 380px;
-    gap:18px;
-    align-items:start;
-  }
-
-  .id-panel{
-    position:relative;
-    overflow:hidden;
-    border:1px solid rgba(11,94,215,.14);
-    border-radius:34px;
-    background:rgba(255,255,255,.78);
-    backdrop-filter:blur(22px);
-    box-shadow:0 24px 76px rgba(11,94,215,.13);
-    padding:24px;
-    transition:.38s cubic-bezier(.2,.8,.2,1);
-  }
-
-  .dark .id-panel{background:rgba(8,27,47,.78)}
-
-  .id-panel:hover{
-    transform:translateY(-5px);
-    box-shadow:0 34px 92px rgba(11,94,215,.22);
-  }
-
-  .id-panel:before{
-    content:"";
-    position:absolute;
-    top:0;
-    right:0;
-    left:0;
-    height:4px;
-    background:linear-gradient(90deg,var(--detail-color),var(--detail-accent),#fff);
-  }
-
-  .id-panel-title{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:16px;
-    color:var(--text);
-    font-size:22px;
-    line-height:1.45;
-    font-weight:900;
-  }
-
-  .id-panel-title i{
-    width:44px;
-    height:44px;
-    display:grid;
-    place-items:center;
-    border-radius:17px;
-    color:#fff;
-    background:linear-gradient(135deg,var(--detail-color),#063B8F);
-    box-shadow:0 16px 36px rgba(11,94,215,.22);
-    flex:0 0 auto;
-  }
-
-  .id-rich-text{
-    color:var(--muted);
-    font-size:15px;
-    line-height:2.18;
-    font-weight:800;
-    white-space:pre-line;
-  }
-
-  .id-rich-text strong{
-    color:var(--text);
-  }
-
-  .id-meta-grid{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:10px;
-  }
-
-  .id-meta-pill{
-    display:flex;
-    align-items:flex-start;
-    gap:10px;
-    min-height:66px;
-    padding:13px;
-    border-radius:20px;
-    background:rgba(11,94,215,.07);
-    border:1px solid rgba(11,94,215,.11);
-    color:var(--muted);
-    font-size:13px;
-    font-weight:900;
-    line-height:1.65;
-  }
-
-  .id-meta-pill i{
-    width:34px;
-    height:34px;
-    display:grid;
-    place-items:center;
-    border-radius:13px;
-    color:#fff;
-    background:linear-gradient(135deg,var(--detail-color),#0B5ED7);
-    flex:0 0 auto;
-  }
-
-  .id-meta-pill span{display:block;color:var(--text);font-size:12px;margin-bottom:2px}
-
-  .id-gallery{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:12px;
-  }
-
-  .id-gallery button{
-    padding:0;
-    border:0;
-    background:transparent;
-    cursor:pointer;
-    overflow:hidden;
-    border-radius:24px;
-    box-shadow:0 18px 50px rgba(11,94,215,.13);
-  }
-
-  .id-gallery button:first-child{
-    grid-column:1/-1;
-  }
-
-  .id-gallery img{
-    width:100%;
-    height:210px;
-    object-fit:cover;
-    border-radius:24px;
-    border:1px solid rgba(11,94,215,.13);
-    transition:.45s cubic-bezier(.2,.8,.2,1);
-  }
-
-  .id-gallery button:first-child img{
-    height:370px;
-  }
-
-  .id-gallery button:hover img{
-    transform:scale(1.045);
-    filter:saturate(1.12) contrast(1.04);
-  }
-
-  .id-side{
-    position:sticky;
-    top:96px;
-    display:grid;
-    gap:14px;
-  }
-
-  .id-quick-card{
-    display:grid;
-    gap:10px;
-  }
-
-  .id-action-grid{
-    display:grid;
-    gap:10px;
-  }
-
-  .id-action-grid .btn{
-    width:100%;
-    justify-content:center;
-    border-radius:19px;
-    min-height:51px;
-  }
-
-  .id-data-list,
-  .id-links-list{
-    display:grid;
-    gap:11px;
-  }
-
-  .id-data-card,
-  .id-link-card{
-    display:grid;
-    grid-template-columns:48px 1fr auto;
-    gap:12px;
-    align-items:center;
-    padding:13px;
-    border-radius:22px;
-    background:rgba(11,94,215,.06);
-    border:1px solid rgba(11,94,215,.12);
-    transition:.32s cubic-bezier(.2,.8,.2,1);
-  }
-
-  .id-data-card:hover,
-  .id-link-card:hover{
-    transform:translateY(-4px);
-    background:rgba(11,94,215,.10);
-  }
-
-  .id-data-icon{
-    width:48px;
-    height:48px;
-    display:grid;
-    place-items:center;
-    border-radius:18px;
-    color:#fff;
-    background:linear-gradient(135deg,var(--detail-color),#063B8F);
-    box-shadow:0 14px 32px rgba(11,94,215,.19);
-  }
-
-  .id-data-card h4,
-  .id-link-card h4{
-    font-size:15px;
-    line-height:1.5;
-    color:var(--text);
-    font-weight:900;
-    margin:0 0 3px;
-  }
-
-  .id-data-card p,
-  .id-link-card p{
-    color:var(--muted);
-    font-size:12.5px;
-    line-height:1.75;
-    font-weight:800;
-    white-space:pre-line;
-    margin:0;
-  }
-
-  .id-link-card .btn{
-    padding:9px 12px;
-    font-size:12px;
-    border-radius:15px;
-  }
-
-  .id-task-list{
-    display:grid;
-    gap:9px;
-  }
-
-  .id-task-item{
-    display:flex;
-    gap:10px;
-    align-items:flex-start;
-    padding:12px;
-    border-radius:19px;
-    background:rgba(11,94,215,.06);
-    color:var(--muted);
-    font-weight:850;
-    line-height:1.9;
-  }
-
-  .id-task-item i{
-    margin-top:8px;
-    color:var(--detail-color);
-    font-size:9px;
-  }
-
-  .id-empty{
-    padding:18px;
-    border-radius:22px;
-    border:1px dashed rgba(11,94,215,.22);
-    text-align:center;
-    color:var(--muted);
-    font-weight:900;
-    line-height:2;
-  }
-
-  .id-viewer{
-    position:fixed;
-    inset:0;
-    z-index:5000;
-    display:none;
-    place-items:center;
-    padding:18px;
-    background:rgba(3,12,22,.82);
-    backdrop-filter:blur(14px);
-  }
-
-  .id-viewer.show{display:grid}
-
-  .id-viewer img{
-    max-width:min(1120px,100%);
-    max-height:86vh;
-    object-fit:contain;
-    border-radius:26px;
-    box-shadow:0 32px 110px rgba(0,0,0,.55);
-  }
-
-  .id-viewer button{
-    position:absolute;
-    top:18px;
-    left:18px;
-    width:48px;
-    height:48px;
-    border:1px solid rgba(255,255,255,.24);
-    border-radius:18px;
-    background:rgba(255,255,255,.12);
-    color:#fff;
-    cursor:pointer;
-  }
-
-  .id-reveal{
-    opacity:0;
-    transform:translateY(36px);
-    animation:idReveal .78s cubic-bezier(.2,.8,.2,1) forwards;
-  }
-
-  .id-delay-1{animation-delay:.08s}
-  .id-delay-2{animation-delay:.16s}
-  .id-delay-3{animation-delay:.24s}
-  .id-delay-4{animation-delay:.32s}
-
-  @keyframes idReveal{
-    to{opacity:1;transform:translateY(0)}
-  }
-
-  @media(max-width:1080px){
-    .id-hero-inner{grid-template-columns:1fr}
-    .id-hero-media{transform:none}
-    .id-layout{grid-template-columns:1fr}
-    .id-side{position:relative;top:auto}
-  }
-
-  @media(max-width:760px){
-    .id-premium-page{padding-top:82px}
-    .id-hero-card{border-radius:30px;min-height:auto}
-    .id-hero-inner{padding:22px;gap:18px;min-height:auto}
-    .id-hero-title{font-size:clamp(30px,9.5vw,44px);letter-spacing:-.5px}
-    .id-hero-desc{font-size:14px;line-height:2}
-    .id-actions{display:grid;grid-template-columns:1fr}
-    .id-actions .btn{width:100%}
-    .id-main-image,.id-image-fallback{height:250px}
-    .id-mini-stats{grid-template-columns:1fr}
-    .id-body-section{padding-top:28px}
-    .id-panel{padding:17px;border-radius:26px}
-    .id-panel-title{font-size:19px}
-    .id-meta-grid{grid-template-columns:1fr}
-    .id-gallery{grid-template-columns:1fr}
-    .id-gallery button:first-child img,.id-gallery img{height:230px}
-    .id-data-card,.id-link-card{grid-template-columns:44px 1fr}
-    .id-link-card .btn{grid-column:1/-1;width:100%;justify-content:center}
-  }
-</style>
-`;
 
 function safeIcon(value, fallback) {
   return value && String(value).startsWith("fa-") ? value : fallback;
@@ -760,7 +153,7 @@ const HIDDEN_FIELDS = new Set([
   "updated_by"
 ]);
 
-const PRIORITY_FIELDS = [
+const PRIMARY_FIELDS = [
   "category",
   "status",
   "location",
@@ -783,16 +176,7 @@ const PRIORITY_FIELDS = [
 
 function valueToText(key, value) {
   if (value === null || value === undefined || value === "") return "";
-  if ([
-    "created_at",
-    "updated_at",
-    "event_date",
-    "activity_date",
-    "start_date",
-    "end_date",
-    "achievement_date",
-    "initiative_date"
-  ].includes(key)) {
+  if (["created_at", "updated_at", "event_date", "activity_date", "start_date", "end_date", "achievement_date", "initiative_date"].includes(key)) {
     return prettyDate(value);
   }
   if (typeof value === "object") {
@@ -829,61 +213,34 @@ function metaIcon(key) {
   return map[key] || "fa-solid fa-circle-info";
 }
 
-function buildMetaPills(row) {
-  const pills = [];
-
-  for (const key of PRIORITY_FIELDS) {
+function buildMetaTags(row) {
+  const tags = [];
+  for (const key of PRIMARY_FIELDS) {
     const value = valueToText(key, row[key]);
     if (!value) continue;
-
-    pills.push(`<div class="id-meta-pill">
-      <i class="${metaIcon(key)}"></i>
-      <div><span>${escapeHtml(FIELD_LABELS[key] || key)}</span>${escapeHtml(value)}</div>
-    </div>`);
+    tags.push(`<span class="tag"><i class="${metaIcon(key)}"></i> ${escapeHtml(FIELD_LABELS[key] || key)}: ${escapeHtml(value)}</span>`);
   }
-
-  return pills.join("");
+  return tags.join("");
 }
 
-function buildMiniStats(row, sectionKey) {
-  const stats = [];
-
-  if (row.category) stats.push(["التصنيف", row.category]);
-  if (row.status) stats.push(["الحالة", row.status]);
-  if (row.location) stats.push(["الموقع", row.location]);
-  if (row.event_date || row.activity_date || row.start_date || row.achievement_date || row.initiative_date) {
-    stats.push(["التاريخ", prettyDate(row.event_date || row.activity_date || row.start_date || row.achievement_date || row.initiative_date)]);
-  }
-  if (row.seats_total || row.capacity) {
-    stats.push(["المقاعد", `${row.seats_taken || row.registered_count || 0} / ${row.seats_total || row.capacity}`]);
-  }
-
-  if (!stats.length) {
-    stats.push(["القسم", sectionKey]);
-    stats.push(["آخر تحديث", prettyDate(row.updated_at || row.created_at || new Date())]);
-  }
-
-  return stats.slice(0, 4).map(([label, value]) => `<div class="id-mini-stat">${escapeHtml(label)}<strong>${escapeHtml(value)}</strong></div>`).join("");
-}
-
-function buildInfoRows(row) {
+function buildExtraData(row) {
   const rows = [];
 
   for (const [key, raw] of Object.entries(row)) {
     if (HIDDEN_FIELDS.has(key)) continue;
     if (["title", "name", "description", "details", "ticker"].includes(key)) continue;
-    if (PRIORITY_FIELDS.includes(key)) continue;
+    if (PRIMARY_FIELDS.includes(key)) continue;
 
     const value = valueToText(key, raw);
     if (!value) continue;
 
-    rows.push(`<div class="id-data-card">
-      <div class="id-data-icon"><i class="fa-solid fa-database"></i></div>
+    rows.push(`<article class="committee-link-card">
+      <div class="committee-link-icon"><i class="fa-solid fa-database"></i></div>
       <div>
         <h4>${escapeHtml(FIELD_LABELS[key] || key)}</h4>
-        <p>${escapeHtml(value)}</p>
+        <p style="white-space:pre-line">${escapeHtml(value)}</p>
       </div>
-    </div>`);
+    </article>`);
   }
 
   return rows.join("");
@@ -912,11 +269,11 @@ function buildExternalLinks(row, details) {
 
   if (!links.length) return "";
 
-  return `<div class="id-panel id-reveal id-delay-3">
-    <h3 class="id-panel-title"><i class="fa-solid fa-link"></i> الروابط المهمة</h3>
-    <div class="id-links-list">
-      ${links.map((url, index) => `<article class="id-link-card">
-        <div class="id-data-icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+  return `<div class="activity-info-card reveal show">
+    <h4><i class="fa-solid fa-link"></i> الروابط المهمة</h4>
+    <div class="links-list">
+      ${links.map((url, index) => `<article class="committee-link-card">
+        <div class="committee-link-icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></div>
         <div>
           <h4>رابط ${index + 1}</h4>
           <p>${escapeHtml(url)}</p>
@@ -935,13 +292,11 @@ function buildGallery(image, images, title) {
   }
 
   if (!all.length) {
-    return `<div class="id-empty"><i class="fa-solid fa-image"></i><br>لا توجد صور إضافية لهذا العنصر حاليًا.</div>`;
+    return `<div class="links-empty">لا توجد صور مضافة لهذا العنصر حاليًا.</div>`;
   }
 
-  return `<div class="id-gallery">
-    ${all.map((src, index) => `<button type="button" onclick="openIdViewer('${escapeAttr(src)}')" aria-label="عرض الصورة ${index + 1}">
-      <img src="${escapeAttr(src)}" alt="${escapeAttr(title)}" loading="lazy">
-    </button>`).join("")}
+  return `<div class="activity-details-gallery reveal show">
+    ${all.map((src, index) => `<img src="${escapeAttr(src)}" alt="${escapeAttr(title)}" loading="lazy" onclick="openSeoImage('${escapeAttr(src)}')">`).join("")}
   </div>`;
 }
 
@@ -956,11 +311,11 @@ function buildTasks(row) {
 
   if (!tasks.length) return "";
 
-  return `<div class="id-panel id-reveal id-delay-3">
-    <h3 class="id-panel-title"><i class="fa-solid fa-list-check"></i> المهام والمسؤوليات</h3>
-    <div class="id-task-list">
-      ${tasks.map(task => `<div class="id-task-item"><i class="fa-solid fa-circle"></i><span>${escapeHtml(task)}</span></div>`).join("")}
-    </div>
+  return `<div class="activity-info-card reveal show">
+    <h4><i class="fa-solid fa-list-check"></i> المهام والمسؤوليات</h4>
+    <ul>
+      ${tasks.map(task => `<li>${escapeHtml(task)}</li>`).join("")}
+    </ul>
   </div>`;
 }
 
@@ -978,20 +333,20 @@ async function buildCommitteeLinks(sectionKey, id) {
     });
 
     if (!links.length) {
-      return `<div class="id-panel id-reveal id-delay-3">
-        <h3 class="id-panel-title"><i class="fa-solid fa-link"></i> روابط اللجنة والقنوات</h3>
-        <div class="id-empty">لا توجد روابط مضافة لهذه اللجنة حاليًا.</div>
+      return `<div class="activity-info-card reveal show">
+        <h4><i class="fa-solid fa-link"></i> روابط اللجنة والقنوات</h4>
+        <div class="links-empty">لا توجد روابط مضافة لهذه اللجنة حاليًا.</div>
       </div>`;
     }
 
-    return `<div class="id-panel id-reveal id-delay-3">
-      <h3 class="id-panel-title"><i class="fa-solid fa-link"></i> روابط اللجنة والقنوات</h3>
-      <div class="id-links-list">
+    return `<div class="activity-info-card reveal show">
+      <h4><i class="fa-solid fa-link"></i> روابط اللجنة والقنوات</h4>
+      <div class="links-list">
         ${links.map(link => {
           const linkUrl = link.url || "#";
           const isExternal = String(linkUrl).startsWith("http");
-          return `<article class="id-link-card">
-            <div class="id-data-icon"><i class="${escapeAttr(safeIcon(link.icon, "fa-solid fa-link"))}"></i></div>
+          return `<article class="committee-link-card">
+            <div class="committee-link-icon"><i class="${escapeAttr(safeIcon(link.icon, "fa-solid fa-link"))}"></i></div>
             <div>
               <h4>${escapeHtml(link.title || "رابط اللجنة")}</h4>
               <p>${escapeHtml(link.description || "رابط خاص بهذه اللجنة.")}</p>
@@ -1002,22 +357,17 @@ async function buildCommitteeLinks(sectionKey, id) {
       </div>
     </div>`;
   } catch (error) {
-    return `<div class="id-panel id-reveal id-delay-3">
-      <h3 class="id-panel-title"><i class="fa-solid fa-link"></i> روابط اللجنة والقنوات</h3>
-      <div class="id-empty">تعذر تحميل روابط اللجنة: ${escapeHtml(error.message)}</div>
+    return `<div class="activity-info-card reveal show">
+      <h4><i class="fa-solid fa-link"></i> روابط اللجنة والقنوات</h4>
+      <div class="links-empty">تعذر تحميل روابط اللجنة: ${escapeHtml(error.message)}</div>
     </div>`;
   }
 }
 
-function sectionSubtitle(sectionKey, row, section) {
-  if (sectionKey === "news") return row.category || "خبر منشور";
-  if (sectionKey === "courses") return row.category || row.status || "دورة تدريبية";
-  if (sectionKey === "activities") return row.location || row.category || "نشاط طلابي";
-  if (sectionKey === "events") return row.location || "فعالية قادمة";
-  if (sectionKey === "committees") return "لجنة من لجان الملتقى";
-  if (sectionKey === "achievements") return row.category || "إنجاز موثق";
-  if (sectionKey === "initiatives") return row.category || row.status || "مبادرة طلابية";
-  return section.singular || "تفاصيل";
+function sectionWrapperId(sectionKey) {
+  if (sectionKey === "news") return "latest-news";
+  if (sectionKey === "events") return "timeline";
+  return sectionKey;
 }
 
 module.exports = async function handler(req, res) {
@@ -1050,126 +400,195 @@ module.exports = async function handler(req, res) {
     const image = imageOf(row);
     const images = parseImages(row.gallery_images);
     const url = urlFor(sectionKey, row);
+    const icon = safeIcon(row.icon, section.icon);
     const schema = schemaFor(sectionKey, section, row, title, description, image, url);
-    const metaPills = buildMetaPills(row);
-    const miniStats = buildMiniStats(row, sectionKey);
-    const infoRows = buildInfoRows(row);
-    const linksHtml = buildExternalLinks(row, details);
+    const metaTags = buildMetaTags(row);
+    const extraData = buildExtraData(row);
     const tasksHtml = buildTasks(row);
+    const linksHtml = buildExternalLinks(row, details);
     const committeeLinksHtml = await buildCommitteeLinks(sectionKey, id);
     const galleryHtml = buildGallery(image, images, title);
-    const icon = safeIcon(row.icon, section.icon);
-    const bgStyle = image ? `style="background-image:url('${escapeAttr(image)}')"` : "";
-    const galleryLead = sectionSubtitle(sectionKey, row, section);
+    const wrapperId = sectionWrapperId(sectionKey);
+
+    const detailsCss = `
+      <style>
+        .seo-detail-page{padding-top:112px}
+        .seo-detail-page .activity-details-box{
+          width:100%;
+          max-height:none;
+          overflow:visible;
+          border-radius:38px;
+        }
+        .seo-detail-page .activity-details-head{
+          margin-bottom:20px;
+        }
+        .seo-detail-page .activity-details-head p{
+          max-width:900px;
+        }
+        .seo-detail-page .activity-details-gallery img{
+          cursor:pointer;
+        }
+        .seo-detail-page .activity-info-card{
+          position:relative;
+          overflow:hidden;
+        }
+        .seo-detail-page .activity-info-card:before{
+          content:"";
+          position:absolute;
+          top:0;
+          right:0;
+          left:0;
+          height:3px;
+          background:linear-gradient(90deg,var(--section-color,var(--primary)),var(--primary-light));
+        }
+        .seo-detail-hero-image{
+          width:100%;
+          height:360px;
+          object-fit:cover;
+          border-radius:28px;
+          border:1px solid var(--border);
+          box-shadow:0 22px 58px rgba(11,94,215,.16);
+          margin-bottom:12px;
+          cursor:pointer;
+        }
+        .seo-detail-actions{
+          display:flex;
+          gap:10px;
+          flex-wrap:wrap;
+          margin-top:14px;
+        }
+        .seo-detail-actions .btn{
+          min-height:48px;
+        }
+        .seo-image-viewer{
+          position:fixed;
+          inset:0;
+          z-index:6000;
+          display:none;
+          place-items:center;
+          padding:18px;
+          background:rgba(3,12,22,.82);
+          backdrop-filter:blur(12px);
+        }
+        .seo-image-viewer.show{display:grid}
+        .seo-image-viewer img{
+          max-width:min(1120px,100%);
+          max-height:86vh;
+          border-radius:24px;
+          box-shadow:0 30px 90px rgba(0,0,0,.45);
+        }
+        .seo-image-viewer button{
+          position:absolute;
+          top:18px;
+          left:18px;
+          width:46px;
+          height:46px;
+          border:1px solid rgba(255,255,255,.28);
+          border-radius:17px;
+          color:white;
+          background:rgba(255,255,255,.12);
+          cursor:pointer;
+        }
+        @media(max-width:760px){
+          .seo-detail-page{padding-top:92px}
+          .seo-detail-page .activity-details-box{padding:17px;border-radius:30px}
+          .seo-detail-hero-image{height:230px;border-radius:23px}
+          .seo-detail-actions{display:grid;grid-template-columns:1fr}
+          .seo-detail-actions .btn{width:100%}
+        }
+      </style>
+    `;
 
     const body = `
-      ${premiumDetailCss}
-      <main class="id-premium-page" style="--section-color:${escapeAttr(section.color || "#0B5ED7")};--detail-color:${escapeAttr(section.color || "#0B5ED7")}">
-
-        <section class="id-hero-wrap">
+      ${detailsCss}
+      <main class="seo-detail-page">
+        <section id="${escapeAttr(wrapperId)}">
           <div class="container">
-            <div class="id-hero-card id-reveal">
-              <div class="id-hero-bg" ${bgStyle}></div>
-              <div class="id-hero-inner">
+
+            <div class="section-header reveal show">
+              <div>
+                <div class="section-kicker"><i class="${escapeAttr(section.icon)}"></i> ${escapeHtml(section.label)}</div>
+                <h1 class="section-title">${escapeHtml(title)}</h1>
+              </div>
+              <p class="section-desc">${escapeHtml(description)}</p>
+            </div>
+
+            <div class="activity-details-box reveal show">
+              <div class="sheet-handle"></div>
+
+              <div class="activity-details-head">
+                <div class="activity-details-icon"><i class="${escapeAttr(icon)}"></i></div>
                 <div>
-                  <div class="id-breadcrumb">
-                    <a href="/"><i class="fa-solid fa-house"></i> الرئيسية</a>
-                    <span><i class="fa-solid fa-chevron-left"></i></span>
-                    <a href="${escapeAttr(section.path)}"><i class="${escapeAttr(section.icon)}"></i> ${escapeHtml(section.label)}</a>
-                  </div>
-
-                  <div class="id-badge">
-                    <i class="${escapeAttr(icon)}"></i>
-                    <span>${escapeHtml(galleryLead)}</span>
-                  </div>
-
-                  <h1 class="id-hero-title">${escapeHtml(title)}</h1>
-                  <p class="id-hero-desc">${escapeHtml(description)}</p>
-
-                  <div class="id-actions">
-                    <a class="btn btn-light" href="${escapeAttr(section.path)}"><i class="fa-solid fa-arrow-right"></i> كل ${escapeHtml(section.label)}</a>
-                    <a class="btn btn-soft" href="${escapeAttr(section.mainAnchor || "/")}"><i class="fa-solid fa-location-arrow"></i> داخل الرئيسية</a>
-                    <button class="btn btn-dark" type="button" onclick="navigator.clipboard && navigator.clipboard.writeText(location.href);this.innerHTML='<i class=&quot;fa-solid fa-check&quot;></i> تم نسخ الرابط'"><i class="fa-solid fa-link"></i> نسخ الرابط</button>
+                  <h3>${escapeHtml(title)}</h3>
+                  <p>${escapeHtml(description)}</p>
+                  <div class="seo-detail-actions">
+                    <a class="btn btn-dark" href="${escapeAttr(section.path)}"><i class="fa-solid fa-arrow-right"></i> كل ${escapeHtml(section.label)}</a>
+                    <a class="btn btn-light" href="${escapeAttr(section.mainAnchor || "/")}"><i class="fa-solid fa-location-arrow"></i> داخل الرئيسية</a>
+                    <a class="btn btn-soft" href="/"><i class="fa-solid fa-house"></i> الرئيسية</a>
                   </div>
                 </div>
+                <a class="activity-details-close" href="${escapeAttr(section.path)}" aria-label="رجوع"><i class="fa-solid fa-arrow-right"></i></a>
+              </div>
 
-                <aside class="id-hero-media id-reveal id-delay-1">
-                  <div class="id-live-strip"><i class="fa-solid fa-circle"></i> ${escapeHtml(section.singular)}</div>
-                  ${image ? `<img class="id-main-image" src="${escapeAttr(image)}" alt="${escapeAttr(title)}" onclick="openIdViewer('${escapeAttr(image)}')">` : `<div class="id-image-fallback"><i class="${escapeAttr(icon)}"></i></div>`}
-                  <div class="id-mini-stats">${miniStats}</div>
-                </aside>
+              <div class="activity-details-layout">
+
+                <div class="activity-details-info">
+                  ${image ? `<img class="seo-detail-hero-image reveal show" src="${escapeAttr(image)}" alt="${escapeAttr(title)}" onclick="openSeoImage('${escapeAttr(image)}')">` : ""}
+
+                  <div class="activity-info-card reveal show">
+                    <h4><i class="${escapeAttr(icon)}"></i> التفاصيل الكاملة</h4>
+                    <p style="white-space:pre-line">${escapeHtml(details)}</p>
+                  </div>
+
+                  ${metaTags ? `<div class="activity-info-card reveal show">
+                    <h4><i class="fa-solid fa-circle-info"></i> معلومات مختصرة</h4>
+                    <div class="tags">${metaTags}</div>
+                  </div>` : ""}
+
+                  ${tasksHtml}
+
+                  ${committeeLinksHtml}
+
+                  ${linksHtml}
+
+                  ${extraData ? `<div class="activity-info-card reveal show">
+                    <h4><i class="fa-solid fa-database"></i> بيانات إضافية</h4>
+                    <div class="links-list">${extraData}</div>
+                  </div>` : ""}
+                </div>
+
+                <div class="activity-details-info">
+                  <div class="activity-info-card reveal show">
+                    <h4><i class="fa-solid fa-images"></i> الصور والتغطية</h4>
+                    <p>صور وتفاصيل مرتبطة بهذا العنصر كما تظهر للمستخدمين بنفس شكل الموقع الرئيسي.</p>
+                  </div>
+                  ${galleryHtml}
+                </div>
+
               </div>
             </div>
           </div>
         </section>
 
-        <section class="id-body-section">
-          <div class="container id-layout">
-
-            <div class="id-main">
-
-              <article class="id-panel id-reveal id-delay-1">
-                <h2 class="id-panel-title"><i class="${escapeAttr(icon)}"></i> التفاصيل الكاملة</h2>
-                <div class="id-rich-text">${escapeHtml(details)}</div>
-              </article>
-
-              ${metaPills ? `<section class="id-panel id-reveal id-delay-2">
-                <h3 class="id-panel-title"><i class="fa-solid fa-circle-info"></i> معلومات مختصرة</h3>
-                <div class="id-meta-grid">${metaPills}</div>
-              </section>` : ""}
-
-              ${tasksHtml}
-
-              ${committeeLinksHtml}
-
-              ${linksHtml}
-
-              ${infoRows ? `<section class="id-panel id-reveal id-delay-4">
-                <h3 class="id-panel-title"><i class="fa-solid fa-database"></i> بيانات إضافية</h3>
-                <div class="id-data-list">${infoRows}</div>
-              </section>` : ""}
-
-            </div>
-
-            <aside class="id-side">
-              <section class="id-panel id-reveal id-delay-2">
-                <h3 class="id-panel-title"><i class="fa-solid fa-images"></i> الصور والتغطية</h3>
-                <p class="id-rich-text" style="font-size:14px">${escapeHtml(galleryLead)}</p>
-                ${galleryHtml}
-              </section>
-
-              <section class="id-panel id-quick-card id-reveal id-delay-3">
-                <h3 class="id-panel-title"><i class="fa-solid fa-compass"></i> تنقل سريع</h3>
-                <div class="id-action-grid">
-                  <a class="btn btn-dark" href="${escapeAttr(section.path)}"><i class="fa-solid fa-layer-group"></i> عرض القسم</a>
-                  <a class="btn btn-light" href="/"><i class="fa-solid fa-house"></i> الصفحة الرئيسية</a>
-                  <a class="btn btn-soft" href="/sitemap.xml"><i class="fa-solid fa-sitemap"></i> خريطة الموقع</a>
-                </div>
-              </section>
-            </aside>
-
-          </div>
-        </section>
-
-        <div class="id-viewer" id="idViewer" onclick="closeIdViewer()">
-          <button type="button" onclick="closeIdViewer();event.stopPropagation()"><i class="fa-solid fa-xmark"></i></button>
-          <img id="idViewerImage" src="" alt="عرض الصورة">
+        <div class="seo-image-viewer" id="seoImageViewer" onclick="closeSeoImage()">
+          <button type="button" onclick="closeSeoImage();event.stopPropagation()"><i class="fa-solid fa-xmark"></i></button>
+          <img id="seoImageViewerImg" src="" alt="عرض الصورة">
         </div>
 
         <script>
-          function openIdViewer(src){
-            var viewer = document.getElementById('idViewer');
-            var img = document.getElementById('idViewerImage');
+          function openSeoImage(src){
+            var viewer = document.getElementById('seoImageViewer');
+            var img = document.getElementById('seoImageViewerImg');
             if(!viewer || !img) return;
             img.src = src;
             viewer.classList.add('show');
           }
-          function closeIdViewer(){
-            var viewer = document.getElementById('idViewer');
+          function closeSeoImage(){
+            var viewer = document.getElementById('seoImageViewer');
             if(viewer) viewer.classList.remove('show');
           }
           document.addEventListener('keydown', function(e){
-            if(e.key === 'Escape') closeIdViewer();
+            if(e.key === 'Escape') closeSeoImage();
           });
         </script>
       </main>
