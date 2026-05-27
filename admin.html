@@ -868,6 +868,22 @@
           {name:"is_active",label:"ظاهر في الموقع",type:"boolean",default:true}
         ]
       },
+      student_initiative_suggestions: {
+        title:"مقترحات المبادرات", desc:"عرض مقترحات المبادرات التي يرسلها الطلاب من الموقع ومتابعة حالتها.", icon:"fa-lightbulb", order:{column:"created_at",ascending:false}, labelField:"initiative_title",
+        fields:[
+          {name:"student_name",label:"اسم الطالب",type:"text",required:true},
+          {name:"phone_number",label:"رقم الهاتف",type:"text",required:true,placeholder:"77xxxxxxx"},
+          {name:"initiative_title",label:"اسم المبادرة المقترحة",type:"text",required:true},
+          {name:"initiative_category",label:"نوع المبادرة",type:"text",placeholder:"تعليمية / خيرية / تطوعية / خدمية"},
+          {name:"initiative_goal",label:"هدف المبادرة",type:"textarea"},
+          {name:"initiative_description",label:"شرح المبادرة",type:"textarea",required:true},
+          {name:"target_group",label:"الفئة المستهدفة",type:"text",placeholder:"طلاب الجامعة / المحتاجون / الخريجون"},
+          {name:"expected_needs",label:"الاحتياجات المتوقعة",type:"textarea"},
+          {name:"suggested_team",label:"الفريق أو الطلاب المقترحون",type:"textarea"},
+          {name:"status",label:"الحالة",type:"text",placeholder:"new / reviewing / approved / rejected"},
+          {name:"admin_notes",label:"ملاحظات الإدارة",type:"textarea"}
+        ]
+      },
       events: {
         title:"الفعاليات القادمة", desc:"إدارة الفعاليات في الخط الزمني.", icon:"fa-calendar-days", order:{column:"event_date",ascending:true}, labelField:"title",
         fields:[
@@ -1611,9 +1627,9 @@
 
     async function loadStats(){
       if(!assertClient())return;
-      const important=["tv_news","activities","courses","achievements","student_initiatives","student_issues"];
-      const labels={tv_news:"أخبار",activities:"أنشطة",courses:"دورات",achievements:"إنجازات",student_initiatives:"مبادرات",student_issues:"شكاوى"};
-      const icons={tv_news:"fa-tv",activities:"fa-calendar-check",courses:"fa-book-open-reader",achievements:"fa-trophy",student_initiatives:"fa-hand-holding-heart",student_issues:"fa-headset"};
+      const important=["tv_news","activities","courses","achievements","student_initiatives","student_initiative_suggestions","student_issues"];
+      const labels={tv_news:"أخبار",activities:"أنشطة",courses:"دورات",achievements:"إنجازات",student_initiatives:"مبادرات",student_initiative_suggestions:"مقترحات",student_issues:"شكاوى"};
+      const icons={tv_news:"fa-tv",activities:"fa-calendar-check",courses:"fa-book-open-reader",achievements:"fa-trophy",student_initiatives:"fa-hand-holding-heart",student_initiative_suggestions:"fa-lightbulb",student_issues:"fa-headset"};
       let stats=[];
       for(const table of visibleTableKeys()){
         const {count}=await db.from(table).select("*",{count:"exact",head:true});
