@@ -52,3 +52,14 @@ SUPABASE_ANON_KEY=مفتاح Supabase العام
 
 إذا RLS يمنع القراءة:
 SUPABASE_SERVICE_ROLE_KEY=Service Role Key داخل Vercel فقط
+
+
+## تعديل الأيقونة واسم الموقع في Google
+
+تم تعديل index.html و api/_seo-utils.js لإضافة:
+- WebSite Schema حتى يفهم Google اسم الموقع.
+- روابط favicon متعددة الأحجام.
+- Manifest يشير إلى أيقونات بأحجام مناسبة للجوال والمتصفح وPWA.
+
+بعد توليد الأيقونات، ضع الملفات في جذر المشروع.
+راجع README_ICONS_AR.txt.
