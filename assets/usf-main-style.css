@@ -124,3 +124,18 @@
       .news-frame-ticker{height:25px!important}
       .news-frame-ticker span{font-size:9.8px!important;animation-duration:20s!important}
     }
+
+    /* إضافات: إنجازات تفصيلية + المبادرات الطلابية + تحسين نموذج الشكاوى */
+    #initiatives{--section-color:#0B7FAB;--section-soft:rgba(11,127,171,.12)}
+    .achievement-story-card,.initiative-card{overflow:hidden;display:flex;flex-direction:column;min-height:100%;border:1px solid rgba(11,94,215,.14);border-radius:26px;background:var(--glass);backdrop-filter:blur(20px);box-shadow:0 22px 70px rgba(11,94,215,.13);transition:.35s var(--ease)}
+    .achievement-story-card:hover,.initiative-card:hover{transform:translateY(-8px);box-shadow:0 35px 95px rgba(11,94,215,.22)}
+    .achievement-media,.initiative-media{height:210px;position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:18px;color:var(--bg);background:radial-gradient(circle at 18% 20%,rgba(255,255,255,.22),transparent 25%),linear-gradient(135deg,var(--section-color,var(--primary-soft)),var(--primary) 58%,var(--primary-dark))}
+    .achievement-media img,.initiative-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.52;transition:.35s var(--ease)}
+    .achievement-story-card:hover .achievement-media img,.initiative-card:hover .initiative-media img{transform:scale(1.06);opacity:.62}
+    .achievement-media::after,.initiative-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,12,22,.05),rgba(3,12,22,.64));z-index:1}
+    .achievement-media h3,.initiative-media h3{position:relative;z-index:2;display:flex;align-items:center;gap:10px;font-size:22px;line-height:1.45;font-weight:900;text-shadow:0 10px 28px rgba(0,0,0,.30)}
+    .achievement-body,.initiative-body{padding:20px;display:flex;flex-direction:column;gap:11px;flex:1}
+    .achievement-body p,.initiative-body p{color:var(--muted);font-size:14px;line-height:1.9;font-weight:750;margin:0}.initiative-meta,.achievement-meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px}.initiative-meta span,.achievement-meta span{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:999px;color:var(--section-color,var(--primary));background:var(--section-soft,rgba(11,94,215,.08));font-size:12px;font-weight:900}.initiative-actions,.achievement-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:auto}.initiative-actions .btn,.achievement-actions .btn{padding:11px 14px;font-size:13px;flex:1 1 150px}.initiative-highlight{margin:18px 0 25px;padding:20px;border-radius:28px;color:var(--bg);background:radial-gradient(circle at 18% 20%,rgba(255,255,255,.18),transparent 28%),linear-gradient(135deg,#00A6D6,#0B5ED7,#063B8F);box-shadow:var(--shadow2)}.initiative-highlight h3{font-size:24px;font-weight:900;margin-bottom:8px}.initiative-highlight p{color:rgba(255,255,255,.84);font-size:14px;line-height:2;font-weight:800;margin:0}.field.phone-field input{direction:ltr;text-align:right}
+    @media(max-width:760px){.achievement-media,.initiative-media{height:190px}.achievement-media h3,.initiative-media h3{font-size:19px}.initiative-actions .btn,.achievement-actions .btn{width:100%;flex-basis:100%}}
+
+@media(max-width:760px){body .bottom-nav{grid-template-columns:repeat(6,1fr)}body .bottom-nav a{font-size:9px}}
