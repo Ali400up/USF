@@ -219,7 +219,7 @@ function renderCourse(section, row) {
       <div class="course-more-box">${escapeHtml(row.details || "لا توجد تفاصيل إضافية بعد.")}</div>
       <div class="course-actions">
         <button class="btn btn-soft more-btn" type="button"><i class="fa-solid fa-circle-info"></i> المزيد</button>
-        <button class="btn ${String(status).includes("قريب") ? "btn-soft" : "btn-dark"} action-btn" type="button" data-course-id="${escapeAttr(row.id)}" data-course-title="${escapeAttr(title)}">
+        <button class="btn ${String(status).includes("قريب") ? "btn-soft" : "btn-dark"} action-btn" type="button" data-course-id="${escapeAttr(row.id)}" data-course-title="${escapeAttr(title)}" data-registration-fields="${escapeAttr(encodeURIComponent(JSON.stringify(row.registration_fields||[])))}">
           <i class="fa-solid ${String(status).includes("قريب") ? "fa-bell" : "fa-user-plus"}"></i>${String(status).includes("قريب") ? "تنبيه عند الفتح" : "طلب التسجيل"}
         </button>
       </div>
@@ -364,7 +364,17 @@ async function renderSingle(sectionKey, section, row) {
 }
 
 function modalHtml() {
-  return `
+  return `<style>
+    .dynamic-course-fields{display:grid;gap:12px;margin-top:4px}
+    .dynamic-course-fields .field{animation:fieldIn .28s var(--ease) both}
+    @keyframes fieldIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .dynamic-course-note{
+      padding:11px 13px;border-radius:18px;background:rgba(11,94,215,.07);
+      color:var(--muted);font-size:13px;font-weight:800;line-height:1.8;border:1px solid rgba(11,94,215,.12);
+      margin-bottom:12px
+    }
+  </style>
+  
   <div class="modal-backdrop" id="newsFullModal">
     <div class="news-brief-modal-box news-full-box">
       <div class="news-brief-head">
@@ -384,10 +394,8 @@ function modalHtml() {
       <form id="courseRegistrationForm">
         <input type="hidden" name="course_id" id="registrationCourseId">
         <input type="hidden" name="course_title" id="registrationCourseTitle">
-        <div class="form-grid">
-          <label>الاسم الكامل<input name="student_full_name" required placeholder="اكتب اسمك الكامل"></label>
-          <label>الرقم الأكاديمي<input name="academic_number" required placeholder="اكتب رقمك الأكاديمي"></label>
-        </div>
+        <div class="dynamic-course-note"><i class="fa-solid fa-list-check"></i> يرجى تعبئة بيانات التسجيل المطلوبة لهذه الدورة.</div>
+        <div class="dynamic-course-fields" id="dynamicCourseFields"></div>
         <div class="modal-actions">
           <button class="btn btn-dark" type="submit"><i class="fa-solid fa-paper-plane"></i> إرسال الطلب</button>
           <button class="btn btn-soft" id="cancelCourseModal" type="button">إلغاء</button>
@@ -480,11 +488,17 @@ function pageScript(committeeLinks) {
       };
     });
 
+    function normalizeCourseRegFields(value){if(!value)return[];if(Array.isArray(value))return value;if(typeof value==="string"){try{const p=JSON.parse(value);return Array.isArray(p)?p:[]}catch(e){return[]}}return[]}
+    function defaultCourseRegFields(){return[{label:"الاسم الكامل",type:"text",required:true,placeholder:"اكتب اسمك الرباعي"},{label:"الرقم الأكاديمي",type:"text",required:true,placeholder:"مثال: 202412345"}]}
+    function fieldKey(label,index){return "field_"+index+"_"+String(label||"").replace(/[^\u0600-\u06FFa-zA-Z0-9]+/g,"_").replace(/^_+|_+$/g,"").slice(0,32)}
+    function renderDynamicCourseFields(fields){const box=q("dynamicCourseFields");if(!box)return;const list=normalizeCourseRegFields(fields);const finalList=list.length?list:defaultCourseRegFields();box.innerHTML=finalList.map((field,index)=>{const label=safeText(field.label||("حقل "+(index+1))),type=field.type||"text",req=field.required?"required":"",ph=safeText(field.placeholder||""),name=fieldKey(label,index);if(type==="textarea")return '<div class="field full"><label><i class="fa-solid fa-pen-to-square"></i> '+label+'</label><textarea name="'+name+'" data-label="'+label+'" placeholder="'+ph+'" '+req+'></textarea></div>';if(type==="select"){const opts=String(field.options||"").split(/,|،|\n/).map(x=>x.trim()).filter(Boolean);return '<div class="field full"><label><i class="fa-solid fa-list"></i> '+label+'</label><select name="'+name+'" data-label="'+label+'" '+req+'><option value="">اختر...</option>'+opts.map(o=>'<option value="'+safeText(o)+'">'+safeText(o)+'</option>').join("")+'</select></div>'}const htmlType=["text","number","tel","email","date"].includes(type)?type:"text";return '<div class="field full"><label><i class="fa-solid fa-user"></i> '+label+'</label><input name="'+name+'" data-label="'+label+'" placeholder="'+ph+'" '+req+' type="'+htmlType+'" /></div>'}).join("")}
     document.querySelectorAll(".action-btn").forEach(btn=>{
       btn.onclick=()=>{
         if(q("registrationCourseId"))q("registrationCourseId").value=btn.dataset.courseId||"";
         if(q("registrationCourseTitle"))q("registrationCourseTitle").value=btn.dataset.courseTitle||"";
         if(q("modalCourseName"))q("modalCourseName").textContent="الدورة: "+(btn.dataset.courseTitle||"دورة");
+        let fields=[];try{fields=JSON.parse(decodeURIComponent(btn.dataset.registrationFields||"[]"))}catch(e){fields=[]}
+        renderDynamicCourseFields(fields);
         q("courseModal").classList.add("show");
         document.body.style.overflow="hidden";
       };
@@ -493,6 +507,48 @@ function pageScript(committeeLinks) {
     function closeCourseModal(){q("courseModal").classList.remove("show");document.body.style.overflow=""}
     if(closeCourse)closeCourse.onclick=closeCourseModal;
     if(cancelCourse)cancelCourse.onclick=closeCourseModal;
+
+    function getDynamicRegistrationData(){
+      const data={};
+      document.querySelectorAll("#dynamicCourseFields input,#dynamicCourseFields textarea,#dynamicCourseFields select").forEach(input=>{
+        const label=input.dataset.label||input.name;
+        data[label]=input.value||"";
+      });
+      return data;
+    }
+    function pickByLabel(data,keywords){
+      const entries=Object.entries(data||{});
+      const found=entries.find(([label])=>keywords.some(k=>String(label).includes(k)));
+      return found?found[1]:"";
+    }
+    const regForm=q("courseRegistrationForm");
+    if(regForm){
+      regForm.addEventListener("submit",async function(e){
+        e.preventDefault();
+        const registrationData=getDynamicRegistrationData();
+        const payload={
+          course_id:q("registrationCourseId")?q("registrationCourseId").value:null,
+          course_title:q("registrationCourseTitle")?q("registrationCourseTitle").value:"",
+          student_full_name:pickByLabel(registrationData,["الاسم","name","Name"])||Object.values(registrationData)[0]||"",
+          academic_number:pickByLabel(registrationData,["أكاديمي","اكاديمي","academic","الرقم الجامعي"])||"",
+          registration_data:registrationData
+        };
+        try{
+          const response=await fetch("/api/course-registration",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify(payload)
+          });
+          const result=await response.json().catch(()=>({}));
+          if(!response.ok) throw new Error(result.error||"تعذر إرسال طلب التسجيل");
+          alert("تم إرسال طلب التسجيل بنجاح");
+          closeCourseModal();
+        }catch(error){
+          alert(error.message||"تعذر إرسال طلب التسجيل");
+        }
+      });
+    }
+
 
     document.querySelectorAll(".activity-details-btn").forEach(btn=>{
       btn.onclick=()=>{
