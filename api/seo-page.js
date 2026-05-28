@@ -366,6 +366,74 @@ async function renderSingle(sectionKey, section, row) {
 function modalHtml() {
   return `<style>
 
+    /* إصلاح Scroll نافذة روابط القنوات في صفحة /committees/id */
+    .committee-links-backdrop.show{
+      display:flex!important;
+      align-items:flex-end!important;
+      justify-content:center!important;
+      overflow:hidden!important;
+      padding:20px!important;
+    }
+    .committee-links-sheet{
+      width:min(980px,100%)!important;
+      max-width:100%!important;
+      max-height:min(88vh,820px)!important;
+      display:flex!important;
+      flex-direction:column!important;
+      overflow:hidden!important;
+      box-sizing:border-box!important;
+      contain:none!important;
+    }
+    .committee-links-sheet > .sheet-handle,
+    .committee-links-sheet > .sheet-head{
+      flex:0 0 auto!important;
+    }
+    .committee-links-sheet .links-list,
+    #committeeLinksList{
+      flex:1 1 auto!important;
+      min-height:0!important;
+      max-height:none!important;
+      overflow-y:auto!important;
+      overflow-x:hidden!important;
+      overscroll-behavior:contain!important;
+      padding-left:5px!important;
+      scrollbar-width:thin!important;
+      scrollbar-color:rgba(11,94,215,.35) rgba(11,94,215,.055)!important;
+    }
+    .committee-links-sheet .links-list::-webkit-scrollbar,
+    #committeeLinksList::-webkit-scrollbar{
+      width:7px!important;
+      height:7px!important;
+      display:block!important;
+    }
+    .committee-links-sheet .links-list::-webkit-scrollbar-track,
+    #committeeLinksList::-webkit-scrollbar-track{
+      background:rgba(11,94,215,.05)!important;
+      border-radius:999px!important;
+      margin:10px 0!important;
+    }
+    .committee-links-sheet .links-list::-webkit-scrollbar-thumb,
+    #committeeLinksList::-webkit-scrollbar-thumb{
+      background:rgba(11,94,215,.32)!important;
+      border-radius:999px!important;
+      border:2px solid rgba(255,255,255,.45)!important;
+    }
+    .committee-links-sheet .links-list::-webkit-scrollbar-thumb:hover,
+    #committeeLinksList::-webkit-scrollbar-thumb:hover{
+      background:rgba(11,94,215,.48)!important;
+    }
+    @media(max-width:760px){
+      .committee-links-backdrop.show{
+        padding:12px!important;
+      }
+      .committee-links-sheet{
+        max-height:86vh!important;
+      }
+    }
+
+  </style>
+  <style>
+
     /* إزالة اللون الخافت من شاشة اختيار الكلية + منع السكرول الأفقي نهائيًا */
     .scientific-specialty-overlay,
     .scientific-specialty-overlay.show{
