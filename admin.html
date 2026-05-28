@@ -917,6 +917,31 @@
       .course-reg-fields-grid{grid-template-columns:1fr}
     }
 
+  
+    .scientific-admin-hint{
+      grid-column:1/-1;
+      display:grid;
+      grid-template-columns:54px 1fr;
+      gap:12px;
+      align-items:center;
+      padding:15px;
+      border-radius:24px;
+      border:1px solid rgba(11,94,215,.16);
+      background:linear-gradient(135deg,rgba(11,94,215,.08),rgba(0,166,214,.07));
+      color:var(--muted);
+      font-size:13px;
+      font-weight:850;
+      line-height:1.9;
+    }
+    .scientific-admin-hint i{
+      width:54px;height:54px;display:grid;place-items:center;
+      border-radius:18px;color:#fff;
+      background:linear-gradient(135deg,#0B5ED7,#063B8F);
+      font-size:22px;
+      box-shadow:0 14px 34px rgba(11,94,215,.18);
+    }
+    .scientific-admin-hint strong{display:block;color:var(--primary);font-size:16px;margin-bottom:2px}
+
   </style>
 </head>
 
@@ -1118,8 +1143,13 @@
         relationSelects:{committee_id:{table:"committees",value:"id",label:"name"}},
         fields:[
           {name:"committee_id",label:"اللجنة",type:"relation",required:true,relation:"committee_id"},
-          {name:"title",label:"عنوان الرابط",type:"text",required:true},
-          {name:"description",label:"شرح الرابط / لمن مخصص",type:"textarea"},
+          {name:"scientific_hint",label:"تنظيم القنوات العلمية",type:"scientific_channel_hint"},
+          {name:"title",label:"عنوان الرابط / اسم القناة",type:"text",required:true,placeholder:"مثال: قناة أمن سيبراني - المستوى الثاني"},
+          {name:"college",label:"الكلية",type:"text",placeholder:"مثال: الحاسبات"},
+          {name:"specialization",label:"التخصص",type:"text",placeholder:"مثال: أمن سيبراني"},
+          {name:"specialization_icon",label:"أيقونة التخصص",type:"text",placeholder:"fa-solid fa-shield-halved"},
+          {name:"level",label:"المستوى",type:"select",options:["جميع المستويات","الأول","الثاني","الثالث","الرابع","الخامس","السادس","الامتياز","عام"],placeholder:"اختر المستوى"},
+          {name:"description",label:"شرح الرابط / لمن مخصص",type:"textarea",placeholder:"يمكن تركه فارغًا وسيتم تكوينه تلقائيًا من الكلية والتخصص والمستوى"},
           {name:"url",label:"الرابط",type:"text",placeholder:"https://t.me/..."},
           {name:"icon",label:"الأيقونة",type:"text",placeholder:"fa-brands fa-telegram"},
           {name:"sort_order",label:"الترتيب",type:"number"},
@@ -2163,10 +2193,12 @@
       const config=TABLES[currentTable]; tableTitle.textContent=config.title; tableDesc.textContent=config.desc;
       uploadState={}; await loadRelations();
       formFields.innerHTML=config.fields.map(field=>{
-        if(field.name==="icon")return renderIconPickerField(field);
+        if(field.type==="scientific_channel_hint")return `<div class="scientific-admin-hint"><i class="fa-solid fa-graduation-cap"></i><div><strong>خاص بتنظيم قنوات اللجنة العلمية المركزية</strong>املأ الحقول: الكلية، التخصص، المستوى. في الموقع ستظهر القنوات مجمعة تلقائيًا حسب الكلية ثم التخصص ثم المستوى.</div></div>`;
+        if(field.name==="icon"||field.name==="specialization_icon")return renderIconPickerField(field);
         if(field.type==="course_registration_fields")return renderCourseRegistrationFieldsBuilder(field);
         if(field.type==="permissions_check")return renderPermissionField(field);
         if(field.type==="boolean"){const locked=(field.name==="is_active"&&!canDo("publish")&&currentTable!=="admin_users");return `<div class="field"><label>${field.label}</label><label class="check-row"><input type="checkbox" name="${field.name}" ${field.default&&!locked?"checked":""} ${locked?"disabled":""}/> نعم</label>${locked?`<div class="permission-lock">ليس لديك صلاحية النشر أو الإظهار، سيتم حفظ السجل كمخفي حتى يراجعه مدير عام.</div>`:""}</div>`;} 
+        if(field.type==="select")return `<div class="field"><label>${field.label}</label><select name="${field.name}" ${field.required?"required":""}><option value="">${safe(field.placeholder||"اختر...")}</option>${(field.options||[]).map(opt=>`<option value="${safe(opt)}">${safe(opt)}</option>`).join("")}</select></div>`;
         if(field.type==="textarea")return `<div class="field full"><label>${field.label}</label><textarea name="${field.name}" placeholder="${safe(field.placeholder||"")}" ${field.required?"required":""}></textarea></div>`;
         if(field.type==="image_upload"||field.type==="single_image_upload")return renderUploadField(field);
         if(field.type==="relation"){
@@ -2181,10 +2213,36 @@
       if(currentTable==="courses")initCourseRegFieldsBuilder([]);
     }
 
-    function getFormPayload(){
+    
+    function suggestSpecializationIconAdmin(value){
+      const s=String(value||"");
+      const rules=[
+        [["أمن سيبراني","سبراني"],"fa-solid fa-shield-halved"],
+        [["ذكاء اصطناعي"],"fa-solid fa-brain"],
+        [["جرافيكس","تصميم"],"fa-solid fa-palette"],
+        [["نظم المعلومات"],"fa-solid fa-database"],
+        [["تقنية المعلومات"],"fa-solid fa-network-wired"],
+        [["حاسوب","برمجة","علوم الحاسوب"],"fa-solid fa-laptop-code"],
+        [["أسنان"],"fa-solid fa-tooth"],
+        [["صيدلة"],"fa-solid fa-pills"],
+        [["طب"],"fa-solid fa-stethoscope"],
+        [["مختبر"],"fa-solid fa-flask-vial"],
+        [["تمريض"],"fa-solid fa-user-nurse"],
+        [["هندسة","مدني","معمار","ميكاترونكس"],"fa-solid fa-helmet-safety"],
+        [["محاسبة"],"fa-solid fa-calculator"],
+        [["تسويق"],"fa-solid fa-bullhorn"],
+        [["إدارة","أعمال"],"fa-solid fa-briefcase"],
+        [["جميع"],"fa-solid fa-layer-group"]
+      ];
+      for(const [keys,icon] of rules){if(keys.some(k=>s.includes(k)))return icon}
+      return "fa-solid fa-graduation-cap";
+    }
+
+function getFormPayload(){
       const config=TABLES[currentTable]; const formData=new FormData(dataForm); const payload={};
       config.fields.forEach(field=>{
         const input=dataForm.querySelector(`[name="${field.name}"]`);
+        if(field.type==="scientific_channel_hint")return;
         if(field.type==="course_registration_fields")payload[field.name]=getCourseRegFieldsFromBuilder();
         else if(field.type==="permissions_check")payload[field.name]=Array.from(dataForm.querySelectorAll(`[name="${field.name}"]:checked`)).map(x=>x.value).join(",");
         else if(field.type==="boolean")payload[field.name]=input.checked;
@@ -2194,12 +2252,33 @@
         else if(field.type==="single_image_upload")payload[field.name]=(uploadState[field.name]||[])[0]||null;
         else {const value=formData.get(field.name);payload[field.name]=value===""?null:value}
       });
+      if(currentTable==="committee_links"){
+        const parts=[];
+        if(payload.college)parts.push(`الكلية: ${payload.college}`);
+        if(payload.specialization)parts.push(`التخصص: ${payload.specialization}`);
+        if(payload.level)parts.push(`المستوى: ${payload.level}`);
+        const allLevelsText = `${payload.specialization||""} ${payload.level||""}`;
+        if(/جميع\s*المستويات|كل\s*المستويات|لكل\s*المستويات/.test(allLevelsText)){
+          if(payload.college)payload.specialization=payload.college;
+          payload.level="جميع المستويات";
+        }
+        if(parts.length && !payload.description){
+          payload.description=[
+            payload.college?`الكلية: ${payload.college}`:"",
+            payload.specialization?`التخصص: ${payload.specialization}`:"",
+            payload.level?`المستوى: ${payload.level}`:""
+          ].filter(Boolean).join(" | ");
+        }
+        if(!payload.icon)payload.icon="fa-brands fa-telegram";
+        if(!payload.specialization_icon)payload.specialization_icon=suggestSpecializationIconAdmin(payload.specialization);
+      }
       return payload;
     }
 
     function fillForm(row){
       recordId.value=getRowPrimaryValue(row); applyActionButtons();
       TABLES[currentTable].fields.forEach(field=>{
+        if(field.type==="scientific_channel_hint")return;
         const input=dataForm.querySelector(`[name="${field.name}"]`);
         if(field.type==="course_registration_fields"){initCourseRegFieldsBuilder(row[field.name]);return}
         if(field.type==="image_upload"||field.type==="single_image_upload"){uploadState[field.name]=normalizeImages(row[field.name]);renderUploadedImages(field.name);return}
@@ -2215,6 +2294,7 @@
     function resetForm(){
       dataForm.reset(); recordId.value=""; uploadState={}; applyActionButtons();
       TABLES[currentTable].fields.forEach(field=>{
+        if(field.type==="scientific_channel_hint")return;
         if(field.type==="boolean"){const input=dataForm.querySelector(`[name="${field.name}"]`); if(input)input.checked=field.default!==false}
         if(field.type==="course_registration_fields")initCourseRegFieldsBuilder([])
         if(field.type==="permissions_check")dataForm.querySelectorAll(`[name="${field.name}"]`).forEach(ch=>ch.checked=false)
