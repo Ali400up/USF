@@ -2467,6 +2467,113 @@
       }
     }
 
+  
+    /* FINAL FIX: نفس تصميم Pop في index و /committees و /committees/1 */
+    .scientific-specialty-overlay{
+      position:fixed!important;
+      inset:0!important;
+      z-index:50000!important;
+      display:none!important;
+      align-items:flex-end!important;
+      justify-content:center!important;
+      padding:18px!important;
+      background:rgba(15,24,29,.45)!important;
+      backdrop-filter:blur(14px)!important;
+      -webkit-backdrop-filter:blur(14px)!important;
+    }
+    .scientific-specialty-overlay.show{display:flex!important}
+    .scientific-picker.open::before,
+    .scientific-specialty-pop::before{content:none!important;display:none!important}
+    .scientific-specialty-pop{
+      position:static!important;
+      inset:auto!important;
+      transform:none!important;
+      width:min(520px,100%)!important;
+      max-width:100%!important;
+      max-height:min(72vh,640px)!important;
+      overflow-y:auto!important;
+      overflow-x:hidden!important;
+      z-index:auto!important;
+      border-radius:30px 30px 24px 24px!important;
+      border:1px solid var(--border2)!important;
+      background:var(--glass2)!important;
+      box-shadow:var(--shadow2)!important;
+      padding:0!important;
+      display:none!important;
+      box-sizing:border-box!important;
+    }
+    .scientific-specialty-overlay.show .scientific-specialty-pop{
+      display:block!important;
+      animation:scientificSheetUp .26s var(--ease) both!important;
+    }
+    @keyframes scientificSheetUp{
+      from{opacity:0;transform:translateY(28px) scale(.98)}
+      to{opacity:1;transform:translateY(0) scale(1)}
+    }
+    .scientific-specialty-pop .sheet-handle{
+      width:54px!important;height:5px!important;border-radius:999px!important;
+      background:rgba(11,94,215,.25)!important;margin:10px auto 4px!important;display:block!important;
+    }
+    .scientific-pop-title{
+      position:sticky!important;top:0!important;z-index:2!important;
+      display:flex!important;align-items:center!important;gap:11px!important;
+      margin:0!important;padding:14px 16px!important;border-bottom:1px solid var(--border)!important;
+      background:var(--glass2)!important;color:var(--text)!important;font-size:15px!important;font-weight:900!important;
+      backdrop-filter:blur(10px)!important;-webkit-backdrop-filter:blur(10px)!important;
+    }
+    .scientific-pop-title i{
+      width:42px!important;height:42px!important;display:grid!important;place-items:center!important;border-radius:16px!important;
+      color:var(--bg)!important;background:linear-gradient(135deg,var(--primary-soft),var(--primary))!important;box-shadow:none!important;flex:0 0 auto!important;
+    }
+    .scientific-pop-title::after{
+      content:"نافذة فرعية";margin-right:auto;padding:6px 10px;border-radius:999px;color:var(--primary);
+      background:rgba(11,94,215,.08);font-size:11px;font-weight:900;white-space:nowrap;
+    }
+    .scientific-pop-grid{
+      display:grid!important;grid-template-columns:1fr!important;gap:9px!important;padding:14px!important;
+      max-height:none!important;overflow:visible!important;box-sizing:border-box!important;
+    }
+    .scientific-spec-option{
+      width:100%!important;min-height:62px!important;display:grid!important;
+      grid-template-columns:40px minmax(0,1fr)!important;align-items:center!important;gap:10px!important;
+      padding:10px!important;border-radius:20px!important;border:1px solid var(--border)!important;
+      background:rgba(255,255,255,.44)!important;color:var(--text)!important;box-shadow:none!important;
+      text-align:right!important;transition:.25s var(--ease)!important;overflow:hidden!important;box-sizing:border-box!important;
+    }
+    .dark .scientific-spec-option{background:rgba(241,247,251,.05)!important}
+    .scientific-spec-option.is-hidden{display:none!important}
+    .scientific-spec-option i{
+      width:40px!important;height:40px!important;display:grid!important;place-items:center!important;border-radius:15px!important;
+      color:var(--bg)!important;background:linear-gradient(135deg,#1E88E5,#0B5ED7,#063B8F)!important;
+      box-shadow:0 10px 22px rgba(11,94,215,.16)!important;font-size:16px!important;flex:0 0 auto!important;
+    }
+    .scientific-spec-option span{min-width:0!important;width:100%!important;display:block!important;overflow:hidden!important;line-height:1.45!important}
+    .scientific-spec-name,
+    .scientific-spec-option span:not(.scientific-picker-arrow){
+      display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;
+      overflow:hidden!important;text-overflow:ellipsis!important;word-break:break-word!important;overflow-wrap:anywhere!important;
+      color:inherit!important;font-size:12.8px!important;line-height:1.45!important;font-weight:900!important;
+    }
+    .scientific-spec-option small{
+      width:max-content!important;max-width:100%!important;display:inline-flex!important;margin-top:5px!important;padding:3px 7px!important;
+      border-radius:999px!important;background:rgba(11,94,215,.08)!important;color:var(--primary)!important;
+      font-size:10px!important;font-weight:900!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
+    }
+    .scientific-spec-option:hover,
+    .scientific-spec-option.active{
+      color:var(--bg)!important;background:linear-gradient(135deg,#1E88E5,#0B5ED7,#063B8F)!important;
+      transform:translateY(-2px)!important;box-shadow:0 14px 32px rgba(11,94,215,.20)!important;border-color:transparent!important;
+    }
+    .scientific-spec-option:hover i,
+    .scientific-spec-option.active i{color:var(--primary)!important;background:var(--bg)!important}
+    .scientific-spec-option:hover small,
+    .scientific-spec-option.active small{color:var(--bg)!important;background:rgba(255,255,255,.18)!important}
+    @media(max-width:560px){
+      .scientific-specialty-overlay{padding:12px!important}
+      .scientific-specialty-pop{width:min(480px,100%)!important;max-height:70vh!important;border-radius:28px 28px 20px 20px!important}
+      .scientific-pop-title::after{display:none!important}
+    }
+
   </style>
   <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
   <link rel="alternate" type="application/rss+xml" title="آخر أخبار ملتقى الطالب الجامعي" href="/feed.xml" />
@@ -3001,17 +3108,32 @@ function closeActivityDetails(){activityDetailsBackdrop.classList.remove("show")
       let activePop=null;
       let activePicker=null;
 
-      const firstCollegeOption=root.querySelector(".scientific-spec-option[data-scientific-college]");
-      let currentCollegeKey=firstCollegeOption?firstCollegeOption.dataset.scientificCollege:"";
-      let currentSpecialtyKey="";
-
       const allSpecialtyOptions=specialtyGrid
         ? Array.from(specialtyGrid.querySelectorAll(".scientific-spec-option[data-scientific-tab]")).map(btn=>({
-            html:btn.outerHTML,
-            collegeKey:btn.dataset.collegeKey,
-            tabKey:btn.dataset.scientificTab
+            collegeKey:btn.dataset.collegeKey||"",
+            tabKey:btn.dataset.scientificTab||"",
+            label:btn.dataset.label||"التخصص",
+            icon:btn.dataset.icon||"fa-solid fa-graduation-cap",
+            count:btn.dataset.count||"0"
           }))
         : [];
+
+      if(specialtyGrid)specialtyGrid.innerHTML="";
+
+      const firstCollegeOption=root.querySelector(".scientific-spec-option[data-scientific-college]");
+      let currentCollegeKey="";
+      let currentSpecialtyKey="";
+
+      function cleanText(value){
+        return String(value||"").replace(/[&<>"']/g,(m)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+      }
+
+      function specialtyButtonHtml(item){
+        return `<button class="scientific-spec-option" type="button" data-scientific-tab="${cleanText(item.tabKey)}" data-college-key="${cleanText(item.collegeKey)}" data-label="${cleanText(item.label)}" data-icon="${cleanText(item.icon)}" data-count="${cleanText(item.count)}">
+          <i class="${cleanText(item.icon)}"></i>
+          <span><b class="scientific-spec-name">${cleanText(item.label)}</b><small>${cleanText(item.count)} قناة</small></span>
+        </button>`;
+      }
 
       function openScientificPop(pickerEl,popEl){
         if(!pickerEl||!popEl)return;
@@ -3038,10 +3160,6 @@ function closeActivityDetails(){activityDetailsBackdrop.classList.remove("show")
         if(restore)document.body.style.overflow="hidden";
       }
 
-      function panelSelector(key){
-        return `[data-scientific-panel="${CSS.escape ? CSS.escape(key) : key}"]`;
-      }
-
       function activateSpecialty(option){
         if(!option)return;
         const key=option.dataset.scientificTab;
@@ -3056,13 +3174,14 @@ function closeActivityDetails(){activityDetailsBackdrop.classList.remove("show")
         if(count)count.textContent=(option.dataset.count||"0")+" قناة متاحة";
         if(iconBox)iconBox.className=option.dataset.icon||"fa-solid fa-graduation-cap";
 
-        const panel=root.querySelector(panelSelector(key));
+        const safeKey = window.CSS&&CSS.escape ? CSS.escape(key) : key;
+        const panel=root.querySelector(`[data-scientific-panel="${safeKey}"]`);
         if(panel)panel.classList.add("active");
       }
 
       function bindSpecialtyOptions(){
-        const scope=pop||root;
-        scope.querySelectorAll(".scientific-spec-option[data-scientific-tab]").forEach(option=>{
+        if(!specialtyGrid)return;
+        specialtyGrid.querySelectorAll(".scientific-spec-option[data-scientific-tab]").forEach(option=>{
           option.onclick=(e)=>{
             e.stopPropagation();
             activateSpecialty(option);
@@ -3071,30 +3190,25 @@ function closeActivityDetails(){activityDetailsBackdrop.classList.remove("show")
         });
       }
 
-      function renderSpecialtyOptionsForCollege(collegeKey,activateFirst=true){
+      function renderSpecialtyOptionsForCollege(collegeKey,activateFirst=false){
         if(!specialtyGrid)return;
         const filtered=allSpecialtyOptions.filter(item=>item.collegeKey===collegeKey);
-        specialtyGrid.innerHTML=filtered.map(item=>item.html.replace(/\sactive/g,"").replace(/\sis-hidden/g,"")).join("");
+        specialtyGrid.innerHTML=filtered.length
+          ? filtered.map(specialtyButtonHtml).join("")
+          : `<div class="links-empty">لا توجد تخصصات لهذه الكلية حاليًا.</div>`;
 
         bindSpecialtyOptions();
 
-        const preferred= currentSpecialtyKey
-          ? specialtyGrid.querySelector(`.scientific-spec-option[data-scientific-tab="${currentSpecialtyKey}"]`)
-          : null;
-        const first=specialtyGrid.querySelector(".scientific-spec-option[data-scientific-tab]");
-        const target=preferred||first;
-
         root.querySelectorAll(".scientific-spec-panel").forEach(p=>p.classList.remove("active"));
 
-        if(target&&activateFirst){
-          activateSpecialty(target);
-        }else if(target){
+        const first=specialtyGrid.querySelector(".scientific-spec-option[data-scientific-tab]");
+        if(first&&activateFirst){
+          activateSpecialty(first);
+        }else if(first){
           if(label)label.textContent="اختر التخصص";
           if(count)count.textContent=filtered.length+" تخصص متاح";
           if(iconBox)iconBox.className="fa-solid fa-layer-group";
-        }
-
-        if(!target){
+        }else{
           if(label)label.textContent="لا توجد تخصصات";
           if(count)count.textContent="0 قناة";
           if(iconBox)iconBox.className="fa-solid fa-circle-info";
@@ -3103,7 +3217,7 @@ function closeActivityDetails(){activityDetailsBackdrop.classList.remove("show")
 
       function selectCollege(option){
         if(!option)return;
-        currentCollegeKey=option.dataset.scientificCollege;
+        currentCollegeKey=option.dataset.scientificCollege||"";
 
         document.querySelectorAll(".scientific-spec-option[data-scientific-college]").forEach(t=>t.classList.remove("active"));
         option.classList.add("active");
@@ -3120,7 +3234,14 @@ function closeActivityDetails(){activityDetailsBackdrop.classList.remove("show")
         collegeTrigger.onclick=(e)=>{e.stopPropagation();openScientificPop(collegePicker,collegePop)};
       }
       if(trigger&&picker&&pop){
-        trigger.onclick=(e)=>{e.stopPropagation();openScientificPop(picker,pop)};
+        trigger.onclick=(e)=>{
+          e.stopPropagation();
+          if(!currentCollegeKey && firstCollegeOption){
+            if(label)label.textContent="اختر التخصص";
+            if(count)count.textContent="اختر الكلية أولًا";
+          }
+          openScientificPop(picker,pop);
+        };
       }
 
       document.querySelectorAll(".scientific-spec-option[data-scientific-college]").forEach(option=>{
@@ -3131,7 +3252,10 @@ function closeActivityDetails(){activityDetailsBackdrop.classList.remove("show")
         };
       });
 
-      renderSpecialtyOptionsForCollege(currentCollegeKey,false);
+      if(label)label.textContent="اختر التخصص";
+      if(count)count.textContent="اختر الكلية أولًا";
+      if(collegeLabel)collegeLabel.textContent="اختر الكلية";
+      if(collegeCount)collegeCount.textContent="حدد الكلية أولًا";
     }
     function isScientificCommittee(committeeTitle,data){
       const name=String(committeeTitle||"");
