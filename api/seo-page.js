@@ -366,6 +366,140 @@ async function renderSingle(sectionKey, section, row) {
 function modalHtml() {
   return `<style>
 
+    /* توحيد شكل Pop روابط القنوات في /committees/id مع شكل index */
+    .committee-links-backdrop.show{
+      display:flex!important;
+      align-items:flex-end!important;
+      justify-content:center!important;
+      padding:20px!important;
+      background:rgba(15,24,29,.45)!important;
+      backdrop-filter:blur(14px)!important;
+      -webkit-backdrop-filter:blur(14px)!important;
+      overflow:hidden!important;
+    }
+    .committee-links-sheet{
+      width:min(980px,100%)!important;
+      max-width:100%!important;
+      max-height:min(88vh,820px)!important;
+      overflow:hidden!important;
+      display:flex!important;
+      flex-direction:column!important;
+      border-radius:34px 34px 26px 26px!important;
+      border:1px solid var(--border2)!important;
+      background:var(--glass2)!important;
+      box-shadow:var(--shadow2)!important;
+      padding:18px!important;
+      contain:none!important;
+    }
+    .committee-links-sheet .sheet-handle{
+      flex:0 0 auto!important;
+      width:56px!important;
+      height:5px!important;
+      border-radius:999px!important;
+      background:rgba(11,94,215,.25)!important;
+      margin:0 auto 12px!important;
+    }
+    .committee-links-sheet .sheet-head{
+      flex:0 0 auto!important;
+      display:grid!important;
+      grid-template-columns:62px 1fr 44px!important;
+      align-items:center!important;
+      gap:12px!important;
+      margin-bottom:14px!important;
+      padding:0!important;
+      border-bottom:0!important;
+      background:transparent!important;
+    }
+    .committee-links-sheet .sheet-icon{
+      width:62px!important;
+      height:62px!important;
+      display:grid!important;
+      place-items:center!important;
+      border-radius:22px!important;
+      color:var(--bg)!important;
+      background:linear-gradient(135deg,var(--primary-soft),var(--primary))!important;
+      font-size:23px!important;
+      box-shadow:none!important;
+    }
+    .committee-links-sheet .sheet-head h3{
+      margin:0!important;
+      color:var(--text)!important;
+      font-size:18px!important;
+      font-weight:900!important;
+      line-height:1.5!important;
+    }
+    .committee-links-sheet .sheet-head p{
+      margin:3px 0 0!important;
+      color:var(--muted)!important;
+      font-size:12.5px!important;
+      font-weight:800!important;
+      line-height:1.7!important;
+    }
+    .committee-links-sheet .sheet-close{
+      width:44px!important;
+      height:44px!important;
+      border-radius:16px!important;
+      border:1px solid var(--border)!important;
+      background:var(--glass)!important;
+      color:var(--text)!important;
+      display:grid!important;
+      place-items:center!important;
+      cursor:pointer!important;
+    }
+    .committee-links-sheet .links-list,
+    #committeeLinksList{
+      flex:1 1 auto!important;
+      min-height:0!important;
+      overflow-y:auto!important;
+      overflow-x:hidden!important;
+      padding-left:4px!important;
+      padding-right:0!important;
+      margin-top:0!important;
+      display:grid!important;
+      gap:12px!important;
+      overscroll-behavior:contain!important;
+      scrollbar-width:thin!important;
+      scrollbar-color:rgba(11,94,215,.34) rgba(11,94,215,.055)!important;
+    }
+    .committee-links-sheet .links-list::-webkit-scrollbar,
+    #committeeLinksList::-webkit-scrollbar{
+      width:7px!important;
+      height:7px!important;
+    }
+    .committee-links-sheet .links-list::-webkit-scrollbar-track,
+    #committeeLinksList::-webkit-scrollbar-track{
+      background:rgba(11,94,215,.05)!important;
+      border-radius:999px!important;
+      margin:10px 0!important;
+    }
+    .committee-links-sheet .links-list::-webkit-scrollbar-thumb,
+    #committeeLinksList::-webkit-scrollbar-thumb{
+      background:rgba(11,94,215,.32)!important;
+      border-radius:999px!important;
+      border:2px solid rgba(255,255,255,.45)!important;
+    }
+    @media(max-width:760px){
+      .committee-links-backdrop.show{
+        padding:12px!important;
+      }
+      .committee-links-sheet{
+        max-height:86vh!important;
+        border-radius:30px 30px 22px 22px!important;
+        padding:15px!important;
+      }
+      .committee-links-sheet .sheet-head{
+        grid-template-columns:54px 1fr 40px!important;
+      }
+      .committee-links-sheet .sheet-icon{
+        width:54px!important;
+        height:54px!important;
+        border-radius:19px!important;
+      }
+    }
+
+  </style>
+  <style>
+
     /* إصلاح Scroll نافذة روابط القنوات في صفحة /committees/id */
     .committee-links-backdrop.show{
       display:flex!important;
