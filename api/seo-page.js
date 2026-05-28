@@ -366,6 +366,47 @@ async function renderSingle(sectionKey, section, row) {
 function modalHtml() {
   return `<style>
 
+    /* اختيار الكلية ثم التخصص */
+    .scientific-picker-row{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+      margin:0 0 8px!important;
+    }
+    .scientific-picker-row .scientific-picker{
+      margin:0!important;
+    }
+    .scientific-step-label{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      color:var(--muted);
+      font-size:11px;
+      font-weight:900;
+      margin-bottom:3px;
+    }
+    .scientific-step-label b{
+      width:20px;height:20px;border-radius:8px;display:grid;place-items:center;
+      background:rgba(11,94,215,.09);color:var(--primary);
+      font-size:10px;
+    }
+    .scientific-spec-option.is-hidden{
+      display:none!important;
+    }
+    .scientific-picker.is-disabled{
+      opacity:.58;
+      pointer-events:none;
+      filter:grayscale(.25);
+    }
+    @media(max-width:680px){
+      .scientific-picker-row{
+        grid-template-columns:1fr;
+      }
+    }
+
+  </style>
+<style>
+
     /* توحيد شكل Pop اختيار الكلية/التخصص مع شكل index */
     .scientific-specialty-overlay{
       position:fixed!important;
@@ -2798,23 +2839,108 @@ function pageScript(committeeLinks) {
     const sheetClose=q("sheetClose");if(sheetClose)sheetClose.onclick=()=>{q("committeeDetailBackdrop").classList.remove("show");document.body.style.overflow=""};
 
     const committeeLinks=${linksJson};
+    function normalizeScientificCollegeSeo(college,specialization,title){
+      const text=String((college||"")+" "+(specialization||"")+" "+(title||""));
+      if(/أسنان|اسنان|Dental/i.test(text))return "كلية طب الأسنان";
+      if(/طب|Medicine|صيدلة|Pharmacy|مختبر|Laboratory|تمريض|Nursing|تغذية|Nutrition|علاج طبيعي|Physical/i.test(text))return "كلية الطب والعلوم الصحية";
+      if(/أمن سيبراني|امن سيبراني|حاسبات|تقنية معلومات|نظم معلومات|ذكاء اصطناعي|برمجة|جرافيكس|حاسوب|IT|Cyber|AI|Computer/i.test(text))return "كلية الحاسبات وتقنية المعلومات";
+      if(/هندسة|مدني|معمار|ميكاترونكس|شبكات|CCNA|NDG|Primavera|Engineering/i.test(text))return "كلية الهندسة";
+      if(/إدارة|ادارة|أعمال|اعمال|تسويق|محاسبة|مالية|اقتصاد|موارد|Business|Marketing|Accounting|Finance/i.test(text))return "كلية العلوم الإدارية والإنسانية";
+      return college || "أخرى";
+    }
+    function iconForCollegeSeo(name){
+      const text=String(name||"");
+      if(text.includes("الطب"))return "fa-solid fa-stethoscope";
+      if(text.includes("الأسنان"))return "fa-solid fa-tooth";
+      if(text.includes("الحاسبات"))return "fa-solid fa-laptop-code";
+      if(text.includes("الهندسة"))return "fa-solid fa-helmet-safety";
+      if(text.includes("الإدارية"))return "fa-solid fa-briefcase";
+      return "fa-solid fa-building-columns";
+    }
+
+    function normalizeScientificSpecializationSeo(rawSpecialization,college,title,isAllLevels){
+      const raw=String(rawSpecialization||"").trim();
+      const text=String((rawSpecialization||"")+" "+(college||"")+" "+(title||""));
+      const collegeText=String(college||"");
+      const rawLooksBad=!raw || raw===collegeText || /جميع\s*المستويات|كل\s*المستويات|لكل\s*المستويات|^عام$|^أخرى$|^كلية/i.test(raw);
+
+      if(/أسنان|اسنان|Dental/i.test(text))return "طب الأسنان";
+      if(/صيدلة|Pharmacy/i.test(text))return "صيدلة";
+      if(/مختبر|Laboratory/i.test(text))return "مختبرات طبية";
+      if(/تمريض|Nursing/i.test(text))return "تمريض";
+      if(/تغذية|Nutrition/i.test(text))return "تغذية علاجية";
+      if(/علاج طبيعي|Physical/i.test(text))return "علاج طبيعي";
+      if(/طب بشري|بشري|Medicine/i.test(text))return "طب بشري";
+      if(collegeText.includes("الطب") && rawLooksBad)return "قنوات عامة للكلية";
+
+      if(/أمن سيبراني|امن سيبراني|Cyber/i.test(text))return "أمن سيبراني";
+      if(/ذكاء اصطناعي|Artificial|AI/i.test(text))return "ذكاء اصطناعي";
+      if(/نظم المعلومات|نظم معلومات/i.test(text))return "نظم المعلومات";
+      if(/تقنية المعلومات|تقنية معلومات|Information Technology|IT/i.test(text))return "تقنية المعلومات";
+      if(/جرافيكس|تصميم|Graphics/i.test(text))return "جرافيكس وتصميم";
+      if(/حاسوب|برمجة|Computer|Software/i.test(text))return "علوم الحاسوب والبرمجة";
+      if(collegeText.includes("الحاسبات") && rawLooksBad)return "قنوات عامة للكلية";
+
+      if(/مدني|Civil/i.test(text))return "هندسة مدنية";
+      if(/معمار|Architecture/i.test(text))return "هندسة معمارية";
+      if(/ميكاترونكس|Mechatronics/i.test(text))return "ميكاترونكس";
+      if(/شبكات|CCNA|NDG/i.test(text))return "شبكات";
+      if(/هندسة|Engineering/i.test(text))return rawLooksBad ? "هندسة عامة" : raw;
+      if(collegeText.includes("الهندسة") && rawLooksBad)return "هندسة عامة";
+
+      if(/إدارة أعمال دولية|ادارة اعمال دولية|International Business/i.test(text))return "إدارة أعمال دولية";
+      if(/تسويق رقمي|Digital Marketing/i.test(text))return "تسويق رقمي";
+      if(/محاسبة|Accounting/i.test(text))return "محاسبة";
+      if(/مالية|Finance/i.test(text))return "مالية ومصرفية";
+      if(/إدارة أعمال|ادارة اعمال|Business Administration/i.test(text))return "إدارة أعمال";
+      if(/إدارة|ادارة|علوم إدارية|علوم ادارية/i.test(text))return rawLooksBad ? "العلوم الإدارية" : raw;
+      if(collegeText.includes("الإدارية") && rawLooksBad)return "العلوم الإدارية";
+
+      if(!rawLooksBad)return raw;
+      return "قنوات عامة للكلية";
+    }
+    function iconForSpecializationSeo(name,college){
+      const text=String((name||"")+" "+(college||""));
+      if(/أسنان|اسنان/i.test(text))return "fa-solid fa-tooth";
+      if(/صيدلة/i.test(text))return "fa-solid fa-pills";
+      if(/مختبر/i.test(text))return "fa-solid fa-flask-vial";
+      if(/تمريض/i.test(text))return "fa-solid fa-user-nurse";
+      if(/تغذية/i.test(text))return "fa-solid fa-apple-whole";
+      if(/علاج طبيعي/i.test(text))return "fa-solid fa-person-walking";
+      if(/طب/i.test(text))return "fa-solid fa-stethoscope";
+      if(/أمن سيبراني|امن سيبراني/i.test(text))return "fa-solid fa-shield-halved";
+      if(/ذكاء اصطناعي/i.test(text))return "fa-solid fa-brain";
+      if(/نظم المعلومات/i.test(text))return "fa-solid fa-database";
+      if(/تقنية المعلومات/i.test(text))return "fa-solid fa-network-wired";
+      if(/جرافيكس|تصميم/i.test(text))return "fa-solid fa-palette";
+      if(/حاسوب|برمجة/i.test(text))return "fa-solid fa-laptop-code";
+      if(/مدني|معمار|ميكاترونكس|هندسة|شبكات/i.test(text))return "fa-solid fa-helmet-safety";
+      if(/محاسبة/i.test(text))return "fa-solid fa-calculator";
+      if(/تسويق/i.test(text))return "fa-solid fa-bullhorn";
+      if(/مالية/i.test(text))return "fa-solid fa-chart-line";
+      if(/إدارة|ادارة|أعمال|اعمال/i.test(text))return "fa-solid fa-briefcase";
+      return iconForCollegeSeo(college);
+    }
+
     function parseScientificMetaSeo(link){
       const desc=String(link.description||"");
       const fromDesc=(label)=>{
         const match=desc.match(new RegExp(label+"\\s*[:：]\\s*([^|\\n]+)","i"));
         return match?match[1].trim():"";
       };
-      const college = link.college || fromDesc("الكلية") || "أخرى";
-      const rawSpecialization = link.specialization || fromDesc("التخصص") || college || "عام";
+      const rawCollege = link.college || fromDesc("الكلية") || "";
+      const rawSpecialization = link.specialization || fromDesc("التخصص") || rawCollege || "عام";
+      const college = normalizeScientificCollegeSeo(rawCollege, rawSpecialization, link.title);
       const level = link.level || fromDesc("المستوى") || link.stage || "عام";
       const generalText = (rawSpecialization + " " + level + " " + desc);
       const isAllLevels = /جميع\s*المستويات|كل\s*المستويات|لكل\s*المستويات/i.test(generalText);
-      const displaySpecialization = isAllLevels ? college : rawSpecialization;
+      const displaySpecialization = normalizeScientificSpecializationSeo(rawSpecialization,college,link.title,isAllLevels);
       return {
         college,
+        college_icon: iconForCollegeSeo(college),
         specialization: displaySpecialization,
         original_specialization: rawSpecialization,
-        specialization_icon: iconClass(link.specialization_icon || link.spec_icon || link.specialty_icon || "", isAllLevels ? "fa-solid fa-building-columns" : "fa-solid fa-graduation-cap"),
+        specialization_icon: iconClass(link.specialization_icon || link.spec_icon || link.specialty_icon || "", iconForSpecializationSeo(displaySpecialization,college)),
         level: isAllLevels ? "جميع المستويات" : level,
         is_all_levels: isAllLevels,
         title: link.title || "قناة علمية",
@@ -2831,104 +2957,212 @@ function pageScript(committeeLinks) {
     function scientificSafeKeySeo(value,index){
       return "spec_"+index+"_"+String(value||"").replace(/[^\u0600-\u06FFa-zA-Z0-9]+/g,"_").replace(/^_+|_+$/g,"");
     }
+    function makeScientificGroupKeySeo(collegeName,specializationName,collegeIndex,specIndex){
+      return scientificSafeKeySeo(collegeName+"_"+specializationName,collegeIndex+"_"+specIndex);
+    }
     function renderScientificChannelCardsSeo(items){
       return '<div class="scientific-channel-grid">'+items.map(link=>{
         return '<article class="scientific-channel-card"><div class="scientific-channel-icon"><i class="'+link.icon+'"></i></div><div><h4>'+safeText(link.title)+'</h4><div class="scientific-channel-meta"><span class="scientific-chip"><i class="fa-solid fa-building-columns"></i> '+safeText(link.college)+'</span><span class="scientific-chip"><i class="fa-solid fa-layer-group"></i> '+safeText(link.level)+'</span></div></div><a class="btn btn-dark" href="'+safeText(link.url)+'" '+(String(link.url).startsWith("http")?'target="_blank" rel="noopener"':'')+'><i class="fa-solid fa-arrow-up-right-from-square"></i> فتح القناة</a></article>';
       }).join("")+'</div>';
     }
+    function buildCollegeSpecialtyGroupsSeo(items){
+      const colleges=groupByValueSeo(items,"college");
+      const entries=[];
+      colleges.forEach((college,collegeIndex)=>{
+        const collegeKey=scientificSafeKeySeo(college.name,collegeIndex);
+        const specs=groupByValueSeo(college.items,"specialization");
+        specs.forEach((spec,specIndex)=>{
+          const key=makeScientificGroupKeySeo(college.name,spec.name,collegeIndex,specIndex);
+          entries.push({key,collegeKey,collegeName:college.name,specName:spec.name,items:spec.items,collegeIndex,specIndex});
+        });
+      });
+      return {colleges,entries};
+    }
     function renderScientificLinksSeo(data){
       const items=data.map(parseScientificMetaSeo);
-      const specs=groupByValueSeo(items,"specialization");
-      const firstSpec=specs[0];
-      const firstIcon=firstSpec?.items?.[0]?.specialization_icon||"fa-solid fa-graduation-cap";
+      const grouped=buildCollegeSpecialtyGroupsSeo(items);
+      const colleges=grouped.colleges;
+      const entries=grouped.entries;
+      const firstCollege=colleges[0];
+      const firstEntry=entries.find(entry=>entry.collegeName===firstCollege?.name)||entries[0];
+      const firstCollegeIcon=firstCollege?.items?.[0]?.college_icon||"fa-solid fa-building-columns";
+      const firstSpecIcon=firstEntry?.items?.[0]?.specialization_icon||"fa-solid fa-graduation-cap";
 
       return '<div class="scientific-links-wrap">'+
-        '<div class="scientific-clean-head"><h3><i class="fa-solid fa-graduation-cap"></i> اختر التخصص</h3><p>اختر التخصص من القائمة، وستظهر قنواته فقط بشكل مرتب وواضح. قنوات جميع المستويات تظهر داخل قسم الكلية التابعة لها.</p></div>'+
-        (specs.length?'<div class="scientific-picker" id="scientificPicker">'+
-          '<button class="scientific-picker-trigger" type="button" id="scientificPickerTrigger">'+
-            '<div class="scientific-picker-main"><i class="'+firstIcon+'" id="scientificPickerIcon"></i><div><span id="scientificPickerLabel">'+safeText(firstSpec?.name||"اختر التخصص")+'</span><small id="scientificPickerCount">'+(firstSpec?firstSpec.items.length:0)+' قناة متاحة</small></div></div>'+
-            '<span class="scientific-picker-arrow"><i class="fa-solid fa-chevron-down"></i></span>'+
-          '</button>'+
-          '<div class="scientific-specialty-pop" id="scientificSpecialtyPop">'+
-            '<div class="sheet-handle"></div>'+ 
-            '<div class="scientific-pop-title"><i class="fa-solid fa-layer-group"></i> اختر التخصص أو الكلية</div>'+
-            '<div class="scientific-pop-grid">'+specs.map((spec,index)=>{
-              const icon=spec.items[0]?.specialization_icon||"fa-solid fa-graduation-cap";
-              const key=scientificSafeKeySeo(spec.name,index);
-              return '<button class="scientific-spec-option '+(index===0?'active':'')+'" type="button" data-scientific-tab="'+key+'" data-label="'+safeText(spec.name)+'" data-icon="'+icon+'" data-count="'+spec.items.length+'"><i class="'+icon+'"></i><span>'+'<b class="scientific-spec-name">'+safeText(spec.name)+'</b><small>'+spec.items.length+' قناة</small></span></button>';
-            }).join("")+'</div>'+
-          '</div>'+
-        '</div>':'')+
-        '<div class="scientific-panels">'+specs.map((spec,index)=>{
-          const icon=spec.items[0]?.specialization_icon||"fa-solid fa-graduation-cap";
-          const key=scientificSafeKeySeo(spec.name,index);
-          return '<section class="scientific-spec-panel '+(index===0?'active':'')+'" data-scientific-panel="'+key+'"><div class="scientific-selected-title"><i class="'+icon+'"></i> '+safeText(spec.name)+'</div>'+renderScientificChannelCardsSeo(spec.items)+'</section>';
-        }).join("")+'</div>'+
-      '</div>';
+        
+        '<div class="scientific-picker-row">'+
+          '<div><span class="scientific-step-label"><b>1</b> الكلية</span><div class="scientific-picker" id="scientificCollegePicker">'+
+            '<button class="scientific-picker-trigger" type="button" id="scientificCollegeTrigger"><div class="scientific-picker-main"><i class="'+firstCollegeIcon+'" id="scientificCollegeIcon"></i><div><span id="scientificCollegeLabel">اختر الكلية</span><small id="scientificCollegeCount">حدد الكلية أولًا</small></div></div><span class="scientific-picker-arrow"><i class="fa-solid fa-chevron-down"></i></span></button>'+
+            '<div class="scientific-specialty-pop" id="scientificCollegePop"><div class="sheet-handle"></div><div class="scientific-pop-title"><i class="fa-solid fa-building-columns"></i> اختر الكلية</div><div class="scientific-pop-grid">'+colleges.map((college,index)=>{
+              const icon=college.items[0]?.college_icon||"fa-solid fa-building-columns";
+              const key=scientificSafeKeySeo(college.name,index);
+              const specsCount=groupByValueSeo(college.items,"specialization").length;
+              return '<button class="scientific-spec-option" type="button" data-scientific-college="'+key+'" data-label="'+safeText(college.name)+'" data-icon="'+icon+'" data-count="'+college.items.length+'"><i class="'+icon+'"></i><span><b class="scientific-spec-name">'+safeText(college.name)+'</b><small>'+specsCount+' تخصص | '+college.items.length+' قناة</small></span></button>';
+            }).join("")+'</div></div>'+
+          '</div></div>'+
+          '<div><span class="scientific-step-label"><b>2</b> التخصص</span><div class="scientific-picker" id="scientificPicker">'+
+            '<button class="scientific-picker-trigger" type="button" id="scientificPickerTrigger"><div class="scientific-picker-main"><i class="'+firstSpecIcon+'" id="scientificPickerIcon"></i><div><span id="scientificPickerLabel">اختر التخصص</span><small id="scientificPickerCount">اختر الكلية أولًا</small></div></div><span class="scientific-picker-arrow"><i class="fa-solid fa-chevron-down"></i></span></button>'+
+            '<div class="scientific-specialty-pop" id="scientificSpecialtyPop"><div class="sheet-handle"></div><div class="scientific-pop-title"><i class="fa-solid fa-layer-group"></i> اختر التخصص</div><div class="scientific-pop-grid">'+entries.map((entry,index)=>{
+              const icon=entry.items[0]?.specialization_icon||"fa-solid fa-graduation-cap";
+              return '<button class="scientific-spec-option is-hidden" type="button" data-scientific-tab="'+entry.key+'" data-college-key="'+entry.collegeKey+'" data-label="'+safeText(entry.specName)+'" data-icon="'+icon+'" data-count="'+entry.items.length+'"><i class="'+icon+'"></i><span><b class="scientific-spec-name">'+safeText(entry.specName)+'</b><small>'+entry.items.length+' قناة</small></span></button>';
+            }).join("")+'</div></div>'+
+          '</div></div>'+
+        '</div>'+
+        '<div class="scientific-panels">'+entries.map((entry,index)=>{
+          const icon=entry.items[0]?.specialization_icon||"fa-solid fa-graduation-cap";
+          return '<section class="scientific-spec-panel" data-scientific-panel="'+entry.key+'"><div class="scientific-selected-title"><i class="'+icon+'"></i> '+safeText(entry.specName)+'</div>'+renderScientificChannelCardsSeo(entry.items)+'</section>';
+        }).join("")+'</div></div>';
     }
     function bindScientificTabsSeo(){
       const root=q("committeeLinksList");
       if(!root)return;
 
+      const collegePicker=root.querySelector("#scientificCollegePicker");
+      const collegeTrigger=root.querySelector("#scientificCollegeTrigger");
+      const collegePop=root.querySelector("#scientificCollegePop");
+      const collegeLabel=root.querySelector("#scientificCollegeLabel");
+      const collegeCount=root.querySelector("#scientificCollegeCount");
+      const collegeIcon=root.querySelector("#scientificCollegeIcon");
+
       const picker=root.querySelector("#scientificPicker");
       const trigger=root.querySelector("#scientificPickerTrigger");
       const pop=root.querySelector("#scientificSpecialtyPop");
+      const specialtyGrid=pop?pop.querySelector(".scientific-pop-grid"):null;
       const label=root.querySelector("#scientificPickerLabel");
       const count=root.querySelector("#scientificPickerCount");
       const iconBox=root.querySelector("#scientificPickerIcon");
-      let overlay=null;
 
-      function openSpecialtyPop(){
-        if(!picker||!pop)return;
+      let overlay=null;
+      let activePop=null;
+      let activePicker=null;
+
+      const firstCollegeOption=root.querySelector(".scientific-spec-option[data-scientific-college]");
+      let currentCollegeKey=firstCollegeOption?firstCollegeOption.dataset.scientificCollege:"";
+      let currentSpecialtyKey="";
+
+      const allSpecialtyOptions=specialtyGrid
+        ? Array.from(specialtyGrid.querySelectorAll(".scientific-spec-option[data-scientific-tab]")).map(btn=>({
+            html:btn.outerHTML,
+            collegeKey:btn.dataset.collegeKey,
+            tabKey:btn.dataset.scientificTab
+          }))
+        : [];
+
+      function openScientificPop(pickerEl,popEl){
+        if(!pickerEl||!popEl)return;
+        closeScientificPop(false);
+        if(popEl===pop)renderSpecialtyOptionsForCollege(currentCollegeKey,false);
         overlay=document.createElement("div");
         overlay.className="scientific-specialty-overlay show";
         document.body.appendChild(overlay);
-        overlay.appendChild(pop);
-        picker.classList.add("open");
+        overlay.appendChild(popEl);
+        activePop=popEl;
+        activePicker=pickerEl;
+        pickerEl.classList.add("open");
         document.body.style.overflow="hidden";
-        overlay.onclick=(e)=>{
-          if(e.target===overlay)closeSpecialtyPop();
-        };
+        overlay.onclick=(e)=>{if(e.target===overlay)closeScientificPop(true)};
       }
 
-      function closeSpecialtyPop(){
-        if(!picker||!pop)return;
-        picker.classList.remove("open");
-        if(overlay){
-          picker.appendChild(pop);
+      function closeScientificPop(restore=true){
+        if(activePicker)activePicker.classList.remove("open");
+        if(overlay&&activePop&&activePicker){
+          activePicker.appendChild(activePop);
           overlay.remove();
-          overlay=null;
         }
-        document.body.style.overflow="hidden";
+        overlay=null;activePop=null;activePicker=null;
+        if(restore)document.body.style.overflow="hidden";
       }
 
+      function activateSpecialty(option){
+        if(!option)return;
+        const key=option.dataset.scientificTab;
+        currentSpecialtyKey=key;
+
+        document.querySelectorAll(".scientific-spec-option[data-scientific-tab]").forEach(t=>t.classList.remove("active"));
+        root.querySelectorAll(".scientific-spec-panel").forEach(p=>p.classList.remove("active"));
+
+        option.classList.add("active");
+
+        if(label)label.textContent=option.dataset.label||"التخصص";
+        if(count)count.textContent=(option.dataset.count||"0")+" قناة متاحة";
+        if(iconBox)iconBox.className=option.dataset.icon||"fa-solid fa-graduation-cap";
+
+        const panel=root.querySelector('[data-scientific-panel="'+key+'"]');
+        if(panel)panel.classList.add("active");
+      }
+
+      function bindSpecialtyOptions(){
+        const scope=pop||root;
+        scope.querySelectorAll(".scientific-spec-option[data-scientific-tab]").forEach(option=>{
+          option.onclick=(e)=>{
+            e.stopPropagation();
+            activateSpecialty(option);
+            closeScientificPop(true);
+          };
+        });
+      }
+
+      function renderSpecialtyOptionsForCollege(collegeKey,activateFirst=true){
+        if(!specialtyGrid)return;
+        const filtered=allSpecialtyOptions.filter(item=>item.collegeKey===collegeKey);
+        specialtyGrid.innerHTML=filtered.map(item=>item.html.replace(/\sactive/g,"")).join("");
+
+        bindSpecialtyOptions();
+
+        const preferred= currentSpecialtyKey
+          ? specialtyGrid.querySelector('.scientific-spec-option[data-scientific-tab="'+currentSpecialtyKey+'"]')
+          : null;
+        const first=specialtyGrid.querySelector(".scientific-spec-option[data-scientific-tab]");
+        const target=preferred||first;
+
+        root.querySelectorAll(".scientific-spec-panel").forEach(p=>p.classList.remove("active"));
+
+        if(target&&activateFirst){
+          activateSpecialty(target);
+        }else if(target){
+          if(label)label.textContent="اختر التخصص";
+          if(count)count.textContent=filtered.length+" تخصص متاح";
+          if(iconBox)iconBox.className="fa-solid fa-layer-group";
+        }
+
+        if(!target){
+          if(label)label.textContent="لا توجد تخصصات";
+          if(count)count.textContent="0 قناة";
+          if(iconBox)iconBox.className="fa-solid fa-circle-info";
+        }
+      }
+
+      function selectCollege(option){
+        if(!option)return;
+        currentCollegeKey=option.dataset.scientificCollege;
+
+        document.querySelectorAll(".scientific-spec-option[data-scientific-college]").forEach(t=>t.classList.remove("active"));
+        option.classList.add("active");
+
+        if(collegeLabel)collegeLabel.textContent=option.dataset.label||"الكلية";
+        if(collegeCount)collegeCount.textContent=(option.dataset.count||"0")+" قناة";
+        if(collegeIcon)collegeIcon.className=option.dataset.icon||"fa-solid fa-building-columns";
+
+        currentSpecialtyKey="";
+        renderSpecialtyOptionsForCollege(currentCollegeKey,false);
+      }
+
+      if(collegeTrigger&&collegePicker&&collegePop){
+        collegeTrigger.onclick=(e)=>{e.stopPropagation();openScientificPop(collegePicker,collegePop)};
+      }
       if(trigger&&picker&&pop){
-        trigger.onclick=(e)=>{
-          e.stopPropagation();
-          if(overlay)closeSpecialtyPop();
-          else openSpecialtyPop();
-        };
+        trigger.onclick=(e)=>{e.stopPropagation();openScientificPop(picker,pop)};
       }
 
-      root.querySelectorAll(".scientific-spec-option").forEach(option=>{
+      document.querySelectorAll(".scientific-spec-option[data-scientific-college]").forEach(option=>{
         option.onclick=(e)=>{
           e.stopPropagation();
-          const key=option.dataset.scientificTab;
-
-          document.querySelectorAll(".scientific-spec-option").forEach(t=>t.classList.remove("active"));
-          root.querySelectorAll(".scientific-spec-panel").forEach(p=>p.classList.remove("active"));
-
-          option.classList.add("active");
-
-          if(label)label.textContent=option.dataset.label||"التخصص";
-          if(count)count.textContent=(option.dataset.count||"0")+" قناة متاحة";
-          if(iconBox)iconBox.className=option.dataset.icon||"fa-solid fa-graduation-cap";
-
-          const panel=root.querySelector('[data-scientific-panel="'+key+'"]');
-          if(panel)panel.classList.add("active");
-          closeSpecialtyPop();
+          selectCollege(option);
+          closeScientificPop(true);
         };
       });
+
+      renderSpecialtyOptionsForCollege(currentCollegeKey,false);
     }
     function isScientificSeo(title,data){
       const name=String(title||"");
