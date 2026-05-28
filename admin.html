@@ -1145,7 +1145,7 @@
           {name:"committee_id",label:"اللجنة",type:"relation",required:true,relation:"committee_id"},
           {name:"scientific_hint",label:"تنظيم القنوات العلمية",type:"scientific_channel_hint"},
           {name:"title",label:"عنوان الرابط / اسم القناة",type:"text",required:true,placeholder:"مثال: قناة أمن سيبراني - المستوى الثاني"},
-          {name:"college",label:"الكلية",type:"text",placeholder:"مثال: الحاسبات"},
+          {name:"college",label:"الكلية",type:"select",options:["كلية الطب والعلوم الصحية","كلية طب الأسنان","كلية الحاسبات وتقنية المعلومات","كلية الهندسة","كلية العلوم الإدارية والإنسانية","أخرى"],placeholder:"اختر الكلية"},
           {name:"specialization",label:"التخصص",type:"text",placeholder:"مثال: أمن سيبراني"},
           {name:"specialization_icon",label:"أيقونة التخصص",type:"text",placeholder:"fa-solid fa-shield-halved"},
           {name:"level",label:"المستوى",type:"select",options:["جميع المستويات","الأول","الثاني","الثالث","الرابع","الخامس","السادس","الامتياز","عام"],placeholder:"اختر المستوى"},
@@ -2238,6 +2238,56 @@
       return "fa-solid fa-graduation-cap";
     }
 
+
+    function normalizeScientificCollegeAdmin(college,specialization,title){
+      const text=String((college||"")+" "+(specialization||"")+" "+(title||""));
+      if(/أسنان|اسنان|Dental/i.test(text))return "كلية طب الأسنان";
+      if(/طب|Medicine|صيدلة|Pharmacy|مختبر|Laboratory|تمريض|Nursing|تغذية|Nutrition|علاج طبيعي|Physical/i.test(text))return "كلية الطب والعلوم الصحية";
+      if(/أمن سيبراني|امن سيبراني|حاسبات|تقنية معلومات|نظم معلومات|ذكاء اصطناعي|برمجة|جرافيكس|حاسوب|IT|Cyber|AI|Computer/i.test(text))return "كلية الحاسبات وتقنية المعلومات";
+      if(/هندسة|مدني|معمار|ميكاترونكس|شبكات|CCNA|NDG|Primavera|Engineering/i.test(text))return "كلية الهندسة";
+      if(/إدارة|ادارة|أعمال|اعمال|تسويق|محاسبة|مالية|اقتصاد|موارد|Business|Marketing|Accounting|Finance/i.test(text))return "كلية العلوم الإدارية والإنسانية";
+      return college||"أخرى";
+    }
+
+
+    function normalizeScientificSpecializationAdmin(rawSpecialization,college,title){
+      const raw=String(rawSpecialization||"").trim();
+      const text=String((rawSpecialization||"")+" "+(college||"")+" "+(title||""));
+      const collegeText=String(college||"");
+      const rawLooksBad=!raw || raw===collegeText || /جميع\s*المستويات|كل\s*المستويات|لكل\s*المستويات|^عام$|^أخرى$|^كلية/i.test(raw);
+
+      if(/أسنان|اسنان|Dental/i.test(text))return "طب الأسنان";
+      if(/صيدلة|Pharmacy/i.test(text))return "صيدلة";
+      if(/مختبر|Laboratory/i.test(text))return "مختبرات طبية";
+      if(/تمريض|Nursing/i.test(text))return "تمريض";
+      if(/تغذية|Nutrition/i.test(text))return "تغذية علاجية";
+      if(/علاج طبيعي|Physical/i.test(text))return "علاج طبيعي";
+      if(/طب بشري|بشري|Medicine/i.test(text))return "طب بشري";
+      if(collegeText.includes("الطب") && rawLooksBad)return "قنوات عامة للكلية";
+
+      if(/أمن سيبراني|امن سيبراني|Cyber/i.test(text))return "أمن سيبراني";
+      if(/ذكاء اصطناعي|Artificial|AI/i.test(text))return "ذكاء اصطناعي";
+      if(/نظم المعلومات|نظم معلومات/i.test(text))return "نظم المعلومات";
+      if(/تقنية المعلومات|تقنية معلومات|Information Technology|IT/i.test(text))return "تقنية المعلومات";
+      if(/جرافيكس|تصميم|Graphics/i.test(text))return "جرافيكس وتصميم";
+      if(/حاسوب|برمجة|Computer|Software/i.test(text))return "علوم الحاسوب والبرمجة";
+
+      if(/مدني|Civil/i.test(text))return "هندسة مدنية";
+      if(/معمار|Architecture/i.test(text))return "هندسة معمارية";
+      if(/ميكاترونكس|Mechatronics/i.test(text))return "ميكاترونكس";
+      if(/شبكات|CCNA|NDG/i.test(text))return "شبكات";
+
+      if(/إدارة أعمال دولية|ادارة اعمال دولية|International Business/i.test(text))return "إدارة أعمال دولية";
+      if(/تسويق رقمي|Digital Marketing/i.test(text))return "تسويق رقمي";
+      if(/محاسبة|Accounting/i.test(text))return "محاسبة";
+      if(/مالية|Finance/i.test(text))return "مالية ومصرفية";
+      if(/إدارة أعمال|ادارة اعمال|Business Administration/i.test(text))return "إدارة أعمال";
+      if(/إدارة|ادارة|علوم إدارية|علوم ادارية/i.test(text))return rawLooksBad ? "العلوم الإدارية" : raw;
+
+      if(!rawLooksBad)return raw;
+      return "قنوات عامة للكلية";
+    }
+
 function getFormPayload(){
       const config=TABLES[currentTable]; const formData=new FormData(dataForm); const payload={};
       config.fields.forEach(field=>{
@@ -2269,6 +2319,17 @@ function getFormPayload(){
             payload.level?`المستوى: ${payload.level}`:""
           ].filter(Boolean).join(" | ");
         }
+        payload.college=normalizeScientificCollegeAdmin(payload.college,payload.specialization,payload.title);
+        const allLevelsDetected=/جميع\s*المستويات|كل\s*المستويات|لكل\s*المستويات/.test(`${payload.specialization||""} ${payload.level||""}`);
+        payload.specialization=normalizeScientificSpecializationAdmin(payload.specialization,payload.college,payload.title);
+        if(allLevelsDetected){
+          payload.level="جميع المستويات";
+        }
+        payload.description=[
+          payload.college?`الكلية: ${payload.college}`:"",
+          payload.specialization?`التخصص: ${payload.specialization}`:"",
+          payload.level?`المستوى: ${payload.level}`:""
+        ].filter(Boolean).join(" | ");
         if(!payload.icon)payload.icon="fa-brands fa-telegram";
         if(!payload.specialization_icon)payload.specialization_icon=suggestSpecializationIconAdmin(payload.specialization);
       }
