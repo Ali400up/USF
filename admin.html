@@ -2307,21 +2307,14 @@ function getFormPayload(){
         if(payload.college)parts.push(`الكلية: ${payload.college}`);
         if(payload.specialization)parts.push(`التخصص: ${payload.specialization}`);
         if(payload.level)parts.push(`المستوى: ${payload.level}`);
-        const allLevelsText = `${payload.specialization||""} ${payload.level||""}`;
-        if(/جميع\s*المستويات|كل\s*المستويات|لكل\s*المستويات/.test(allLevelsText)){
-          if(payload.college)payload.specialization=payload.college;
-          payload.level="جميع المستويات";
-        }
-        if(parts.length && !payload.description){
-          payload.description=[
-            payload.college?`الكلية: ${payload.college}`:"",
-            payload.specialization?`التخصص: ${payload.specialization}`:"",
-            payload.level?`المستوى: ${payload.level}`:""
-          ].filter(Boolean).join(" | ");
-        }
-        payload.college=normalizeScientificCollegeAdmin(payload.college,payload.specialization,payload.title);
+        const chosenCollege = payload.college && payload.college !== "أخرى" ? payload.college : "";
+        payload.college = chosenCollege || normalizeScientificCollegeAdmin(payload.college,payload.specialization,payload.title);
         const allLevelsDetected=/جميع\s*المستويات|كل\s*المستويات|لكل\s*المستويات/.test(`${payload.specialization||""} ${payload.level||""}`);
-        payload.specialization=normalizeScientificSpecializationAdmin(payload.specialization,payload.college,payload.title);
+        const rawSpecializationValue = String(payload.specialization||"").trim();
+        const specializationLooksGeneric = !rawSpecializationValue || rawSpecializationValue === payload.college || /^كلية/.test(rawSpecializationValue) || /جميع\s*المستويات|كل\s*المستويات|لكل\s*المستويات|^عام$|^أخرى$/.test(rawSpecializationValue);
+        payload.specialization = specializationLooksGeneric
+          ? normalizeScientificSpecializationAdmin(payload.specialization,payload.college,payload.title)
+          : rawSpecializationValue;
         if(allLevelsDetected){
           payload.level="جميع المستويات";
         }
@@ -2580,8 +2573,16 @@ function getFormPayload(){
       if("is_active" in payload&&!canDo("publish")&&currentTable!=="admin_users"){if(id)delete payload.is_active;else payload.is_active=false}
       let result;
       const keyField=getPrimaryKey();
-      if(id)result=await db.from(currentTable).update(payload).eq(keyField,id); else result=await db.from(currentTable).insert(payload);
+      if(id){
+        result=await db.from(currentTable).update(payload).eq(keyField,id).select();
+      }else{
+        result=await db.from(currentTable).insert(payload).select();
+      }
       if(result.error){showToast("خطأ: "+result.error.message);return}
+      if(id && Array.isArray(result.data) && result.data.length===0){
+        showToast("لم يتم تعديل السجل. قد تكون الصلاحيات أو رقم السجل غير صحيحة.");
+        return;
+      }
       showToast(id?"تم التعديل بنجاح":"تمت الإضافة بنجاح"); resetForm(); await loadRows();
     }
 
