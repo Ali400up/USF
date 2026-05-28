@@ -3253,7 +3253,10 @@ function pageScript(committeeLinks) {
       };
       const rawCollege = link.college || fromDesc("الكلية") || "";
       const rawSpecialization = link.specialization || fromDesc("التخصص") || rawCollege || "عام";
-      const college = normalizeScientificCollegeSeo(rawCollege, rawSpecialization, link.title);
+      const savedCollege = String(rawCollege||"").trim();
+      const college = (savedCollege && savedCollege !== "أخرى")
+        ? savedCollege
+        : normalizeScientificCollegeSeo(rawCollege, rawSpecialization, link.title);
       const level = link.level || fromDesc("المستوى") || link.stage || "عام";
       const generalText = (rawSpecialization + " " + level + " " + desc);
       const isAllLevels = /جميع\s*المستويات|كل\s*المستويات|لكل\s*المستويات/i.test(generalText);
