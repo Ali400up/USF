@@ -366,6 +366,93 @@ async function renderSingle(sectionKey, section, row) {
 function modalHtml() {
   return `<style>
 
+    /* القناة المركزية للجنة العلمية */
+    .scientific-central-card{
+      position:relative;
+      overflow:hidden;
+      display:grid;
+      grid-template-columns:58px minmax(0,1fr) auto;
+      align-items:center;
+      gap:12px;
+      padding:14px;
+      margin:0 0 12px;
+      border-radius:24px;
+      border:1px solid rgba(11,94,215,.16);
+      background:
+        radial-gradient(circle at top right,rgba(0,166,214,.13),transparent 34%),
+        linear-gradient(135deg,rgba(255,255,255,.82),rgba(238,247,255,.72));
+      box-shadow:0 16px 38px rgba(11,94,215,.12);
+    }
+    .dark .scientific-central-card{
+      background:
+        radial-gradient(circle at top right,rgba(0,166,214,.14),transparent 34%),
+        linear-gradient(135deg,rgba(241,247,251,.08),rgba(11,94,215,.08));
+    }
+    .scientific-central-card::before{
+      content:"القناة المركزية";
+      position:absolute;
+      top:10px;
+      left:12px;
+      padding:5px 9px;
+      border-radius:999px;
+      color:var(--primary);
+      background:rgba(11,94,215,.08);
+      font-size:10.5px;
+      font-weight:900;
+    }
+    .scientific-central-icon{
+      width:58px;
+      height:58px;
+      display:grid;
+      place-items:center;
+      border-radius:20px;
+      color:var(--bg);
+      background:linear-gradient(135deg,#1E88E5,#0B5ED7,#063B8F);
+      box-shadow:0 14px 28px rgba(11,94,215,.20);
+      font-size:23px;
+    }
+    .scientific-central-card h3{
+      margin:0;
+      color:var(--text);
+      font-size:16px;
+      font-weight:900;
+      line-height:1.55;
+    }
+    .scientific-central-card p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:12.5px;
+      font-weight:800;
+      line-height:1.75;
+    }
+    .scientific-central-card .btn{
+      white-space:nowrap;
+      align-self:center;
+    }
+    @media(max-width:760px){
+      .scientific-central-card{
+        grid-template-columns:50px minmax(0,1fr);
+        padding:13px;
+      }
+      .scientific-central-icon{
+        width:50px;
+        height:50px;
+        border-radius:18px;
+        font-size:20px;
+      }
+      .scientific-central-card .btn{
+        grid-column:1/-1;
+        width:100%;
+        justify-content:center;
+      }
+      .scientific-central-card::before{
+        display:none;
+      }
+    }
+
+  </style>
+<style>
+
     /* FINAL FIX: نفس تصميم Pop في index و /committees و /committees/1 */
     .scientific-specialty-overlay{
       position:fixed!important;
@@ -3304,17 +3391,45 @@ function pageScript(committeeLinks) {
       });
       return {colleges,entries};
     }
+    function isFeaturedCommitteeLinkSeo(link){
+      return Boolean(link?.is_featured || link?.show_on_top || link?.featured || Number(link?.sort_order) < 0);
+    }
+    function renderFeaturedCommitteeLinksSeo(links){
+      const featured=(links||[]).filter(isFeaturedCommitteeLinkSeo);
+      if(!featured.length)return "";
+      return '<div class="scientific-featured-list">'+featured.map(link=>{
+        const url=link.url||"#";
+        return '<article class="scientific-central-card">'+
+          '<div class="scientific-central-icon"><i class="'+iconClass(link.icon,"fa-solid fa-star")+'"></i></div>'+
+          '<div>'+
+            '<h3>'+safeText(link.title||"رابط مهم")+'</h3>'+
+            '<p>'+safeText(link.description||"رابط بارز من روابط اللجنة يظهر في واجهة القسم ويمكن تعديله من لوحة التحكم.")+'</p>'+
+          '</div>'+
+          '<a class="btn btn-dark" href="'+safeText(url)+'" '+(String(url).startsWith("http")?'target="_blank" rel="noopener"':'')+'>'+
+            '<i class="fa-solid fa-arrow-up-right-from-square"></i> فتح الرابط'+
+          '</a>'+
+        '</article>';
+      }).join("")+'</div>';
+    }
     function renderScientificLinksSeo(data){
-      const items=data.map(parseScientificMetaSeo);
+      const featuredLinks=data.filter(isFeaturedCommitteeLinkSeo);
+      const items=data.filter(link=>!isFeaturedCommitteeLinkSeo(link)).map(parseScientificMetaSeo);
       const grouped=buildCollegeSpecialtyGroupsSeo(items);
       const colleges=grouped.colleges;
       const entries=grouped.entries;
+      if(!entries.length){
+        return '<div class="scientific-links-wrap">'+
+          renderFeaturedCommitteeLinksSeo(featuredLinks)+
+          '<div class="links-empty">لا توجد روابط تخصصية مضافة حاليًا.</div>'+
+        '</div>';
+      }
       const firstCollege=colleges[0];
       const firstEntry=entries.find(entry=>entry.collegeName===firstCollege?.name)||entries[0];
       const firstCollegeIcon=firstCollege?.items?.[0]?.college_icon||"fa-solid fa-building-columns";
       const firstSpecIcon=firstEntry?.items?.[0]?.specialization_icon||"fa-solid fa-graduation-cap";
 
       return '<div class="scientific-links-wrap">'+
+        renderFeaturedCommitteeLinksSeo(featuredLinks)+
         
         '<div class="scientific-picker-row">'+
           '<div><span class="scientific-step-label"><b>1</b> الكلية</span><div class="scientific-picker" id="scientificCollegePicker">'+
