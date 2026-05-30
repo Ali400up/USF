@@ -185,10 +185,9 @@ function truncate(value = "", length = 155) {
 }
 
 function isoDate(value) {
-  if (!value) return new Date().toISOString().slice(0, 10);
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return new Date().toISOString().slice(0, 10);
-  return d.toISOString().slice(0, 10);
+  const d = value ? new Date(value) : new Date();
+  if (Number.isNaN(d.getTime())) return new Date().toISOString();
+  return d.toISOString();
 }
 
 function absoluteUrl(path = "/") {
