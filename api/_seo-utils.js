@@ -216,8 +216,7 @@ function parseImages(value) {
       const parsed = JSON.parse(value);
       if (Array.isArray(parsed)) return parsed.filter(Boolean);
     } catch (_) {}
-    if (value.includes(",")) return value.split(",").map(x => x.trim()).filter(Boolean);
-    return [value];
+    return value.split(/\n|,|\|/).map(x => x.trim()).filter(Boolean);
   }
   return [];
 }

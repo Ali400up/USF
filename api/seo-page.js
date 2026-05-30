@@ -4,7 +4,7 @@
 
 const {
   SITE_URL, SITE_NAME, SECTIONS,
-  escapeHtml, escapeAttr, truncate, titleOf, textOf, detailOf, imageOf, parseImages, urlFor,
+  escapeHtml, escapeAttr, truncate, titleOf, textOf, detailOf, imageOf, parseImages, absoluteUrl, urlFor,
   responseHeaders, supabaseSelect, htmlLayout, errorPage
 } = require("./_seo-utils");
 
@@ -271,29 +271,106 @@ async function renderCommitteeLinksData(id) {
   }
 }
 
+
+function normalizeRowImages(row = {}) {
+  const images = [];
+  if (row.image_url) images.push(row.image_url);
+  for (const value of [row.gallery_images, row.images, row.image_urls]) {
+    images.push(...parseImages(value));
+  }
+  const seen = new Set();
+  return images
+    .filter(Boolean)
+    .map(src => absoluteUrl(src))
+    .filter(src => {
+      if (seen.has(src)) return false;
+      seen.add(src);
+      return true;
+    });
+}
+
+function paragraphHtml(value = "") {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  return text
+    .split(/\n{2,}/)
+    .map(part => `<p>${escapeHtml(part.trim()).replace(/\n/g, "<br>")}</p>`)
+    .join("");
+}
+
 function renderAchievement(section, row) {
   const title = titleOf(row, section);
-  const text = textOf(row, section) || detailOf(row, section) || "إنجاز موثق يمكن إضافة وصفه وصوره من لوحة الإدارة.";
-  const image = imageOf(row);
+  const shortText = row.description || "إنجاز موثق من إنجازات ملتقى الطالب الجامعي.";
+  const details = row.details || row.long_description || row.description || "يمكن إضافة تفاصيل أوسع عن هذا الإنجاز من لوحة التحكم.";
+  const images = normalizeRowImages(row);
+  const heroImage = images[0] || "";
   const icon = safeIcon(row.icon, section.icon);
   const date = row.achievement_date ? prettyDate(row.achievement_date) : "تاريخ قابل للإضافة";
   const cat = row.category || "إنجاز";
+  const value = row.value ? String(row.value) : "";
 
-  return `<article class="achievement-story-card reveal show delay-1" style="max-width:520px;margin-inline:auto">
-    <div class="achievement-media">
-      ${image && !image.includes("og-image") ? `<img src="${escapeAttr(image)}" alt="${escapeAttr(title)}" loading="lazy" />` : ""}
-      <h3><i class="${escapeAttr(icon)}"></i> ${escapeHtml(title)}</h3>
+  const meta = [
+    `<span><i class="fa-solid fa-tag"></i> ${escapeHtml(cat)}</span>`,
+    `<span><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(date)}</span>`,
+    value ? `<span><i class="fa-solid fa-chart-line"></i> ${escapeHtml(value)}</span>` : ""
+  ].filter(Boolean).join("");
+
+  const gallery = images.length
+    ? images.map((url, index) => `<img src="${escapeAttr(url)}" alt="${escapeAttr(title)} - صورة ${index + 1}" loading="${index === 0 ? "eager" : "lazy"}" onclick="openImageViewer('${escapeAttr(url)}')" />`).join("")
+    : `<div class="empty-state" style="grid-column:1/-1;">لا توجد صور مضافة لهذا الإنجاز حاليًا.</div>`;
+
+  return `<article class="achievement-detail-page reveal show">
+    <div class="achievement-detail-hero">
+      <div class="achievement-detail-hero-text">
+        <div class="section-kicker"><i class="${escapeAttr(icon)}"></i> ${escapeHtml(cat)}</div>
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(shortText)}</p>
+        <div class="achievement-meta achievement-detail-meta">${meta}</div>
+      </div>
+      <div class="achievement-detail-visual">
+        ${heroImage ? `<img src="${escapeAttr(heroImage)}" alt="${escapeAttr(title)}" loading="eager" onclick="openImageViewer('${escapeAttr(heroImage)}')" />` : `<div class="achievement-detail-placeholder"><i class="${escapeAttr(icon)}"></i></div>`}
+      </div>
     </div>
-    <div class="achievement-body">
-      <div class="achievement-meta">
-        <span><i class="fa-solid fa-tag"></i> ${escapeHtml(cat)}</span>
-        <span><i class="fa-solid fa-calendar-days"></i> ${escapeHtml(date)}</span>
-        ${row.value ? `<span><i class="fa-solid fa-chart-line"></i> ${escapeHtml(row.value)}</span>` : ""}
+
+    <div class="achievement-detail-layout">
+      <div class="achievement-detail-main">
+        <div class="activity-info-card">
+          <h4><i class="fa-solid fa-circle-info"></i> وصف الإنجاز</h4>
+          <p>${escapeHtml(shortText)}</p>
+        </div>
+
+        <div class="activity-info-card">
+          <h4><i class="fa-solid fa-list-check"></i> تفاصيل الإنجاز</h4>
+          <div class="achievement-detail-text">${paragraphHtml(details)}</div>
+        </div>
       </div>
-      <p>${escapeHtml(text)}</p>
-      <div class="achievement-actions">
-        <button class="btn btn-dark achievement-detail-btn" type="button" data-achievement="${jsData(row)}"><i class="fa-solid fa-images"></i> عرض التفاصيل والصور</button>
+
+      <aside class="achievement-detail-side">
+        <div class="activity-info-card">
+          <h4><i class="fa-solid fa-id-card-clip"></i> معلومات الإنجاز</h4>
+          <ul>
+            <li><strong>التصنيف:</strong> ${escapeHtml(cat)}</li>
+            <li><strong>التاريخ:</strong> ${escapeHtml(date)}</li>
+            ${value ? `<li><strong>قيمة رقمية:</strong> ${escapeHtml(value)}</li>` : ""}
+          </ul>
+        </div>
+
+        <div class="activity-info-card">
+          <h4><i class="fa-solid fa-images"></i> صور الإنجاز</h4>
+          <p>يعرض هذا القسم جميع الصور المرفوعة من لوحة التحكم لهذا الإنجاز.</p>
+        </div>
+      </aside>
+    </div>
+
+    <div class="achievement-detail-gallery-wrap">
+      <div class="section-header" style="margin-bottom:18px">
+        <div>
+          <div class="section-kicker"><i class="fa-solid fa-images"></i> معرض الصور</div>
+          <h2 class="section-title" style="font-size:clamp(24px,3vw,36px)">توثيق الإنجاز بالصور</h2>
+        </div>
+        <p class="section-desc">اضغط على أي صورة لعرضها بالحجم الكامل.</p>
       </div>
+      <div class="activity-details-gallery achievement-detail-gallery">${gallery}</div>
     </div>
   </article>`;
 }
