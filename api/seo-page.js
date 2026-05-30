@@ -3752,7 +3752,9 @@ module.exports = async function handler(req, res) {
     // للأخبار فقط:
     // إذا كان الرابط رقم بسيط مثل /news/1 نبحث في public_id.
     // وإذا كان الرابط UUID قديم مثل /news/a1db... نبحث في id حتى لا تتعطل الروابط القديمة.
-    if (sectionKey === "news" && /^\\d+$/.test(id)) {
+    const isNumericNewsId = sectionKey === "news" && /^\d+$/.test(id);
+
+    if (isNumericNewsId) {
       filters.public_id = `eq.${id}`;
     } else {
       filters.id = `eq.${id}`;

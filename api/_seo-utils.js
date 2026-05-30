@@ -230,7 +230,12 @@ function imageOf(row = {}) {
 function urlFor(sectionKey, row) {
   const section = SECTIONS[sectionKey];
   if (!section || !row || !row.id) return SITE_URL + "/";
-  return `${SITE_URL}${section.path}/${encodeURIComponent(row.id)}`;
+
+  // روابط الأخبار تكون بسيطة إذا كان public_id موجودًا:
+  // /news/3 بدل UUID الطويل.
+  const publicId = sectionKey === "news" && row.public_id ? row.public_id : row.id;
+
+  return `${SITE_URL}${section.path}/${encodeURIComponent(publicId)}`;
 }
 
 function responseHeaders(contentType = "text/html; charset=utf-8", cache = "s-maxage=300, stale-while-revalidate=3600") {
