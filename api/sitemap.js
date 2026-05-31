@@ -130,7 +130,7 @@ ${uniqueUrls.join("\n")}
 
   res.writeHead(200, {
     ...responseHeaders("application/xml; charset=utf-8"),
-    "Cache-Control": "public, max-age=0, s-maxage=3600, stale-while-revalidate=300"
+    "Cache-Control": "public, max-age=0, s-maxage=60, stale-while-revalidate=30"
   });
 
   res.end(xml);
