@@ -66,10 +66,50 @@ function schemaFor(sectionKey, section, row, title, description, image, url) {
   }
 
   if (sectionKey === "activities" || sectionKey === "events") {
+    const start = row.event_date || row.activity_date || row.start_date || row.created_at || new Date().toISOString();
+    const end = row.end_date || row.endDate || row.event_end_date || start;
+    const placeName = row.location || row.place || "جامعة العلوم والتكنولوجيا";
+    const cityName = row.city || row.addressLocality || row.governorate || "اليمن";
+    const regionName = row.region || row.addressRegion || "اليمن";
+    const organizerName = row.organizer || row.committee || SITE_NAME;
+
     schema["@type"] = "Event";
-    schema.startDate = row.event_date || row.activity_date || row.start_date || row.created_at || new Date().toISOString();
-    schema.location = { "@type": "Place", "name": row.location || "جامعة العلوم والتكنولوجيا" };
-    schema.organizer = { "@type": "Organization", "name": SITE_NAME, "url": SITE_URL + "/" };
+    schema.startDate = start;
+    schema.endDate = end;
+    schema.eventStatus = row.eventStatus || "https://schema.org/EventScheduled";
+    schema.eventAttendanceMode = row.eventAttendanceMode || "https://schema.org/OfflineEventAttendanceMode";
+
+    schema.location = {
+      "@type": "Place",
+      "name": placeName,
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": placeName,
+        "addressLocality": cityName,
+        "addressRegion": regionName,
+        "addressCountry": "YE"
+      }
+    };
+
+    schema.organizer = {
+      "@type": "Organization",
+      "name": organizerName,
+      "url": SITE_URL + "/"
+    };
+
+    schema.performer = {
+      "@type": "Organization",
+      "name": organizerName
+    };
+
+    schema.offers = {
+      "@type": "Offer",
+      "url": url,
+      "price": row.price || "0",
+      "priceCurrency": row.priceCurrency || "YER",
+      "availability": row.availability || "https://schema.org/InStock",
+      "validFrom": row.created_at || start
+    };
   }
 
   if (sectionKey === "committees") {
