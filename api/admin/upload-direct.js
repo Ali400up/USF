@@ -1,79 +1,82 @@
-const { readJson, requireAdmin, supabase, telegramMultipart, safeKey, json } = require("../_utils.js");
+const { adminGuard, fail, normalizeTags, ok, supabaseRequest } = require("../_utils.js");
 
-const MAX_BASE64_CHARS = 4_000_000; // Keep below Vercel Function request limits after JSON/base64 overhead.
+const BOT_TOKEN = process.env.BOT_TOKEN;
 
-async function getChannel(id) {
-  const rows = await supabase(`bot_channels?id=eq.${encodeURIComponent(id)}&select=*&limit=1`, { method: "GET" });
-  return rows?.[0] || null;
-}
+async function telegramUploadDocument(channelId, fileName, mimeType, buffer, caption) {
+  if (!BOT_TOKEN) throw new Error("BOT_TOKEN is missing");
 
-function chooseTelegramMethod(mimeType = "") {
-  if (mimeType.startsWith("audio/")) return { method: "sendAudio", field: "audio" };
-  if (mimeType.startsWith("image/")) return { method: "sendPhoto", field: "photo" };
-  if (mimeType.startsWith("video/")) return { method: "sendVideo", field: "video" };
-  return { method: "sendDocument", field: "document" };
+  const form = new FormData();
+  form.append("chat_id", channelId);
+  form.append("caption", caption || fileName);
+  form.append("document", new Blob([buffer], { type: mimeType || "application/octet-stream" }), fileName || "file.pdf");
+
+  const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
+    method: "POST",
+    body: form
+  });
+
+  const result = await response.json();
+
+  if (!result.ok) {
+    throw new Error(result.description || "Telegram upload failed");
+  }
+
+  return result.result;
 }
 
 module.exports = async function handler(req, res) {
+  if (!adminGuard(req, res)) return;
+
+  if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+
   try {
-    if (req.method !== "POST") return json(res, 405, { ok: false, error: "Method Not Allowed" });
+    const body = req.body || {};
+    const required = ["title", "year_name", "term_name", "subject_name", "section_name", "channel_id", "file_base64", "file_name"];
+    const missing = required.filter(key => !body[key]);
 
-    const body = await readJson(req);
-    if (!requireAdmin(req, res, body)) return;
-
-    const channel = await getChannel(body.channel_db_id);
-    if (!channel) return json(res, 404, { ok: false, error: "القناة غير موجودة في لوحة التحكم" });
-
-    const fileBase64 = String(body.file_base64 || "");
-    if (!fileBase64) return json(res, 400, { ok: false, error: "لم يصل الملف" });
-    if (fileBase64.length > MAX_BASE64_CHARS) {
-      return json(res, 413, {
-        ok: false,
-        error: "الملف كبير على الرفع المباشر في Vercel. ارفعه في القناة ثم أضفه من رابط الرسالة."
-      });
+    if (missing.length) {
+      return fail(res, 400, `حقول ناقصة: ${missing.join(", ")}`);
     }
 
-    const filename = String(body.filename || "file").trim();
-    const mimeType = String(body.mime_type || "application/octet-stream").trim();
-    const buffer = Buffer.from(fileBase64, "base64");
-    const { method, field } = chooseTelegramMethod(mimeType);
+    const cleanBase64 = String(body.file_base64).split(",").pop();
+    const buffer = Buffer.from(cleanBase64, "base64");
 
-    const form = new FormData();
-    form.append("chat_id", channel.channel_id);
-    form.append("caption", String(body.title || filename).trim());
-    form.append(field, new Blob([buffer], { type: mimeType }), filename);
+    if (buffer.length > 4 * 1024 * 1024) {
+      return fail(res, 400, "الملف كبير للرفع المباشر على Vercel. ارفعه داخل القناة ثم الصق رابط الرسالة.");
+    }
 
-    const sent = await telegramMultipart(method, form);
-    const messageId = sent?.result?.message_id;
+    const telegramMessage = await telegramUploadDocument(
+      body.channel_id,
+      body.file_name,
+      body.mime_type,
+      buffer,
+      body.title
+    );
 
-    const row = {
-      channel_db_id: channel.id,
-      channel_id: channel.channel_id,
-      message_id: messageId,
-      year_key: safeKey(body.year_key),
-      year_label: String(body.year_label || "").trim(),
-      term_key: safeKey(body.term_key),
-      term_label: String(body.term_label || "").trim(),
-      subject_key: safeKey(body.subject_key),
-      subject_label: String(body.subject_label || "").trim(),
-      section_key: safeKey(body.section_key),
-      section_label: String(body.section_label || "").trim(),
-      title: String(body.title || filename).trim(),
-      original_name: filename,
-      mime_type: mimeType,
-      file_size: buffer.length,
-      telegram_method: method,
-      sort_order: Number(body.sort_order || 0),
-      is_active: true
-    };
-
-    const inserted = await supabase("bot_files", {
+    const rows = await supabaseRequest("bot_files", {
       method: "POST",
-      body: JSON.stringify([row])
+      body: JSON.stringify({
+        title: String(body.title || "").trim(),
+        description: body.description || null,
+        year_name: String(body.year_name || "").trim(),
+        term_name: String(body.term_name || "").trim(),
+        subject_name: String(body.subject_name || "").trim(),
+        section_name: String(body.section_name || "").trim(),
+        channel_id: String(body.channel_id || "").trim(),
+        message_id: telegramMessage.message_id,
+        telegram_link: null,
+        file_type: body.file_type || "pdf",
+        tags: normalizeTags(body.tags),
+        sort_order: Number(body.sort_order || 0),
+        is_active: true
+      })
     });
 
-    return json(res, 200, { ok: true, file: inserted?.[0] });
+    return ok(res, {
+      telegram_message_id: telegramMessage.message_id,
+      file: rows[0]
+    });
   } catch (error) {
-    return json(res, 500, { ok: false, error: error.message });
+    return fail(res, 500, error.message);
   }
-}
+};

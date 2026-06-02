@@ -1,22 +1,21 @@
-const { readJson, requireAdmin, supabase, json } = require("../_utils.js");
+const { adminGuard, fail, ok, supabaseRequest } = require("../_utils.js");
 
 module.exports = async function handler(req, res) {
+  if (!adminGuard(req, res)) return;
+
+  if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+
   try {
-    if (req.method !== "POST") return json(res, 405, { ok: false, error: "Method Not Allowed" });
+    const { id, is_active } = req.body || {};
+    if (!id) return fail(res, 400, "id is required");
 
-    const body = await readJson(req);
-    if (!requireAdmin(req, res, body)) return;
-
-    const id = Number(body.id);
-    if (!id) return json(res, 400, { ok: false, error: "file id is required" });
-
-    const updated = await supabase(`bot_files?id=eq.${id}`, {
+    const rows = await supabaseRequest(`bot_files?id=eq.${id}`, {
       method: "PATCH",
-      body: JSON.stringify({ is_active: Boolean(body.is_active) })
+      body: JSON.stringify({ is_active: Boolean(is_active), updated_at: new Date().toISOString() })
     });
 
-    return json(res, 200, { ok: true, file: updated?.[0] });
+    return ok(res, { file: rows[0] });
   } catch (error) {
-    return json(res, 500, { ok: false, error: error.message });
+    return fail(res, 500, error.message);
   }
-}
+};
