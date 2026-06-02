@@ -1,35 +1,75 @@
-const { adminGuard, fail, ok, supabaseRequest, telegram } = require("../_utils.js");
+// api/admin/health.js
+// CommonJS version - بدون type: module
 
 module.exports = async function handler(req, res) {
-  if (!adminGuard(req, res)) return;
-
-  if (req.method !== "GET") return res.status(405).send("Method Not Allowed");
-
-  try {
-    const checks = {
-      vercel: true,
-      supabase: false,
-      telegram: false,
-      time: new Date().toISOString()
-    };
-
-    try {
-      await supabaseRequest("bot_files?select=id&limit=1");
-      checks.supabase = true;
-    } catch (error) {
-      checks.supabase_error = error.message;
-    }
-
-    try {
-      const bot = await telegram("getMe", {});
-      checks.telegram = Boolean(bot.ok);
-      checks.bot = bot.ok ? bot.result : bot;
-    } catch (error) {
-      checks.telegram_error = error.message;
-    }
-
-    return ok(res, { checks });
-  } catch (error) {
-    return fail(res, 500, error.message);
+  // السماح فقط بـ GET
+  if (req.method !== "GET") {
+    return res.status(405).json({
+      ok: false,
+      message: "Method Not Allowed"
+    });
   }
-};
+
+  const BOT_TOKEN = process.env.BOT_TOKEN;
+  const SECRET_TOKEN = process.env.SECRET_TOKEN;
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+
+  const result = {
+    ok: true,
+    message: "Admin health route is working",
+    route: "/api/admin/health",
+    time: new Date().toISOString(),
+
+    env: {
+      BOT_TOKEN: Boolean(BOT_TOKEN),
+      SECRET_TOKEN: Boolean(SECRET_TOKEN),
+      SUPABASE_URL: Boolean(SUPABASE_URL),
+      SUPABASE_SERVICE_ROLE_KEY: Boolean(SUPABASE_SERVICE_ROLE_KEY),
+      ADMIN_PASSWORD: Boolean(ADMIN_PASSWORD)
+    },
+
+    telegram: {
+      ok: false,
+      message: "Not checked"
+    },
+
+    supabase: {
+      ok: false,
+      message: "Not checked"
+    }
+  };
+
+  // فحص Telegram Bot Token
+  try {
+    if (!BOT_TOKEN) {
+      result.telegram = {
+        ok: false,
+        message: "BOT_TOKEN is missing"
+      };
+    } else {
+      const telegramResponse = await fetch(
+        `https://api.telegram.org/bot${BOT_TOKEN}/getMe`
+      );
+
+      const telegramData = await telegramResponse.json();
+
+      if (telegramData.ok) {
+        result.telegram = {
+          ok: true,
+          message: "Telegram bot is working",
+          bot: {
+            id: telegramData.result.id,
+            first_name: telegramData.result.first_name,
+            username: telegramData.result.username
+          }
+        };
+      } else {
+        result.telegram = {
+          ok: false,
+          message: telegramData.description || "Telegram check failed"
+        };
+      }
+    }
+  } catch (
