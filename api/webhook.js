@@ -1,79 +1,125 @@
-const BOT_TOKEN = process.env.BOT_TOKEN;
-const CHANNEL_ID = process.env.CHANNEL_ID;
+const { supabase, telegram } = require("./_utils.js");
+
 const SECRET_TOKEN = process.env.SECRET_TOKEN;
 
-const FILES = {
-  anatomy_lab: [3],
-  anatomy_pdf: [],
-  anatomy_recordings: []
-};
+function inlineKeyboard(rows) {
+  return { inline_keyboard: rows };
+}
 
-async function telegram(method, data = {}) {
-  if (!BOT_TOKEN) {
-    console.error("BOT_TOKEN is missing in Environment Variables");
-    return { ok: false, error: "BOT_TOKEN is missing" };
+function chunkButtons(items, perRow = 2) {
+  const rows = [];
+  for (let i = 0; i < items.length; i += perRow) rows.push(items.slice(i, i + perRow));
+  return rows;
+}
+
+function uniqueBy(items, keyField, labelField) {
+  const map = new Map();
+  for (const item of items) {
+    const key = item[keyField];
+    if (key && !map.has(key)) map.set(key, { key, label: item[labelField] });
   }
+  return [...map.values()];
+}
 
-  const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
-
-  const result = await response.json();
-
-  if (!result.ok) {
-    console.error("Telegram API Error:", result);
+async function getActiveFiles(filters = {}) {
+  const parts = ["is_active=eq.true", "select=*", "order=sort_order.asc", "order=id.asc"];
+  for (const [key, value] of Object.entries(filters)) {
+    if (value) parts.push(`${key}=eq.${encodeURIComponent(value)}`);
   }
-
-  return result;
+  return supabase(`bot_files?${parts.join("&")}`, { method: "GET" });
 }
 
-function replyKeyboard(rows) {
-  return {
-    keyboard: rows.map(row => row.map(text => ({ text }))),
-    resize_keyboard: true,
-    one_time_keyboard: false
-  };
-}
-
-async function sendText(chatId, text) {
-  return telegram("sendMessage", {
-    chat_id: chatId,
-    text
-  });
-}
-
-async function sendMenu(chatId, text, rows) {
+async function sendText(chatId, text, replyMarkup = null) {
   return telegram("sendMessage", {
     chat_id: chatId,
     text,
-    reply_markup: replyKeyboard(rows)
+    reply_markup: replyMarkup || undefined
   });
 }
 
-async function sendFiles(chatId, fileKey) {
-  const messageIds = FILES[fileKey] || [];
+async function editText(chatId, messageId, text, replyMarkup = null) {
+  return telegram("editMessageText", {
+    chat_id: chatId,
+    message_id: messageId,
+    text,
+    reply_markup: replyMarkup || undefined
+  });
+}
 
-  if (!CHANNEL_ID) {
-    await sendText(chatId, "خطأ: لم يتم ضبط CHANNEL_ID في Vercel.");
-    return;
+async function showYears(chatId, messageId = null) {
+  const files = await getActiveFiles();
+  const years = uniqueBy(files, "year_key", "year_label");
+
+  const rows = chunkButtons(
+    years.map(y => ({ text: y.label, callback_data: `year:${y.key}` })),
+    2
+  );
+
+  const text = "مرحباً بك دكتور/ة 👋\n\nبوت اللجنة العلمية - جامعة العلوم والتكنولوجيا - الطب البشري.\n\nاختر السنة 👇";
+  const markup = inlineKeyboard(rows.length ? rows : [[{ text: "لا توجد ملفات حالياً", callback_data: "noop" }]]);
+
+  if (messageId) return editText(chatId, messageId, text, markup);
+  return sendText(chatId, text, markup);
+}
+
+async function showTerms(chatId, messageId, yearKey) {
+  const files = await getActiveFiles({ year_key: yearKey });
+  const terms = uniqueBy(files, "term_key", "term_label");
+
+  const rows = chunkButtons(
+    terms.map(t => ({ text: t.label, callback_data: `term:${yearKey}:${t.key}` })),
+    2
+  );
+  rows.push([{ text: "⬅️ رجوع للرئيسية", callback_data: "home" }]);
+
+  return editText(chatId, messageId, "اختر الترم 👇", inlineKeyboard(rows));
+}
+
+async function showSubjects(chatId, messageId, yearKey, termKey) {
+  const files = await getActiveFiles({ year_key: yearKey, term_key: termKey });
+  const subjects = uniqueBy(files, "subject_key", "subject_label");
+
+  const rows = chunkButtons(
+    subjects.map(s => ({ text: s.label, callback_data: `subject:${yearKey}:${termKey}:${s.key}` })),
+    2
+  );
+  rows.push([{ text: "⬅️ رجوع", callback_data: `year:${yearKey}` }, { text: "🏠 الرئيسية", callback_data: "home" }]);
+
+  return editText(chatId, messageId, "اختر المادة 👇", inlineKeyboard(rows));
+}
+
+async function showSections(chatId, messageId, yearKey, termKey, subjectKey) {
+  const files = await getActiveFiles({ year_key: yearKey, term_key: termKey, subject_key: subjectKey });
+  const sections = uniqueBy(files, "section_key", "section_label");
+
+  const rows = chunkButtons(
+    sections.map(s => ({ text: s.label, callback_data: `files:${yearKey}:${termKey}:${subjectKey}:${s.key}` })),
+    2
+  );
+  rows.push([{ text: "⬅️ رجوع", callback_data: `term:${yearKey}:${termKey}` }, { text: "🏠 الرئيسية", callback_data: "home" }]);
+
+  return editText(chatId, messageId, "اختر القسم 👇", inlineKeyboard(rows));
+}
+
+async function sendFiles(chatId, yearKey, termKey, subjectKey, sectionKey) {
+  const files = await getActiveFiles({
+    year_key: yearKey,
+    term_key: termKey,
+    subject_key: subjectKey,
+    section_key: sectionKey
+  });
+
+  if (!files.length) {
+    return sendText(chatId, "لا توجد ملفات حالياً في هذا القسم.");
   }
 
-  if (messageIds.length === 0) {
-    await sendText(chatId, "لا توجد ملفات حالياً في هذا القسم.");
-    return;
-  }
+  await sendText(chatId, `جاري إرسال ${files.length} ملف/رسالة...`);
 
-  await sendText(chatId, "جاري إرسال الملفات...");
-
-  for (const messageId of messageIds) {
+  for (const file of files) {
     await telegram("copyMessage", {
       chat_id: chatId,
-      from_chat_id: CHANNEL_ID,
-      message_id: messageId,
+      from_chat_id: file.channel_id,
+      message_id: file.message_id,
       protect_content: false
     });
   }
@@ -81,65 +127,33 @@ async function sendFiles(chatId, fileKey) {
 
 async function handleMessage(message) {
   const chatId = message.chat.id;
-  const text = message.text;
+  const text = message.text || "";
 
-  if (!text) return;
-
-  if (text === "/start" || text === "رجوع للرئيسية") {
-    await sendMenu(
-      chatId,
-      "مرحباً بك دكتور/ة 👋\n\nأهلاً بك في بوت اللجنة العلمية - جامعة العلوم والتكنولوجيا - الطب البشري.\n\nاختر السنة من القائمة بالأسفل 👇",
-      [
-        ["1st year 🔴", "2nd year 🟠"],
-        ["3rd year 🟡", "4th year 🟢"],
-        ["5th year 🔵", "6th year 🟣"]
-      ]
-    );
+  if (text === "/start" || text === "start" || text === "رجوع للرئيسية") {
+    await showYears(chatId);
     return;
   }
 
-  if (text === "1st year 🔴") {
-    await sendMenu(chatId, "اختر الترم:", [
-      ["ترم اول", "ترم ثاني"],
-      ["رجوع للرئيسية"]
-    ]);
-    return;
-  }
+  await sendText(chatId, "اضغط /start لفتح قائمة البوت 👇");
+}
 
-  if (text === "ترم اول") {
-    await sendMenu(chatId, "اختر المادة:", [
-      ["anatomy", "physiology"],
-      ["histology", "biochemistry"],
-      ["رجوع للرئيسية"]
-    ]);
-    return;
-  }
+async function handleCallback(callbackQuery) {
+  const data = callbackQuery.data || "";
+  const chatId = callbackQuery.message.chat.id;
+  const messageId = callbackQuery.message.message_id;
 
-  if (text === "anatomy") {
-    await sendMenu(chatId, "اختر القسم:", [
-      ["Lab 🔬", "PDF 📚"],
-      ["Recordings 🎧"],
-      ["رجوع للرئيسية"]
-    ]);
-    return;
-  }
+  await telegram("answerCallbackQuery", { callback_query_id: callbackQuery.id });
 
-  if (text === "Lab 🔬") {
-    await sendFiles(chatId, "anatomy_lab");
-    return;
-  }
+  if (data === "noop") return;
+  if (data === "home") return showYears(chatId, messageId);
 
-  if (text === "PDF 📚") {
-    await sendFiles(chatId, "anatomy_pdf");
-    return;
-  }
+  const parts = data.split(":");
+  const action = parts[0];
 
-  if (text === "Recordings 🎧") {
-    await sendFiles(chatId, "anatomy_recordings");
-    return;
-  }
-
-  await sendText(chatId, "اختر من الأزرار بالأسفل 👇");
+  if (action === "year") return showTerms(chatId, messageId, parts[1]);
+  if (action === "term") return showSubjects(chatId, messageId, parts[1], parts[2]);
+  if (action === "subject") return showSections(chatId, messageId, parts[1], parts[2], parts[3]);
+  if (action === "files") return sendFiles(chatId, parts[1], parts[2], parts[3], parts[4]);
 }
 
 module.exports = async function handler(req, res) {
@@ -160,17 +174,12 @@ module.exports = async function handler(req, res) {
 
     const update = req.body;
 
-    if (update.message) {
-      await handleMessage(update.message);
-    }
+    if (update.message) await handleMessage(update.message);
+    if (update.callback_query) await handleCallback(update.callback_query);
 
     return res.status(200).json({ ok: true });
   } catch (error) {
     console.error("Webhook Error:", error);
-
-    return res.status(200).json({
-      ok: false,
-      error: error.message
-    });
+    return res.status(200).json({ ok: false, error: error.message });
   }
-};
+}
