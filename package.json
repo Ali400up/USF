@@ -1,0 +1,9 @@
+{
+  "name": "ust-medical-committee-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot for UST Medical Committee using Vercel Webhook",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}
