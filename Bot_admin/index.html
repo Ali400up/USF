@@ -1,16 +1,101 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B5ED7" />
   <title>لوحة تحكم بوت اللجنة العلمية المركزية</title>
-  <meta name="theme-color" content="#0b4fd8" />
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css" />
   <link rel="stylesheet" href="./app.css" />
 </head>
 <body>
-  <div id="app"></div>
+  <div class="bg-orb"><span></span><span></span><span></span></div>
+
+  <div id="loginWrap" class="login-wrap">
+    <form id="loginForm" class="login-card">
+      <div class="login-icon"><i class="fa-solid fa-robot"></i></div>
+      <p class="eyebrow">Central Scientific Committee</p>
+      <h1>لوحة تحكم بوت اللجنة العلمية المركزية</h1>
+      <p>لوحة مرنة لإدارة البوت بدون تقييد بسنة أو مادة. أنشئ أي قائمة، أي قسم، أي مادة، وأضف PDF أو فيديو أو تسجيل أو رابط أو نص.</p>
+      <div class="danger-note"><i class="fa-solid fa-shield-halved"></i> أدخل كلمة ADMIN_PASSWORD الموجودة في Vercel.</div>
+      <div class="field">
+        <label>كلمة سر الأدمن</label>
+        <div class="input-icon">
+          <i class="fa-solid fa-lock"></i>
+          <input id="password" type="password" required placeholder="ADMIN_PASSWORD" autocomplete="current-password" />
+        </div>
+      </div>
+      <button class="btn btn-primary full-btn" type="submit"><i class="fa-solid fa-right-to-bracket"></i> دخول اللوحة</button>
+    </form>
+  </div>
+
+  <div class="app hidden" id="app">
+    <header class="topbar">
+      <div class="container top-inner">
+        <div class="brand">
+          <div class="brand-icon"><i class="fa-solid fa-gauge-high"></i></div>
+          <div>
+            <h1>إدارة بوت اللجنة العلمية المركزية</h1>
+            <p id="statusLine">جاهز لإدارة محتوى البوت</p>
+          </div>
+        </div>
+        <div class="top-actions">
+          <a class="btn btn-soft" href="/api/webhook" target="_blank"><i class="fa-solid fa-heart-pulse"></i> Webhook</a>
+          <button class="btn btn-soft" id="themeBtn" type="button"><i class="fa-solid fa-moon"></i></button>
+          <button class="btn btn-danger" id="logoutBtn" type="button"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="container layout">
+      <aside class="sidebar">
+        <div class="mobile-tabs-head">
+          <strong><i class="fa-solid fa-table-list"></i> أقسام اللوحة</strong>
+          <button class="btn btn-soft" id="reloadAllBtn" type="button"><i class="fa-solid fa-rotate"></i></button>
+        </div>
+        <div class="tabs" id="tabs"></div>
+      </aside>
+
+      <main class="panel">
+        <section class="hero">
+          <div>
+            <p class="eyebrow">نظام مرن بدون قيود</p>
+            <h2>اصنع مسار البوت كما تريد</h2>
+            <p>أضف قوائم رئيسية، مواد، مستويات، أقسام، فيديوهات، تسجيلات، ملفات، روابط، نصوص، أو أي محتوى مخصص.</p>
+          </div>
+          <div class="hero-badge"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        </section>
+
+        <section class="stats-grid" id="statsGrid"></section>
+
+        <section class="card" id="viewCard">
+          <div class="section-head">
+            <div>
+              <h2 id="viewTitle">الرئيسية</h2>
+              <p id="viewDesc">نظرة عامة على البوت.</p>
+            </div>
+            <div class="head-actions" id="viewActions"></div>
+          </div>
+          <div id="viewBody"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal" id="modal">
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 id="modalTitle">...</h3>
+        <button id="modalClose" type="button" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
   <script src="./app.js"></script>
 </body>
 </html>
