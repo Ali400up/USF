@@ -6,7 +6,7 @@ const SECRET_TOKEN = process.env.SECRET_TOKEN;
 // مثال: إذا رابط الملف https://t.me/c/1234567890/25
 // فإن message_id هو 25
 const FILES = {
-  anatomy_lab: [25, 26, 27],
+  anatomy_lab: [2,3],
   anatomy_pdf: [],
   anatomy_recordings: []
 };
