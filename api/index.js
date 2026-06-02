@@ -1,14 +1,14 @@
 module.exports = async function handler(req, res) {
   return res.status(200).json({
     ok: true,
-    message: "UST Central Scientific Committee Bot API is working",
+    name: 'UST Central Scientific Committee Bot API',
     routes: [
-      "/api/webhook",
-      "/api/admin/health",
-      "/api/admin/channels",
-      "/api/admin/catalogs",
-      "/api/admin/contents",
-      "/api/admin/stats"
+      '/api/webhook',
+      '/api/admin/health',
+      '/api/admin/auth',
+      '/api/admin/channels',
+      '/api/admin/files',
+      '/api/admin/stats'
     ]
   });
 };
