@@ -1,498 +1,253 @@
-const KEY = "UST_CENTRAL_SCIENTIFIC_ADMIN_PASSWORD";
-const app = document.getElementById("app");
+// public/admin/app.js
+// لوحة تحكم بوت اللجنة العلمية المركزية - Frontend فقط
+
+const STORE_KEY = 'UST_CENTRAL_BOT_ADMIN_PASSWORD';
+const API = {
+  auth: '/api/admin/auth',
+  health: '/api/admin/health',
+  stats: '/api/admin/stats',
+  lists: '/api/admin/lists',
+  channels: '/api/admin/channels',
+  deleteChannel: '/api/admin/delete-channel',
+  files: '/api/admin/files',
+  addFile: '/api/admin/add-file',
+  updateFile: '/api/admin/update-file',
+  toggleFile: '/api/admin/toggle-file',
+  deleteFile: '/api/admin/delete-file',
+  users: '/api/admin/users',
+  seed: '/api/admin/seed',
+  sendTest: '/api/admin/send-test'
+};
 
 const state = {
-  password: localStorage.getItem(KEY) || "",
-  view: "dashboard",
+  password: localStorage.getItem(STORE_KEY) || '',
+  view: 'dashboard',
   channels: [],
-  catalogs: [],
-  contents: [],
-  stats: null,
-  logs: [],
+  files: [],
   users: [],
-  query: "",
-  filters: { year_name: "", term_name: "", subject_name: "", section_name: "", content_type: "" },
-  editingContent: null,
-  editingChannel: null,
-  editingCatalog: null
+  stats: null,
+  lists: { years: [], terms: [], subjects: [], sections: [], content_types: [] },
+  filters: { q: '', year: '', subject: '', type: '' }
 };
 
-const viewTitles = {
-  dashboard: "الرئيسية",
-  channels: "القنوات",
-  structure: "هيكل البوت",
-  contents: "المكتبة والمحتوى",
-  add: "إضافة محتوى",
-  tools: "الأدوات"
-};
+const app = document.getElementById('app');
 
-const catalogTypes = {
-  year: "سنة / مستوى",
-  term: "ترم",
-  subject: "مادة",
-  section: "قسم",
-  content_type: "نوع محتوى",
-  tag: "وسم"
-};
-
-const icons = {
-  dashboard: "fa-chart-pie",
-  channels: "fa-tower-broadcast",
-  structure: "fa-sitemap",
-  contents: "fa-folder-open",
-  add: "fa-cloud-arrow-up",
-  tools: "fa-wand-magic-sparkles"
-};
-
-function fa(name){ return `<i class="fa-solid ${name.startsWith("fa-") ? name : `fa-${name}`}"></i>`; }
-function safe(v){ return String(v ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
-function asArray(v){ return Array.isArray(v) ? v : []; }
-function unique(arr){ return [...new Set(arr.filter(Boolean))]; }
-function setView(view){ state.view = view; renderShell(); }
-window.setView = setView;
-
-function toast(message, type="info"){
-  let box = document.querySelector(".toast-box");
-  if(!box){ box = document.createElement("div"); box.className = "toast-box"; document.body.appendChild(box); }
-  const el = document.createElement("div");
-  el.className = `toast ${type}`;
-  el.innerHTML = `${fa(type === "error" ? "triangle-exclamation" : type === "success" ? "circle-check" : "circle-info")} <span>${safe(message)}</span>`;
+function i(name){ return `<i class="fa-solid fa-${name}"></i>`; }
+function esc(v){ return String(v ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
+function toast(message, type='info'){
+  let box = document.querySelector('.toast-box');
+  if(!box){ box=document.createElement('div'); box.className='toast-box'; document.body.appendChild(box); }
+  const el=document.createElement('div'); el.className=`toast ${type}`;
+  el.innerHTML=`${i(type==='success'?'circle-check':type==='error'?'triangle-exclamation':'circle-info')}<span>${esc(message)}</span>`;
   box.appendChild(el);
-  setTimeout(()=>{ el.style.opacity = "0"; el.style.transform = "translateY(16px)"; setTimeout(()=>el.remove(),250); }, 3600);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateY(14px)'; setTimeout(()=>el.remove(),260); },3600);
 }
 
-async function api(url, options={}){
-  const response = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      "x-admin-password": state.password || localStorage.getItem(KEY) || "",
-      ...(options.headers || {})
-    }
-  });
+async function apiFetch(url, options={}){
+  const password = localStorage.getItem(STORE_KEY) || state.password || '';
+  const headers = { 'Content-Type':'application/json', 'x-admin-password': password, ...(options.headers || {}) };
+  const response = await fetch(url, { ...options, headers });
   const data = await response.json().catch(()=>null);
-  if(response.status === 401){ localStorage.removeItem(KEY); state.password = ""; renderLogin(); throw new Error(data?.message || "كلمة السر غير صحيحة"); }
-  if(!response.ok || data?.ok === false){ throw new Error(data?.message || data?.error || "فشل الطلب"); }
+  if(response.status === 401){ throw new Error('Unauthorized: كلمة السر غير صحيحة أو ADMIN_PASSWORD غير مضبوط في Vercel'); }
+  if(!response.ok){ throw new Error(data?.message || data?.error || 'حدث خطأ في الطلب'); }
   return data;
 }
 
-async function loadAll(){
-  const [channels, catalogs, contents, stats] = await Promise.all([
-    api("/api/admin/channels"),
-    api("/api/admin/catalogs"),
-    api("/api/admin/contents"),
-    api("/api/admin/stats")
-  ]);
-  state.channels = channels.channels || [];
-  state.catalogs = catalogs.catalogs || [];
-  state.contents = contents.contents || contents.files || [];
-  state.stats = stats.stats || null;
-  state.logs = stats.recentLogs || [];
-  state.users = stats.recentUsers || [];
-}
+function setView(view){ state.view=view; renderShell(); }
+window.setView = setView;
 
 function renderLogin(){
-  document.body.classList.remove("menu-open");
   app.innerHTML = `
-    <main class="login-page">
+    <main class="login-screen">
+      <div class="orb orb-1"></div><div class="orb orb-2"></div>
       <section class="login-card">
-        <div class="brand-icon">${fa("staff-snake")}</div>
+        <div class="logo-badge">${i('robot')}</div>
         <p class="eyebrow">بوت اللجنة العلمية المركزية</p>
-        <h1>لوحة تحكم Telegram</h1>
-        <p>بنفس روح تصميم موقع ملتقى الطالب الجامعي: أزرق، زجاجي، متجاوب، ومخصص لإدارة مواد وأقسام وفيديوهات وملفات البوت.</p>
-        <form id="loginForm" class="login-form">
-          <label>كلمة سر المدير</label>
-          <div class="field">
-            ${fa("lock")}
-            <input id="password" type="password" placeholder="ADMIN_PASSWORD" autocomplete="current-password" required>
-          </div>
-          <button class="primary-btn" type="submit">${fa("right-to-bracket")} دخول اللوحة</button>
+        <h1>لوحة التحكم</h1>
+        <p class="muted">أدخل كلمة السر الموجودة في Vercel باسم <b>ADMIN_PASSWORD</b>. لا تكتب توكن البوت هنا.</p>
+        <form id="loginForm">
+          <div class="field"><label>كلمة السر</label><div class="control">${i('lock')}<input id="passwordInput" type="password" placeholder="ADMIN_PASSWORD" required /></div></div>
+          <button class="primary-btn" style="width:100%" type="submit">${i('right-to-bracket')} دخول</button>
         </form>
-        <p class="muted" style="margin-top:14px">الكلمة يجب أن تطابق Environment Variable باسم ADMIN_PASSWORD في Vercel.</p>
+        <p class="muted" style="font-size:13px;margin-top:14px">إذا ظهر Unauthorized: تأكد من ADMIN_PASSWORD ثم Redeploy.</p>
       </section>
     </main>`;
-  document.getElementById("loginForm").addEventListener("submit", async e=>{
+  document.getElementById('loginForm').addEventListener('submit', async (e)=>{
     e.preventDefault();
-    const password = document.getElementById("password").value.trim();
-    if(!password) return toast("اكتب كلمة السر", "error");
-    state.password = password;
-    localStorage.setItem(KEY, password);
+    const pass = document.getElementById('passwordInput').value.trim();
+    state.password = pass;
+    localStorage.setItem(STORE_KEY, pass);
     try{
+      await apiFetch(API.auth);
+      toast('تم تسجيل الدخول بنجاح','success');
       await loadAll();
-      toast("تم تسجيل الدخول", "success");
       renderShell();
-    }catch(err){ toast(err.message, "error"); }
+    }catch(err){ localStorage.removeItem(STORE_KEY); toast(err.message,'error'); }
   });
 }
 
-function navButton(view){
-  return `<button class="nav-btn ${state.view===view?'active':''}" onclick="setView('${view}')">${fa(icons[view])}<span>${viewTitles[view]}</span></button>`;
-}
-function bottomButton(view){ return `<button class="${state.view===view?'active':''}" onclick="setView('${view}')">${fa(icons[view])}<span>${viewTitles[view].split(' ')[0]}</span></button>`; }
-
 function renderShell(){
   app.innerHTML = `
-    <main class="shell">
+    <main class="admin-shell">
       <aside class="sidebar">
-        <div class="brand">
-          <div class="brand-logo">${fa("user-doctor")}</div>
-          <div><h2>اللجنة العلمية</h2><span>Central Scientific Bot</span></div>
-        </div>
-        <nav class="nav">
-          ${["dashboard","channels","structure","contents","add","tools"].map(navButton).join("")}
-        </nav>
-        <div class="side-footer">
-          <button class="soft-btn" id="seedBtn">${fa("wand-magic-sparkles")} بيانات تجربة</button>
-          <button class="danger-btn" id="logoutBtn">${fa("right-from-bracket")} خروج</button>
-        </div>
+        <div class="brand"><div class="brand-icon">${i('graduation-cap')}</div><div><h2>اللجنة العلمية</h2><p>Central Scientific Bot</p></div></div>
+        <nav class="nav">${navButtons()}</nav>
+        <div class="sidebar-footer"><button class="ghost-btn" onclick="checkHealth()">${i('heart-pulse')} فحص النظام</button><button class="danger-btn" onclick="logout()">${i('right-from-bracket')} خروج</button></div>
       </aside>
       <section class="content">
-        <header class="topbar">
-          <button class="icon-btn" id="menuBtn">${fa("bars-staggered")}</button>
-          <div>
-            <p class="eyebrow">لوحة تحكم بوت اللجنة العلمية المركزية</p>
-            <h1>${viewTitles[state.view]}</h1>
-          </div>
-          <div class="top-actions">
-            <label class="search">
-              ${fa("magnifying-glass")}
-              <input id="globalSearch" type="search" placeholder="بحث داخل المواد والقنوات والمحتوى..." value="${safe(state.query)}">
-            </label>
-            <button class="icon-btn" id="refreshBtn" title="تحديث">${fa("rotate")}</button>
-            <button class="icon-btn" id="healthBtn" title="فحص النظام">${fa("heart-pulse")}</button>
-          </div>
-        </header>
-        <div id="viewRoot"></div>
+        <header class="topbar"><div><p class="eyebrow">لوحة تحكم بوت تليجرام</p><h1>${title()}</h1></div><div class="top-actions"><button class="soft-btn" onclick="refreshAll()">${i('rotate')} تحديث</button><button class="primary-btn" onclick="setView('add')">${i('plus')} إضافة محتوى</button></div></header>
+        <section id="view"></section>
       </section>
-      <nav class="mobile-bottom">
-        ${["dashboard","channels","structure","contents","add"].map(bottomButton).join("")}
-      </nav>
+      <nav class="mobile-nav">${mobileButtons()}</nav>
     </main>`;
-  document.getElementById("menuBtn").onclick = ()=>document.body.classList.toggle("menu-open");
-  document.getElementById("logoutBtn").onclick = ()=>{ localStorage.removeItem(KEY); state.password=""; renderLogin(); };
-  document.getElementById("refreshBtn").onclick = async()=>{ await loadAll(); renderShell(); toast("تم تحديث البيانات", "success"); };
-  document.getElementById("healthBtn").onclick = checkHealth;
-  document.getElementById("seedBtn").onclick = seedData;
-  const search = document.getElementById("globalSearch");
-  if(search) search.oninput = e=>{ state.query = e.target.value; renderViewOnly(); };
-  renderViewOnly();
+  renderView();
 }
 
-function renderViewOnly(){
-  const root = document.getElementById("viewRoot");
-  if(!root) return;
-  if(state.view === "dashboard") root.innerHTML = dashboardView();
-  if(state.view === "channels") { root.innerHTML = channelsView(); bindChannels(); }
-  if(state.view === "structure") { root.innerHTML = structureView(); bindStructure(); }
-  if(state.view === "contents") { root.innerHTML = contentsView(); bindContents(); }
-  if(state.view === "add") { root.innerHTML = addContentView(); bindContentForm(); }
-  if(state.view === "tools") { root.innerHTML = toolsView(); bindTools(); }
+function navButtons(){
+  const items=[['dashboard','chart-line','الرئيسية'],['channels','tower-broadcast','القنوات'],['files','folder-open','المحتوى'],['add','plus','إضافة'],['users','users','الطلاب']];
+  return items.map(([v,ic,t])=>`<button class="${state.view===v?'active':''}" onclick="setView('${v}')">${i(ic)} ${t}</button>`).join('');
+}
+function mobileButtons(){
+  const items=[['dashboard','chart-line','الرئيسية'],['channels','tower-broadcast','القنوات'],['files','folder-open','المحتوى'],['add','plus','إضافة'],['users','users','الطلاب']];
+  return items.map(([v,ic,t])=>`<button class="${state.view===v?'active':''}" onclick="setView('${v}')">${i(ic)}<br>${t}</button>`).join('');
+}
+function title(){ return ({dashboard:'الرئيسية',channels:'إدارة القنوات',files:'المحتوى والملفات',add:'إضافة محتوى جديد',users:'مستخدمي البوت'}[state.view] || 'لوحة التحكم'); }
+
+function renderView(){
+  const view = document.getElementById('view');
+  if(state.view==='dashboard') return renderDashboard(view);
+  if(state.view==='channels') return renderChannels(view);
+  if(state.view==='files') return renderFiles(view);
+  if(state.view==='add') return renderAdd(view);
+  if(state.view==='users') return renderUsers(view);
 }
 
-function dashboardView(){
+function renderDashboard(view){
   const s = state.stats || {};
-  return `
-    <section class="hero">
-      <div>
-        <p class="eyebrow" style="color:#EAF6FF">UST Medical Committee</p>
-        <h2>لوحة بوت اللجنة العلمية المركزية</h2>
-        <p>أدر القنوات، السنوات، المواد، الأقسام، الفيديوهات، الملخصات، التسجيلات، الروابط، وأي محتوى آخر من لوحة واحدة بتصميم قريب من موقع الملتقى.</p>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;justify-content:flex-start">
-          <button class="primary-btn" onclick="setView('add')">${fa("plus")} إضافة محتوى الآن</button>
-          <button class="soft-btn" style="background:rgba(255,255,255,.22);color:white;border-color:rgba(255,255,255,.26)" onclick="setView('structure')">${fa("sitemap")} إدارة الهيكل</button>
-        </div>
-      </div>
-      <div class="hero-mark">${fa("robot")}</div>
-    </section>
-    <section class="stats">
-      ${statCard("tower-broadcast", s.channels || state.channels.length, "القنوات")}
-      ${statCard("book-medical", s.subjects || 0, "المواد")}
-      ${statCard("folder-open", s.contents || state.contents.length, "المحتوى")}
-      ${statCard("circle-check", s.activeContents || 0, "المفعل")}
-    </section>
-    <section class="grid-2">
-      <div class="panel-card">
-        <div class="panel-title"><h2>${fa("clock-rotate-left")} آخر نشاط</h2></div>
-        <div class="list">${state.logs.length ? state.logs.slice(0,8).map(log=>`
-          <div class="item"><div class="item-icon">${fa("bolt")}</div><div><h3>${safe(log.action)}</h3><p>${safe(JSON.stringify(log.details || {})).slice(0,110)}</p></div><span class="badge good">${new Date(log.created_at).toLocaleTimeString('ar')}</span></div>
-        `).join("") : `<p class="empty">لا يوجد نشاط بعد.</p>`}</div>
-      </div>
-      <div class="panel-card">
-        <div class="panel-title"><h2>${fa("users")} آخر الطلاب</h2></div>
-        <div class="list">${state.users.length ? state.users.slice(0,8).map(user=>`
-          <div class="item"><div class="item-icon">${fa("user")}</div><div><h3>${safe((user.first_name || '') + ' ' + (user.last_name || ''))}</h3><p>@${safe(user.username || 'بدون username')} - ${safe(user.chat_id)}</p></div></div>
-        `).join("") : `<p class="empty">لا يوجد طلاب بعد.</p>`}</div>
-      </div>
-    </section>`;
+  view.innerHTML = `
+    <div class="hero">
+      <div class="hero-card"><p class="eyebrow" style="color:white">نظام إدارة محتوى البوت</p><h2>تحكم كامل بمحتوى اللجنة العلمية المركزية</h2><p>أضف سنوات، ترمات، مواد، أقسام، PDF، فيديوهات، تسجيلات، روابط، نصوص، وكل شيء يظهر في بوت تليجرام مباشرة من Supabase.</p><div class="hero-actions"><button class="ghost-btn" onclick="setView('add')">${i('sparkles')} أضف محتوى</button><button class="ghost-btn" onclick="checkHealth()">${i('heart-pulse')} فحص النظام</button></div></div>
+      <div class="panel"><div class="panel-title"><h2>${i('bolt')} إجراءات سريعة</h2></div><div class="list"><button class="primary-btn" onclick="seedDemo()">${i('wand-magic-sparkles')} إضافة بيانات تجربة</button><button class="soft-btn" onclick="exportFiles()">${i('download')} تصدير JSON</button><button class="soft-btn" onclick="copyWebhook()">${i('link')} نسخ رابط Webhook</button></div></div>
+    </div>
+    <div class="stats-grid" style="margin-top:18px">
+      ${stat('tower-broadcast', s.channels || 0, 'القنوات')}
+      ${stat('folder-open', s.files || 0, 'كل المحتوى')}
+      ${stat('circle-check', s.active_files || 0, 'مفعل')}
+      ${stat('users', s.users || 0, 'طلاب استخدموا البوت')}
+      ${stat('calendar-days', s.years || 0, 'سنوات')}
+      ${stat('book-medical', s.subjects || 0, 'مواد')}
+      ${stat('layer-group', s.sections || 0, 'أقسام')}
+      ${stat('eye', s.views || 0, 'مشاهدات')}
+    </div>`;
 }
+function stat(ic,num,label){ return `<div class="stat">${i(ic)}<h3>${num}</h3><p>${label}</p></div>`; }
 
-function statCard(icon, value, label){ return `<div class="stat-card"><span>${fa(icon)}</span><h3>${safe(value)}</h3><p>${safe(label)}</p></div>`; }
-
-function channelsView(){
-  const list = filterGlobal(state.channels, ["title","channel_id","username","category","notes"]);
-  return `
-    <section class="grid-2">
-      <form class="panel-card form-card" id="channelForm">
-        <div class="panel-title"><h2>${fa("tower-broadcast")} ${state.editingChannel ? 'تعديل قناة' : 'إضافة قناة'}</h2></div>
-        <input type="hidden" name="id" value="${safe(state.editingChannel?.id || '')}">
-        <label>اسم القناة</label><input name="title" required placeholder="قناة السنة الأولى" value="${safe(state.editingChannel?.title || '')}">
-        <label>Channel ID</label><input name="channel_id" required placeholder="-1003917305732" value="${safe(state.editingChannel?.channel_id || '')}">
-        <div class="form-grid">
-          <div><label>Username</label><input name="username" placeholder="@channel" value="${safe(state.editingChannel?.username || '')}"></div>
-          <div><label>التصنيف</label><input name="category" placeholder="main / videos / pdf" value="${safe(state.editingChannel?.category || 'main')}"></div>
-          <div><label>الأيقونة</label><input name="icon" value="${safe(state.editingChannel?.icon || 'fa-solid fa-tower-broadcast')}"></div>
-          <div><label>اللون</label><input name="color" type="color" value="${safe(state.editingChannel?.color || '#0B5ED7')}"></div>
-        </div>
-        <label>ملاحظات</label><textarea name="notes" placeholder="اختياري">${safe(state.editingChannel?.notes || '')}</textarea>
-        <button class="primary-btn" type="submit">${fa("floppy-disk")} حفظ القناة</button>
-        ${state.editingChannel ? `<button class="soft-btn" type="button" id="cancelChannel">إلغاء التعديل</button>` : ''}
+function renderChannels(view){
+  view.innerHTML = `
+    <div class="split">
+      <form class="panel" id="channelForm"><div class="panel-title"><h2>${i('tower-broadcast')} إضافة قناة</h2></div>
+        <div class="field"><label>اسم القناة</label><input name="title" placeholder="قناة ملفات السنة الأولى" required></div>
+        <div class="field"><label>Channel ID</label><input name="channel_id" placeholder="-1003917305732" required></div>
+        <div class="field"><label>Username اختياري</label><input name="username" placeholder="@channel"></div>
+        <div class="field"><label>ملاحظات</label><textarea name="notes" rows="3" placeholder="هذه القناة خاصة بمادة..."></textarea></div>
+        <button class="primary-btn" type="submit">${i('floppy-disk')} حفظ القناة</button>
       </form>
-      <div class="panel-card">
-        <div class="panel-title"><h2>${fa("list")} القنوات الحالية</h2><span class="badge good">${list.length}</span></div>
-        <div class="list">${list.length ? list.map(ch=>`
-          <div class="item">
-            <div class="item-icon" style="background:${safe(ch.color || '#0B5ED7')}"><i class="${safe(ch.icon || 'fa-solid fa-tower-broadcast')}"></i></div>
-            <div><h3>${safe(ch.title)}</h3><p>${safe(ch.channel_id)} ${ch.username ? ' - '+safe(ch.username) : ''}</p><span class="badge ${ch.is_active===false?'bad':'good'}">${ch.is_active===false?'معطلة':'مفعلة'}</span></div>
-            <div class="item-actions"><button class="chip-btn" onclick="editChannel(${ch.id})">${fa("pen")} تعديل</button><button class="chip-btn" onclick="deleteChannel(${ch.id})">${fa("trash")} حذف</button></div>
-          </div>`).join("") : `<p class="empty">لا توجد قنوات بعد.</p>`}</div>
+      <div class="panel"><div class="panel-title"><h2>${i('list')} القنوات الحالية</h2><button class="soft-btn" onclick="refreshAll()">${i('rotate')}</button></div>
+        <div class="list">${state.channels.length ? state.channels.map(channelCard).join('') : '<p class="empty">لا توجد قنوات بعد</p>'}</div>
       </div>
-    </section>`;
+    </div>`;
+  document.getElementById('channelForm').addEventListener('submit', addChannel);
 }
+function channelCard(c){ return `<div class="item"><div><h3>${esc(c.title)}</h3><p>${esc(c.channel_id)} ${c.username?`- ${esc(c.username)}`:''}</p><p>${esc(c.notes||'')}</p></div><button class="icon-btn danger" onclick="deleteChannel(${c.id})">${i('trash')}</button></div>`; }
 
-function structureView(){
-  const grouped = Object.keys(catalogTypes).map(type=>({type, items: filterGlobal(state.catalogs.filter(x=>x.item_type===type), ["name","display_name","notes"])}));
-  return `
-    <section class="grid-2">
-      <form class="panel-card form-card" id="catalogForm">
-        <div class="panel-title"><h2>${fa("sitemap")} ${state.editingCatalog ? 'تعديل عنصر' : 'إضافة للهيكل'}</h2></div>
-        <input type="hidden" name="id" value="${safe(state.editingCatalog?.id || '')}">
-        <div class="form-grid">
-          <div><label>النوع</label><select name="item_type" required>${Object.entries(catalogTypes).map(([k,v])=>`<option value="${k}" ${state.editingCatalog?.item_type===k?'selected':''}>${v}</option>`).join("")}</select></div>
-          <div><label>الاسم الذي يظهر في البوت</label><input name="name" required placeholder="anatomy / PDF 📚" value="${safe(state.editingCatalog?.name || '')}"></div>
-          <div><label>اسم للعرض في اللوحة</label><input name="display_name" placeholder="اختياري" value="${safe(state.editingCatalog?.display_name || '')}"></div>
-          <div><label>تابع لـ</label><input name="parent_name" placeholder="اختياري" value="${safe(state.editingCatalog?.parent_name || '')}"></div>
-          <div><label>أيقونة Font Awesome</label><input name="icon" value="${safe(state.editingCatalog?.icon || 'fa-solid fa-circle-dot')}"></div>
-          <div><label>اللون</label><input name="color" type="color" value="${safe(state.editingCatalog?.color || '#0B5ED7')}"></div>
-          <div><label>الترتيب</label><input name="sort_order" type="number" value="${safe(state.editingCatalog?.sort_order || 0)}"></div>
-        </div>
-        <label>ملاحظات</label><textarea name="notes">${safe(state.editingCatalog?.notes || '')}</textarea>
-        <button class="primary-btn" type="submit">${fa("floppy-disk")} حفظ العنصر</button>
-        ${state.editingCatalog ? `<button class="soft-btn" type="button" id="cancelCatalog">إلغاء التعديل</button>` : ''}
-      </form>
-      <div class="panel-card">
-        <div class="panel-title"><h2>${fa("diagram-project")} عناصر الهيكل</h2></div>
-        <div class="list">${grouped.map(group=>`
-          <div style="display:grid;gap:8px;margin-bottom:14px">
-            <h3 style="font-weight:900;color:var(--primary)">${safe(catalogTypes[group.type])} <span class="badge good">${group.items.length}</span></h3>
-            ${group.items.length ? group.items.map(item=>`
-              <div class="item">
-                <div class="item-icon" style="background:${safe(item.color || '#0B5ED7')}"><i class="${safe(item.icon || 'fa-solid fa-circle-dot')}"></i></div>
-                <div><h3>${safe(item.name)}</h3><p>${safe(item.display_name || '')} ${item.parent_name ? ' - تابع: '+safe(item.parent_name) : ''}</p></div>
-                <div class="item-actions"><button class="chip-btn" onclick="editCatalog(${item.id})">${fa("pen")}</button><button class="chip-btn" onclick="deleteCatalog(${item.id})">${fa("trash")}</button></div>
-              </div>`).join("") : `<p class="muted">لا يوجد.</p>`}
-          </div>`).join("")}</div>
+function renderFiles(view){
+  const files = filteredFiles();
+  view.innerHTML = `
+    <div class="panel">
+      <div class="panel-title"><h2>${i('folder-open')} إدارة المحتوى</h2><button class="primary-btn" onclick="setView('add')">${i('plus')} جديد</button></div>
+      <div class="toolbar">
+        <input id="q" placeholder="بحث..." value="${esc(state.filters.q)}">
+        <select id="yearFilter"><option value="">كل السنوات</option>${options(state.lists.years,state.filters.year)}</select>
+        <select id="subjectFilter"><option value="">كل المواد</option>${options(state.lists.subjects,state.filters.subject)}</select>
+        <select id="typeFilter"><option value="">كل الأنواع</option>${options(['pdf','video','audio','recording','link','text','image','file'],state.filters.type)}</select>
+        <button class="soft-btn" onclick="clearFilters()">${i('broom')} مسح</button>
       </div>
-    </section>`;
+      <div class="table-wrap"><table><thead><tr><th>العنوان</th><th>المسار</th><th>النوع</th><th>القناة/الرسالة</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>${files.length?files.map(fileRow).join(''):'<tr><td class="empty" colspan="6">لا يوجد محتوى</td></tr>'}</tbody></table></div>
+    </div>`;
+  ['q','yearFilter','subjectFilter','typeFilter'].forEach(id=>document.getElementById(id).addEventListener('input', applyFilters));
+}
+function options(arr, selected=''){ return arr.map(x=>`<option value="${esc(x)}" ${x===selected?'selected':''}>${esc(x)}</option>`).join(''); }
+function fileRow(f){
+  const path = [f.year_name,f.term_name,f.subject_name,f.section_name].filter(Boolean).join(' / ');
+  return `<tr><td><b>${f.is_pinned?'📌 ':''}${esc(f.title)}</b><br><small>${esc(f.description||'')}</small></td><td>${esc(path)}</td><td><span class="badge good">${esc(f.content_type||'file')}</span></td><td>${esc(f.channel_id||'')}${f.message_id?`<br>#${f.message_id}`:''}${f.external_url?`<br>🔗 رابط`:''}${f.text_content?`<br>📝 نص`:''}</td><td><span class="badge ${f.is_active===false?'bad':'good'}">${f.is_active===false?'معطل':'مفعل'}</span>${f.is_pinned?'<br><span class="badge pin">مثبت</span>':''}</td><td><div class="row-actions"><button class="icon-btn" onclick="editFile(${f.id})">${i('pen')}</button><button class="icon-btn" onclick="toggleFile(${f.id}, ${f.is_active===false?'true':'false'})">${i(f.is_active===false?'check':'ban')}</button><button class="icon-btn danger" onclick="deleteFile(${f.id})">${i('trash')}</button></div></td></tr>`;
+}
+function filteredFiles(){
+  const q = state.filters.q.toLowerCase();
+  return state.files.filter(f=>{
+    const text = JSON.stringify(f).toLowerCase();
+    return (!q || text.includes(q)) && (!state.filters.year || f.year_name===state.filters.year) && (!state.filters.subject || f.subject_name===state.filters.subject) && (!state.filters.type || f.content_type===state.filters.type);
+  });
+}
+function applyFilters(){ state.filters.q=document.getElementById('q').value.trim(); state.filters.year=document.getElementById('yearFilter').value; state.filters.subject=document.getElementById('subjectFilter').value; state.filters.type=document.getElementById('typeFilter').value; renderFiles(document.getElementById('view')); }
+function clearFilters(){ state.filters={q:'',year:'',subject:'',type:''}; renderShell(); }
+
+function renderAdd(view, file=null){
+  const f = file || {};
+  view.innerHTML = `<form class="panel" id="fileForm"><div class="panel-title"><h2>${i(file?'pen':'plus')} ${file?'تعديل محتوى':'إضافة محتوى جديد'}</h2></div>
+    <div class="form-grid">
+      ${input('title','العنوان','مثال: Lecture 1 Anatomy PDF',f.title,true)}
+      ${select('content_type','نوع المحتوى',['pdf','video','audio','recording','link','text','image','lab','quiz','summary','file'],f.content_type||'pdf')}
+      ${input('year_name','السنة','1st year 🔴',f.year_name,true,'years')}
+      ${input('term_name','الترم','ترم اول',f.term_name,true,'terms')}
+      ${input('subject_name','المادة','anatomy',f.subject_name,true,'subjects')}
+      ${input('section_name','القسم','PDF 📚',f.section_name,true,'sections')}
+      <div class="field"><label>القناة</label><select name="channel_id"><option value="">اختر القناة</option>${state.channels.map(c=>`<option value="${esc(c.channel_id)}" ${c.channel_id===f.channel_id?'selected':''}>${esc(c.title)} - ${esc(c.channel_id)}</option>`).join('')}</select></div>
+      ${input('message_id','Message ID','3',f.message_id||'',false)}
+      ${input('telegram_link','رابط رسالة تليجرام','https://t.me/c/3917305732/3',f.telegram_link||'',false,'', 'full')}
+      ${input('external_url','رابط خارجي اختياري','https://...',f.external_url||'',false,'', 'full')}
+      <div class="field full"><label>النص إذا كان المحتوى نصي</label><textarea name="text_content" rows="4" placeholder="اكتب النص الذي سيرسله البوت">${esc(f.text_content||'')}</textarea></div>
+      <div class="field full"><label>الوصف</label><textarea name="description" rows="3" placeholder="وصف مختصر يظهر للطالب">${esc(f.description||'')}</textarea></div>
+      ${input('tags','وسوم مفصولة بفواصل','anatomy, pdf, مهم',Array.isArray(f.tags)?f.tags.join(', '):(f.tags||''),false,'','full')}
+      ${input('sort_order','الترتيب','0',f.sort_order||0,false)}
+      <div class="field"><label>خيارات</label><div class="item"><label><input type="checkbox" name="is_pinned" ${f.is_pinned?'checked':''}> تثبيت</label><label><input type="checkbox" name="is_active" ${f.is_active===false?'':'checked'}> مفعل</label></div></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px"><button class="primary-btn" type="submit">${i('floppy-disk')} حفظ</button><button type="button" class="soft-btn" onclick="fillTemplate()">${i('wand-magic-sparkles')} تعبئة مثال</button></div>
+    ${datalists()}
+  </form>`;
+  document.getElementById('fileForm').addEventListener('submit', e=>saveFile(e, f.id));
+}
+function input(name,label,placeholder,value='',required=false,list='',cls=''){ return `<div class="field ${cls}"><label>${label}</label><input name="${name}" ${list?`list="dl-${list}"`:''} placeholder="${esc(placeholder)}" value="${esc(value)}" ${required?'required':''}></div>`; }
+function select(name,label,arr,value=''){ return `<div class="field"><label>${label}</label><select name="${name}">${arr.map(x=>`<option value="${esc(x)}" ${x===value?'selected':''}>${esc(x)}</option>`).join('')}</select></div>`; }
+function datalists(){ return ['years','terms','subjects','sections'].map(k=>`<datalist id="dl-${k}">${(state.lists[k]||[]).map(x=>`<option value="${esc(x)}"></option>`).join('')}</datalist>`).join(''); }
+
+function renderUsers(view){
+  view.innerHTML = `<div class="panel"><div class="panel-title"><h2>${i('users')} مستخدمو البوت</h2><button class="soft-btn" onclick="refreshAll()">${i('rotate')}</button></div><div class="table-wrap"><table><thead><tr><th>Chat ID</th><th>الاسم</th><th>Username</th><th>آخر استخدام</th></tr></thead><tbody>${state.users.length?state.users.map(u=>`<tr><td>${u.chat_id}</td><td>${esc([u.first_name,u.last_name].filter(Boolean).join(' '))}</td><td>${u.username?'@'+esc(u.username):''}</td><td>${esc(u.last_seen||'')}</td></tr>`).join(''):'<tr><td colspan="4" class="empty">لا يوجد مستخدمون بعد</td></tr>'}</tbody></table></div></div>`;
 }
 
-function contentsView(){
-  const filtered = getFilteredContents();
-  return `
-    <section class="panel-card">
-      <div class="panel-title"><h2>${fa("folder-open")} مكتبة المحتوى</h2><button class="primary-btn" onclick="setView('add')">${fa("plus")} إضافة</button></div>
-      <div class="filters">
-        ${filterSelect('year_name','السنة')}
-        ${filterSelect('term_name','الترم')}
-        ${filterSelect('subject_name','المادة')}
-        ${filterSelect('section_name','القسم')}
-        ${filterSelect('content_type','النوع')}
-      </div>
-      <div class="table-wrap"><table><thead><tr><th>المحتوى</th><th>المسار</th><th>النوع</th><th>القناة/الرابط</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>
-        ${filtered.length ? filtered.map(item=>contentRow(item)).join("") : `<tr><td colspan="6" class="empty">لا يوجد محتوى مطابق.</td></tr>`}
-      </tbody></table></div>
-    </section>`;
+async function addChannel(e){
+  e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries());
+  try{ await apiFetch(API.channels,{method:'POST',body:JSON.stringify(payload)}); toast('تم حفظ القناة','success'); await loadAll(); renderShell(); }catch(err){ toast(err.message,'error'); }
 }
-
-function contentRow(item){
-  return `<tr>
-    <td><b>${safe(item.title)}</b><br><small class="muted">${safe(item.description || '').slice(0,90)}</small></td>
-    <td>${safe(item.year_name)} / ${safe(item.term_name)}<br>${safe(item.subject_name)} / ${safe(item.section_name)}</td>
-    <td><span class="badge good">${safe(item.content_type)}</span> ${item.is_pinned ? '<span class="badge pin">مثبت</span>' : ''}</td>
-    <td>${safe(item.channel_id || '')} ${item.message_id ? '#'+safe(item.message_id) : ''}<br><small>${safe(item.external_url || '')}</small></td>
-    <td><span class="badge ${item.is_active===false?'bad':'good'}">${item.is_active===false?'معطل':'مفعل'}</span></td>
-    <td><div class="item-actions"><button class="chip-btn" onclick="editContent(${item.id})">${fa("pen")}</button><button class="chip-btn" onclick="toggleContent(${item.id}, ${item.is_active===false})">${item.is_active===false?fa('eye'):fa('eye-slash')}</button><button class="chip-btn" onclick="pinContent(${item.id}, ${!item.is_pinned})">${fa("thumbtack")}</button><button class="chip-btn" onclick="deleteContent(${item.id})">${fa("trash")}</button></div></td>
-  </tr>`;
+async function saveFile(e,id){
+  e.preventDefault(); const fd=new FormData(e.target); const payload=Object.fromEntries(fd.entries()); payload.is_pinned=fd.get('is_pinned')==='on'; payload.is_active=fd.get('is_active')==='on'; if(id) payload.id=id;
+  try{ await apiFetch(id?API.updateFile:API.addFile,{method:'POST',body:JSON.stringify(payload)}); toast('تم حفظ المحتوى','success'); await loadAll(); state.view='files'; renderShell(); }catch(err){ toast(err.message,'error'); }
 }
+async function toggleFile(id,is_active){ try{ await apiFetch(API.toggleFile,{method:'POST',body:JSON.stringify({id,is_active})}); await loadAll(); renderShell(); toast('تم تحديث الحالة','success'); }catch(err){ toast(err.message,'error'); } }
+async function deleteFile(id){ if(!confirm('حذف هذا المحتوى؟')) return; try{ await apiFetch(API.deleteFile,{method:'POST',body:JSON.stringify({id})}); await loadAll(); renderShell(); toast('تم الحذف','success'); }catch(err){ toast(err.message,'error'); } }
+async function deleteChannel(id){ if(!confirm('حذف القناة؟')) return; try{ await apiFetch(API.deleteChannel,{method:'POST',body:JSON.stringify({id})}); await loadAll(); renderShell(); toast('تم حذف القناة','success'); }catch(err){ toast(err.message,'error'); } }
+function editFile(id){ const f=state.files.find(x=>x.id===id); state.view='add'; renderShell(); renderAdd(document.getElementById('view'), f); }
+function fillTemplate(){ const form=document.getElementById('fileForm'); if(!form) return; form.title.value='Lecture 1 - Anatomy PDF'; form.year_name.value='1st year 🔴'; form.term_name.value='ترم اول'; form.subject_name.value='anatomy'; form.section_name.value='PDF 📚'; form.content_type.value='pdf'; form.message_id.value='3'; form.description.value='ملف تجريبي من لوحة التحكم'; }
+async function checkHealth(){ try{ const data=await apiFetch(API.health); console.log(data); toast(data.telegram?.ok && data.supabase?.ok ? 'Telegram و Supabase يعملان' : 'الفحص تم، افتح Console للتفاصيل', data.telegram?.ok && data.supabase?.ok?'success':'info'); }catch(err){ toast(err.message,'error'); } }
+async function seedDemo(){ try{ await apiFetch(API.seed,{method:'POST',body:JSON.stringify({channel_id: state.channels[0]?.channel_id || '-1003917305732'})}); await loadAll(); renderShell(); toast('تمت إضافة بيانات تجربة','success'); }catch(err){ toast(err.message,'error'); } }
+function exportFiles(){ const blob=new Blob([JSON.stringify(state.files,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='bot-files.json'; a.click(); URL.revokeObjectURL(a.href); }
+function copyWebhook(){ navigator.clipboard.writeText(`${location.origin}/api/webhook`); toast('تم نسخ رابط Webhook','success'); }
+function logout(){ localStorage.removeItem(STORE_KEY); state.password=''; renderLogin(); }
+async function refreshAll(){ await loadAll(); renderShell(); toast('تم التحديث','success'); }
+async function loadAll(){ const [channels, files, stats, lists, users] = await Promise.all([apiFetch(API.channels), apiFetch(API.files), apiFetch(API.stats), apiFetch(API.lists), apiFetch(API.users).catch(()=>({users:[]}))]); state.channels=channels.channels||[]; state.files=files.files||[]; state.stats=stats.stats||{}; state.lists=lists.lists||state.lists; state.users=users.users||[]; }
 
-function filterSelect(key,label){
-  const values = unique(state.contents.map(x=>x[key]));
-  return `<select data-filter="${key}"><option value="">${label}: الكل</option>${values.map(v=>`<option value="${safe(v)}" ${state.filters[key]===v?'selected':''}>${safe(v)}</option>`).join("")}</select>`;
-}
+window.logout=logout; window.refreshAll=refreshAll; window.checkHealth=checkHealth; window.seedDemo=seedDemo; window.exportFiles=exportFiles; window.copyWebhook=copyWebhook; window.deleteFile=deleteFile; window.toggleFile=toggleFile; window.editFile=editFile; window.deleteChannel=deleteChannel; window.fillTemplate=fillTemplate;
 
-function addContentView(){ return contentForm(state.editingContent); }
-
-function contentForm(item=null){
-  const datalist = (id, values)=>`<datalist id="${id}">${unique(values).map(v=>`<option value="${safe(v)}"></option>`).join("")}</datalist>`;
-  return `
-    <form class="panel-card form-card" id="contentForm">
-      <div class="panel-title"><h2>${fa("cloud-arrow-up")} ${item ? 'تعديل محتوى' : 'إضافة محتوى جديد'}</h2><span class="badge good">أي نوع: PDF / فيديو / رابط / نص / صوت</span></div>
-      <input type="hidden" name="id" value="${safe(item?.id || '')}">
-      <div class="form-grid-3">
-        <div><label>عنوان المحتوى</label><input name="title" required placeholder="Lecture 1 - Anatomy" value="${safe(item?.title || '')}"></div>
-        <div><label>نوع المحتوى</label><input list="typesList" name="content_type" required placeholder="pdf / video / link" value="${safe(item?.content_type || 'pdf')}"></div>
-        <div><label>ترتيب</label><input name="sort_order" type="number" value="${safe(item?.sort_order || 0)}"></div>
-        <div><label>السنة</label><input list="yearsList" name="year_name" required placeholder="1st year 🔴" value="${safe(item?.year_name || '')}"></div>
-        <div><label>الترم</label><input list="termsList" name="term_name" required placeholder="ترم اول" value="${safe(item?.term_name || '')}"></div>
-        <div><label>المادة</label><input list="subjectsList" name="subject_name" required placeholder="anatomy" value="${safe(item?.subject_name || '')}"></div>
-        <div><label>القسم</label><input list="sectionsList" name="section_name" required placeholder="PDF 📚" value="${safe(item?.section_name || '')}"></div>
-        <div><label>القناة</label><select name="channel_id"><option value="">اختر قناة أو استخدم رابط الرسالة</option>${state.channels.map(ch=>`<option value="${safe(ch.channel_id)}" ${item?.channel_id===ch.channel_id?'selected':''}>${safe(ch.title)} - ${safe(ch.channel_id)}</option>`).join("")}</select></div>
-        <div><label>Message ID</label><input name="message_id" type="number" placeholder="3" value="${safe(item?.message_id || '')}"></div>
-      </div>
-      <label>رابط رسالة تليجرام</label><input name="telegram_link" placeholder="https://t.me/c/3917305732/3" value="${safe(item?.telegram_link || '')}">
-      <div class="form-grid">
-        <div><label>رابط خارجي / فيديو / Google Drive / YouTube</label><input name="external_url" placeholder="https://..." value="${safe(item?.external_url || '')}"></div>
-        <div><label>رابط صورة مصغرة</label><input name="thumbnail_url" placeholder="https://..." value="${safe(item?.thumbnail_url || '')}"></div>
-      </div>
-      <label>وصف قصير</label><textarea name="description" placeholder="شرح مختصر يظهر قبل الإرسال">${safe(item?.description || '')}</textarea>
-      <label>نص مباشر يرسله البوت، اختياري</label><textarea name="text_content" placeholder="اكتب نصًا أو ملاحظات أو إعلانًا">${safe(item?.text_content || '')}</textarea>
-      <div class="form-grid">
-        <div><label>وسوم</label><input name="tags" placeholder="lecture, important, exam" value="${safe(asArray(item?.tags).join(', '))}"></div>
-        <div><label>أيقونة</label><input name="icon" value="${safe(item?.icon || 'fa-solid fa-file-lines')}"></div>
-        <div><label>لون</label><input name="color" type="color" value="${safe(item?.color || '#0B5ED7')}"></div>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap">
-        <label class="soft-btn"><input type="checkbox" name="is_pinned" ${item?.is_pinned?'checked':''} style="width:auto"> تثبيت</label>
-        <label class="soft-btn"><input type="checkbox" name="is_active" ${item?.is_active===false?'':'checked'} style="width:auto"> مفعل</label>
-      </div>
-      <button class="primary-btn" type="submit">${fa("floppy-disk")} حفظ المحتوى</button>
-      ${item ? `<button class="soft-btn" type="button" id="cancelContent">إلغاء التعديل</button>` : ''}
-      ${datalist('yearsList', state.catalogs.filter(x=>x.item_type==='year').map(x=>x.name).concat(state.contents.map(x=>x.year_name)))}
-      ${datalist('termsList', state.catalogs.filter(x=>x.item_type==='term').map(x=>x.name).concat(state.contents.map(x=>x.term_name)))}
-      ${datalist('subjectsList', state.catalogs.filter(x=>x.item_type==='subject').map(x=>x.name).concat(state.contents.map(x=>x.subject_name)))}
-      ${datalist('sectionsList', state.catalogs.filter(x=>x.item_type==='section').map(x=>x.name).concat(state.contents.map(x=>x.section_name)))}
-      ${datalist('typesList', state.catalogs.filter(x=>x.item_type==='content_type').map(x=>x.name).concat(['pdf','video','audio','image','link','text','quiz','lab']))}
-    </form>`;
-}
-
-function toolsView(){
-  return `
-    <section class="grid-2">
-      <div class="panel-card form-card">
-        <div class="panel-title"><h2>${fa("heart-pulse")} فحص النظام</h2></div>
-        <p class="muted">يفحص Telegram Bot Token و Supabase والمتغيرات.</p>
-        <button class="primary-btn" id="toolHealth">${fa("stethoscope")} افحص الآن</button>
-        <pre id="healthOutput" style="white-space:pre-wrap;background:rgba(7,33,63,.06);padding:14px;border-radius:18px;overflow:auto;max-height:420px"></pre>
-      </div>
-      <div class="panel-card form-card">
-        <div class="panel-title"><h2>${fa("paper-plane")} إرسال نص للقناة</h2></div>
-        <form id="sendChannelForm" class="form-card">
-          <label>القناة</label><select name="channel_id" required>${state.channels.map(ch=>`<option value="${safe(ch.channel_id)}">${safe(ch.title)}</option>`).join("")}</select>
-          <label>النص</label><textarea name="text" required placeholder="رسالة تجريبية للقناة"></textarea>
-          <button class="primary-btn" type="submit">${fa("paper-plane")} إرسال</button>
-        </form>
-      </div>
-      <div class="panel-card form-card">
-        <div class="panel-title"><h2>${fa("download")} تصدير</h2></div>
-        <button class="soft-btn" id="exportBtn">${fa("file-export")} تصدير JSON</button>
-      </div>
-    </section>`;
-}
-
-function filterGlobal(arr, keys){
-  const q = state.query.trim().toLowerCase();
-  if(!q) return arr;
-  return arr.filter(item => keys.some(k => String(item[k] || '').toLowerCase().includes(q)));
-}
-
-function getFilteredContents(){
-  let arr = filterGlobal(state.contents, ["title","description","year_name","term_name","subject_name","section_name","content_type","channel_id","external_url"]);
-  Object.entries(state.filters).forEach(([k,v])=>{ if(v) arr = arr.filter(x=>String(x[k] || '') === v); });
-  return arr;
-}
-
-function bindChannels(){
-  document.getElementById("channelForm").onsubmit = async e=>{
-    e.preventDefault();
-    const f = new FormData(e.target);
-    const payload = Object.fromEntries(f.entries());
-    try{
-      await api("/api/admin/channels", { method: payload.id ? "PATCH" : "POST", body: JSON.stringify(payload) });
-      state.editingChannel = null; await loadAll(); renderShell(); toast("تم حفظ القناة", "success");
-    }catch(err){ toast(err.message,"error"); }
-  };
-  const cancel = document.getElementById("cancelChannel"); if(cancel) cancel.onclick = ()=>{ state.editingChannel=null; renderShell(); };
-}
-
-function bindStructure(){
-  document.getElementById("catalogForm").onsubmit = async e=>{
-    e.preventDefault();
-    const f = new FormData(e.target); const payload = Object.fromEntries(f.entries());
-    try{
-      await api("/api/admin/catalogs", { method: payload.id ? "PATCH" : "POST", body: JSON.stringify(payload) });
-      state.editingCatalog = null; await loadAll(); renderShell(); toast("تم حفظ عنصر الهيكل", "success");
-    }catch(err){ toast(err.message,"error"); }
-  };
-  const cancel = document.getElementById("cancelCatalog"); if(cancel) cancel.onclick = ()=>{ state.editingCatalog=null; renderShell(); };
-}
-
-function bindContents(){
-  document.querySelectorAll("[data-filter]").forEach(sel=> sel.onchange = e=>{ state.filters[e.target.dataset.filter] = e.target.value; renderViewOnly(); });
-}
-
-function bindContentForm(){
-  document.getElementById("contentForm").onsubmit = async e=>{
-    e.preventDefault();
-    const f = new FormData(e.target);
-    const payload = Object.fromEntries(f.entries());
-    payload.is_pinned = f.get("is_pinned") === "on";
-    payload.is_active = f.get("is_active") === "on";
-    try{
-      await api("/api/admin/contents", { method: payload.id ? "PATCH" : "POST", body: JSON.stringify(payload) });
-      state.editingContent = null; await loadAll(); state.view="contents"; renderShell(); toast("تم حفظ المحتوى", "success");
-    }catch(err){ toast(err.message,"error"); }
-  };
-  const cancel = document.getElementById("cancelContent"); if(cancel) cancel.onclick = ()=>{ state.editingContent=null; state.view="contents"; renderShell(); };
-}
-
-function bindTools(){
-  document.getElementById("toolHealth").onclick = async()=>{
-    const out = document.getElementById("healthOutput");
-    try{ const data = await api("/api/admin/health"); out.textContent = JSON.stringify(data, null, 2); toast("الفحص اكتمل", "success"); }
-    catch(err){ out.textContent = err.message; toast(err.message,"error"); }
-  };
-  document.getElementById("sendChannelForm").onsubmit = async e=>{
-    e.preventDefault(); const payload = Object.fromEntries(new FormData(e.target).entries());
-    try{ await api("/api/admin/upload-direct", { method:"POST", body:JSON.stringify(payload) }); toast("تم الإرسال للقناة", "success"); e.target.reset(); }
-    catch(err){ toast(err.message,"error"); }
-  };
-  document.getElementById("exportBtn").onclick = ()=>{
-    const blob = new Blob([JSON.stringify({ channels: state.channels, catalogs: state.catalogs, contents: state.contents }, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob); const a = document.createElement("a"); a.href=url; a.download="ust-bot-export.json"; a.click(); URL.revokeObjectURL(url);
-  };
-}
-
-async function checkHealth(){
-  try{ const data = await api("/api/admin/health"); toast(data.telegram?.ok && data.supabase?.ok ? "Telegram و Supabase يعملان" : "الفحص اكتمل مع ملاحظات", data.telegram?.ok && data.supabase?.ok ? "success" : "error"); console.log(data); }
-  catch(err){ toast(err.message,"error"); }
-}
-
-async function seedData(){
-  if(!confirm("إضافة مواد وأقسام تجريبية؟")) return;
-  try{ await api("/api/admin/seed", { method:"POST", body:"{}" }); await loadAll(); renderShell(); toast("تمت إضافة بيانات التجربة", "success"); }
-  catch(err){ toast(err.message,"error"); }
-}
-
-window.editChannel = id=>{ state.editingChannel = state.channels.find(x=>x.id===id); renderShell(); };
-window.deleteChannel = async id=>{ if(!confirm("حذف القناة؟")) return; try{ await api(`/api/admin/channels?id=${id}`, { method:"DELETE" }); await loadAll(); renderShell(); toast("تم الحذف", "success"); }catch(err){ toast(err.message,"error"); } };
-window.editCatalog = id=>{ state.editingCatalog = state.catalogs.find(x=>x.id===id); renderShell(); };
-window.deleteCatalog = async id=>{ if(!confirm("حذف العنصر؟")) return; try{ await api(`/api/admin/catalogs?id=${id}`, { method:"DELETE" }); await loadAll(); renderShell(); toast("تم الحذف", "success"); }catch(err){ toast(err.message,"error"); } };
-window.editContent = id=>{ state.editingContent = state.contents.find(x=>x.id===id); state.view="add"; renderShell(); };
-window.deleteContent = async id=>{ if(!confirm("حذف المحتوى؟")) return; try{ await api(`/api/admin/contents?id=${id}`, { method:"DELETE" }); await loadAll(); renderShell(); toast("تم الحذف", "success"); }catch(err){ toast(err.message,"error"); } };
-window.toggleContent = async (id, newStatus)=>{ try{ await api("/api/admin/toggle-content", { method:"POST", body:JSON.stringify({ id, is_active:newStatus }) }); await loadAll(); renderShell(); toast("تم تغيير الحالة", "success"); }catch(err){ toast(err.message,"error"); } };
-window.pinContent = async (id, status)=>{ try{ await api("/api/admin/toggle-content", { method:"POST", body:JSON.stringify({ id, is_pinned:status }) }); await loadAll(); renderShell(); toast("تم تغيير التثبيت", "success"); }catch(err){ toast(err.message,"error"); } };
-
-(async function init(){
-  app.innerHTML = document.getElementById("loaderTpl").innerHTML;
+document.addEventListener('DOMContentLoaded', async ()=>{
   if(!state.password) return renderLogin();
-  try{ await loadAll(); renderShell(); }catch(err){ toast(err.message,"error"); renderLogin(); }
-})();
+  try{ await apiFetch(API.auth); await loadAll(); renderShell(); }catch(err){ toast(err.message,'error'); renderLogin(); }
+});
