@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة تحكم بوت اللجنة العلمية</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <link rel="stylesheet" href="./app.css" />
+</head>
+<body>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
+  <main class="shell">
+    <header class="hero glass reveal">
+      <div>
+        <span class="badge"><i class="fa-solid fa-shield-halved"></i> UST Medical Committee Bot</span>
+        <h1>لوحة تحكم بوت اللجنة العلمية</h1>
+        <p>إدارة القنوات، السنوات، المواد، ملفات PDF، اللابات، والتسجيلات من مكان واحد.</p>
+      </div>
+      <div class="hero-actions">
+        <button id="refreshBtn" class="btn primary"><i class="fa-solid fa-rotate"></i> تحديث</button>
+        <button id="logoutBtn" class="btn ghost"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
+      </div>
+    </header>
+
+    <section class="stats-grid reveal">
+      <article class="stat glass">
+        <i class="fa-solid fa-layer-group"></i>
+        <div><strong id="filesCount">0</strong><span>ملف محفوظ</span></div>
+      </article>
+      <article class="stat glass">
+        <i class="fa-brands fa-telegram"></i>
+        <div><strong id="channelsCount">0</strong><span>قناة مربوطة</span></div>
+      </article>
+      <article class="stat glass">
+        <i class="fa-solid fa-circle-check"></i>
+        <div><strong id="activeCount">0</strong><span>ملف نشط</span></div>
+      </article>
+    </section>
+
+    <section class="grid-2">
+      <form id="channelForm" class="card glass reveal">
+        <h2><i class="fa-brands fa-telegram"></i> إضافة قناة</h2>
+        <label>اسم القناة</label>
+        <input name="channel_title" placeholder="مثال: قناة ملفات سنة أولى" required />
+
+        <label>CHANNEL_ID</label>
+        <input name="channel_id" placeholder="مثال: -1003917305732" required />
+
+        <label>معرف القناة اختياري</label>
+        <input name="channel_username" placeholder="مثال: @ust_files" />
+
+        <label>وصف اختياري</label>
+        <textarea name="description" placeholder="ملاحظات داخلية"></textarea>
+
+        <button class="btn primary" type="submit"><i class="fa-solid fa-plus"></i> حفظ القناة</button>
+      </form>
+
+      <form id="fileForm" class="card glass reveal">
+        <h2><i class="fa-solid fa-link"></i> إضافة ملف من رابط رسالة</h2>
+        <p class="hint">الطريقة الأفضل للملفات الكبيرة: ارفع الملف داخل قناة تليجرام الخاصة، ثم انسخ رابط الرسالة هنا.</p>
+
+        <div class="form-grid">
+          <div>
+            <label>القناة</label>
+            <select name="channel_db_id" id="channelSelect" required></select>
+          </div>
+          <div>
+            <label>عنوان الملف</label>
+            <input name="title" placeholder="مثال: Anatomy Lab 1" required />
+          </div>
+        </div>
+
+        <label>رابط رسالة الملف أو رقم message_id</label>
+        <input name="message_link" placeholder="https://t.me/c/3917305732/3" required />
+
+        <div class="form-grid four">
+          <div><label>السنة</label><select name="year" id="yearSelect"></select></div>
+          <div><label>الترم</label><select name="term" id="termSelect"></select></div>
+          <div><label>المادة</label><select name="subject" id="subjectSelect"></select></div>
+          <div><label>القسم</label><select name="section" id="sectionSelect"></select></div>
+        </div>
+
+        <details class="custom-box">
+          <summary><i class="fa-solid fa-wand-magic-sparkles"></i> مادة مخصصة</summary>
+          <div class="form-grid">
+            <div><label>Subject Key بالإنجليزي</label><input name="custom_subject_key" placeholder="مثال: pathology" /></div>
+            <div><label>اسم المادة الظاهر</label><input name="custom_subject_label" placeholder="مثال: Pathology" /></div>
+          </div>
+        </details>
+
+        <label>ترتيب الظهور</label>
+        <input name="sort_order" type="number" value="0" />
+
+        <button class="btn primary" type="submit"><i class="fa-solid fa-cloud-arrow-up"></i> حفظ الملف</button>
+      </form>
+    </section>
+
+    <form id="directUploadForm" class="card glass reveal">
+      <h2><i class="fa-solid fa-upload"></i> رفع مباشر صغير إلى القناة</h2>
+      <p class="hint danger">مناسب فقط للملفات الصغيرة. لو الملف كبير، استخدم طريقة رابط الرسالة لأنها أفضل مع Vercel.</p>
+
+      <div class="form-grid four">
+        <div><label>القناة</label><select name="channel_db_id" id="uploadChannelSelect" required></select></div>
+        <div><label>العنوان</label><input name="title" placeholder="عنوان الملف" required /></div>
+        <div><label>السنة</label><select name="year" id="uploadYearSelect"></select></div>
+        <div><label>الترم</label><select name="term" id="uploadTermSelect"></select></div>
+      </div>
+      <div class="form-grid three">
+        <div><label>المادة</label><select name="subject" id="uploadSubjectSelect"></select></div>
+        <div><label>القسم</label><select name="section" id="uploadSectionSelect"></select></div>
+        <div><label>الملف</label><input name="file" type="file" required /></div>
+      </div>
+
+      <button class="btn primary" type="submit"><i class="fa-solid fa-paper-plane"></i> رفع إلى تليجرام وحفظه</button>
+    </form>
+
+    <section class="card glass reveal">
+      <div class="table-head">
+        <h2><i class="fa-solid fa-database"></i> الملفات المحفوظة</h2>
+        <input id="searchInput" placeholder="بحث سريع..." />
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>الحالة</th>
+              <th>العنوان</th>
+              <th>المسار</th>
+              <th>القناة</th>
+              <th>Message ID</th>
+              <th>إجراء</th>
+            </tr>
+          </thead>
+          <tbody id="filesTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card glass reveal">
+      <h2><i class="fa-solid fa-tv"></i> القنوات</h2>
+      <div id="channelsList" class="channels-list"></div>
+    </section>
+  </main>
+
+  <div id="loginModal" class="modal active">
+    <form id="loginForm" class="login-card glass">
+      <i class="fa-solid fa-lock lock-icon"></i>
+      <h2>دخول لوحة التحكم</h2>
+      <p>أدخل كلمة السر الموجودة في Vercel باسم ADMIN_PASSWORD</p>
+      <input id="adminPassword" type="password" placeholder="كلمة السر" required />
+      <button class="btn primary" type="submit"><i class="fa-solid fa-unlock"></i> دخول</button>
+    </form>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
