@@ -1,75 +1,40 @@
-// api/admin/health.js
-// CommonJS version - بدون type: module
+const { adminGuard, ok, fail, telegram, supabaseRequest } = require("../_utils.js");
 
 module.exports = async function handler(req, res) {
-  // السماح فقط بـ GET
-  if (req.method !== "GET") {
-    return res.status(405).json({
-      ok: false,
-      message: "Method Not Allowed"
-    });
-  }
+  if (req.method !== "GET") return fail(res, 405, "Method Not Allowed");
+  if (!adminGuard(req, res)) return;
 
-  const BOT_TOKEN = process.env.BOT_TOKEN;
-  const SECRET_TOKEN = process.env.SECRET_TOKEN;
-  const SUPABASE_URL = process.env.SUPABASE_URL;
-  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-
-  const result = {
-    ok: true,
-    message: "Admin health route is working",
-    route: "/api/admin/health",
-    time: new Date().toISOString(),
-
-    env: {
-      BOT_TOKEN: Boolean(BOT_TOKEN),
-      SECRET_TOKEN: Boolean(SECRET_TOKEN),
-      SUPABASE_URL: Boolean(SUPABASE_URL),
-      SUPABASE_SERVICE_ROLE_KEY: Boolean(SUPABASE_SERVICE_ROLE_KEY),
-      ADMIN_PASSWORD: Boolean(ADMIN_PASSWORD)
-    },
-
-    telegram: {
-      ok: false,
-      message: "Not checked"
-    },
-
-    supabase: {
-      ok: false,
-      message: "Not checked"
-    }
+  const env = {
+    BOT_TOKEN: Boolean(process.env.BOT_TOKEN),
+    SECRET_TOKEN: Boolean(process.env.SECRET_TOKEN),
+    SUPABASE_URL: Boolean(process.env.SUPABASE_URL),
+    SUPABASE_SERVICE_ROLE_KEY: Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY),
+    ADMIN_PASSWORD: Boolean(process.env.ADMIN_PASSWORD)
   };
 
-  // فحص Telegram Bot Token
+  let telegramCheck = { ok: false, message: "لم يتم الفحص" };
+  let supabaseCheck = { ok: false, message: "لم يتم الفحص" };
+
   try {
-    if (!BOT_TOKEN) {
-      result.telegram = {
-        ok: false,
-        message: "BOT_TOKEN is missing"
-      };
-    } else {
-      const telegramResponse = await fetch(
-        `https://api.telegram.org/bot${BOT_TOKEN}/getMe`
-      );
+    const me = await telegram("getMe", {});
+    telegramCheck = me.ok ? { ok: true, bot: me.result } : { ok: false, message: me.description || "Telegram failed" };
+  } catch (error) {
+    telegramCheck = { ok: false, message: error.message };
+  }
 
-      const telegramData = await telegramResponse.json();
+  try {
+    const rows = await supabaseRequest("bot_channels?select=id&limit=1");
+    supabaseCheck = { ok: true, message: "Supabase يعمل", test: rows };
+  } catch (error) {
+    supabaseCheck = { ok: false, message: error.message };
+  }
 
-      if (telegramData.ok) {
-        result.telegram = {
-          ok: true,
-          message: "Telegram bot is working",
-          bot: {
-            id: telegramData.result.id,
-            first_name: telegramData.result.first_name,
-            username: telegramData.result.username
-          }
-        };
-      } else {
-        result.telegram = {
-          ok: false,
-          message: telegramData.description || "Telegram check failed"
-        };
-      }
-    }
-  } catch (
+  return ok(res, {
+    message: "Central Scientific Committee Admin API is working",
+    route: "/api/admin/health",
+    time: new Date().toISOString(),
+    env,
+    telegram: telegramCheck,
+    supabase: supabaseCheck
+  });
+};
