@@ -2,11 +2,8 @@ const BOT_TOKEN = process.env.BOT_TOKEN;
 const CHANNEL_ID = process.env.CHANNEL_ID;
 const SECRET_TOKEN = process.env.SECRET_TOKEN;
 
-// ضع هنا أرقام رسائل الملفات من القناة الخاصة.
-// مثال: إذا رابط الملف https://t.me/c/1234567890/25
-// فإن message_id هو 25
 const FILES = {
-  anatomy_lab: [2,3],
+  anatomy_lab: [3],
   anatomy_pdf: [],
   anatomy_recordings: []
 };
@@ -145,7 +142,7 @@ async function handleMessage(message) {
   await sendText(chatId, "اختر من الأزرار بالأسفل 👇");
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method === "GET") {
     return res.status(200).send("UST Medical Committee Telegram Bot is running.");
   }
@@ -176,4 +173,4 @@ export default async function handler(req, res) {
       error: error.message
     });
   }
-}
+};
