@@ -47,10 +47,25 @@ async function apiFetch(url, options={}){
   const password = localStorage.getItem(STORE_KEY) || state.password || '';
   const headers = { 'Content-Type':'application/json', 'x-admin-password': password, ...(options.headers || {}) };
   const response = await fetch(url, { ...options, headers });
-  const data = await response.json().catch(()=>null);
-  if(response.status === 401){ throw new Error('Unauthorized: كلمة السر غير صحيحة أو ADMIN_PASSWORD غير مضبوط في Vercel'); }
-  if(!response.ok){ throw new Error(data?.message || data?.error || 'حدث خطأ في الطلب'); }
-  return data;
+  const text = await response.text();
+  let data = null;
+  try { data = text ? JSON.parse(text) : null; } catch { data = { message: text }; }
+
+  if(response.status === 401){
+    throw new Error('Unauthorized: كلمة السر غير صحيحة أو ADMIN_PASSWORD غير مضبوط في Vercel');
+  }
+
+  if(!response.ok){
+    const msg = data?.message || data?.error || text || 'حدث خطأ في الطلب';
+    throw new Error(`${url}: ${msg}`);
+  }
+
+  if(data && data.ok === false){
+    const msg = data?.message || data?.error || 'حدث خطأ في الطلب';
+    throw new Error(`${url}: ${msg}`);
+  }
+
+  return data || {};
 }
 
 function setView(view){ state.view=view; renderShell(); }
@@ -243,7 +258,29 @@ function exportFiles(){ const blob=new Blob([JSON.stringify(state.files,null,2)]
 function copyWebhook(){ navigator.clipboard.writeText(`${location.origin}/api/webhook`); toast('تم نسخ رابط Webhook','success'); }
 function logout(){ localStorage.removeItem(STORE_KEY); state.password=''; renderLogin(); }
 async function refreshAll(){ await loadAll(); renderShell(); toast('تم التحديث','success'); }
-async function loadAll(){ const [channels, files, stats, lists, users] = await Promise.all([apiFetch(API.channels), apiFetch(API.files), apiFetch(API.stats), apiFetch(API.lists), apiFetch(API.users).catch(()=>({users:[]}))]); state.channels=channels.channels||[]; state.files=files.files||[]; state.stats=stats.stats||{}; state.lists=lists.lists||state.lists; state.users=users.users||[]; }
+async function safeLoad(name, url, fallback){
+  try {
+    return await apiFetch(url);
+  } catch (error) {
+    console.error(`API error in ${name}:`, error);
+    toast(`خطأ في ${name}: ${error.message}`, 'error');
+    return fallback;
+  }
+}
+
+async function loadAll(){
+  const channels = await safeLoad('القنوات', API.channels, { channels: [] });
+  const files = await safeLoad('الملفات', API.files, { files: [] });
+  const stats = await safeLoad('الإحصائيات', API.stats, { stats: {} });
+  const lists = await safeLoad('القوائم', API.lists, { lists: state.lists });
+  const users = await safeLoad('الطلاب', API.users, { users: [] });
+
+  state.channels = channels.channels || [];
+  state.files = files.files || [];
+  state.stats = stats.stats || {};
+  state.lists = lists.lists || state.lists;
+  state.users = users.users || [];
+}
 
 window.logout=logout; window.refreshAll=refreshAll; window.checkHealth=checkHealth; window.seedDemo=seedDemo; window.exportFiles=exportFiles; window.copyWebhook=copyWebhook; window.deleteFile=deleteFile; window.toggleFile=toggleFile; window.editFile=editFile; window.deleteChannel=deleteChannel; window.fillTemplate=fillTemplate;
 
