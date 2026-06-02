@@ -1,13 +1,53 @@
 // api/webhook.js
-// بوت اللجنة العلمية المركزية - CommonJS بدون type: module
+// Dynamic Telegram Webhook for UST Central Scientific Committee Bot.
+// CommonJS - no type: module.
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const SECRET_TOKEN = process.env.SECRET_TOKEN;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+function send(res, status, data) {
+  return res.status(status).json(data);
+}
+
+async function telegram(method, data = {}) {
+  if (!BOT_TOKEN) return { ok: false, description: "BOT_TOKEN is missing" };
+  const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+  return response.json();
+}
+
+async function supabase(path, options = {}) {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    throw new Error("SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is missing");
+  }
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...options,
+    headers: {
+      apikey: SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: options.prefer || "return=representation",
+      ...(options.headers || {})
+    }
+  });
+  const text = await response.text();
+  let data = null;
+  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+  if (!response.ok) throw new Error(typeof data === "string" ? data : JSON.stringify(data));
+  return data;
+}
+
 function keyboard(rows) {
-  return { keyboard: rows.map(row => row.map(text => ({ text }))), resize_keyboard: true, one_time_keyboard: false };
+  return {
+    keyboard: rows.map(row => row.map(text => ({ text }))),
+    resize_keyboard: true,
+    one_time_keyboard: false
+  };
 }
 
 function chunk(items, size = 2) {
@@ -16,233 +56,239 @@ function chunk(items, size = 2) {
   return rows;
 }
 
-function uniq(items, key) {
-  return [...new Set(items.map(item => item[key]).filter(Boolean))];
-}
-
-async function telegram(method, payload = {}) {
-  if (!BOT_TOKEN) return { ok: false, description: 'BOT_TOKEN is missing' };
-  const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+async function sendText(chatId, text, replyMarkup) {
+  return telegram("sendMessage", {
+    chat_id: chatId,
+    text,
+    parse_mode: "HTML",
+    disable_web_page_preview: true,
+    ...(replyMarkup ? { reply_markup: replyMarkup } : {})
   });
-  return response.json();
 }
 
-async function sendText(chatId, text, rows) {
-  const payload = { chat_id: chatId, text };
-  if (rows) payload.reply_markup = keyboard(rows);
-  return telegram('sendMessage', payload);
+async function sendMenu(chatId, text, buttons) {
+  return sendText(chatId, text, keyboard(buttons));
 }
 
-async function supabaseRequest(path, options = {}) {
-  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error('SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is missing');
+async function getSettings() {
+  const rows = await supabase("bot_settings?select=*&limit=1");
+  return rows[0] || {
+    bot_title: "بوت اللجنة العلمية المركزية",
+    welcome_text: "مرحباً بك في بوت اللجنة العلمية المركزية 👋\nاختر من القائمة بالأسفل.",
+    empty_text: "لا توجد محتويات حالياً في هذا القسم.",
+    home_button_text: "رجوع للرئيسية",
+    is_maintenance: false,
+    maintenance_text: "البوت تحت الصيانة حالياً."
+  };
+}
+
+async function upsertUser(message) {
+  if (!message || !message.chat) return;
+  const from = message.from || {};
+  const chatId = message.chat.id;
+
+  try {
+    await supabase("bot_users?on_conflict=chat_id", {
+      method: "POST",
+      prefer: "resolution=merge-duplicates,return=representation",
+      body: JSON.stringify({
+        chat_id: chatId,
+        first_name: from.first_name || null,
+        last_name: from.last_name || null,
+        username: from.username || null,
+        language_code: from.language_code || null,
+        messages_count: 1,
+        last_seen: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+    });
+  } catch (e) {
+    console.error("User upsert error", e.message);
   }
-  const response = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
-    ...options,
-    headers: {
-      apikey: SUPABASE_SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
-      'Content-Type': 'application/json',
-      Prefer: 'return=representation',
-      ...(options.headers || {})
-    }
-  });
-  const text = await response.text();
-  let data = null;
-  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
-  if (!response.ok) throw new Error(typeof data === 'string' ? data : JSON.stringify(data));
-  return data;
 }
 
-async function getFiles() {
-  return supabaseRequest('bot_files?is_active=eq.true&select=*&order=is_pinned.desc,sort_order.asc,created_at.asc');
+async function logActivity(chatId, action, details = {}) {
+  try {
+    await supabase("bot_activity_logs", {
+      method: "POST",
+      body: JSON.stringify({ chat_id: chatId, action, details })
+    });
+  } catch (e) {
+    console.error("Activity log error", e.message);
+  }
 }
 
 async function getState(chatId) {
-  const rows = await supabaseRequest(`bot_user_states?chat_id=eq.${chatId}&select=*&limit=1`);
+  const rows = await supabase(`bot_user_states?chat_id=eq.${chatId}&select=*&limit=1`);
   return rows[0] || null;
 }
 
-async function setState(chatId, data) {
-  return supabaseRequest('bot_user_states', {
-    method: 'POST',
-    headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
-    body: JSON.stringify({ chat_id: chatId, ...data, updated_at: new Date().toISOString() })
+async function setState(chatId, data = {}) {
+  return supabase("bot_user_states?on_conflict=chat_id", {
+    method: "POST",
+    prefer: "resolution=merge-duplicates,return=representation",
+    body: JSON.stringify({
+      chat_id: chatId,
+      current_node_id: data.current_node_id || null,
+      path_titles: data.path_titles || [],
+      updated_at: new Date().toISOString()
+    })
   });
 }
 
 async function clearState(chatId) {
-  return supabaseRequest(`bot_user_states?chat_id=eq.${chatId}`, { method: 'DELETE' }).catch(() => null);
+  return supabase(`bot_user_states?chat_id=eq.${chatId}`, { method: "DELETE" });
 }
 
-async function saveUser(message) {
-  const user = message.from || {};
-  const chat = message.chat || {};
-  await supabaseRequest('bot_users', {
-    method: 'POST',
-    headers: { Prefer: 'resolution=merge-duplicates,return=representation' },
-    body: JSON.stringify({
-      chat_id: chat.id,
-      username: user.username || null,
-      first_name: user.first_name || null,
-      last_name: user.last_name || null,
-      language_code: user.language_code || null,
-      last_seen: new Date().toISOString(),
-      use_count: 1
-    })
-  }).catch(() => null);
+async function getRootNodes() {
+  return supabase("bot_nodes?parent_id=is.null&is_active=eq.true&select=*&order=sort_order.asc,created_at.asc");
 }
 
-async function showYears(chatId) {
-  const files = await getFiles();
-  const years = uniq(files, 'year_name');
-  if (!years.length) {
-    await sendText(chatId, 'لا توجد ملفات مضافة حالياً. أضف المحتوى من لوحة التحكم أولاً.');
-    return;
+async function getChildNodes(parentId) {
+  return supabase(`bot_nodes?parent_id=eq.${parentId}&is_active=eq.true&select=*&order=sort_order.asc,created_at.asc`);
+}
+
+async function getNode(nodeId) {
+  const rows = await supabase(`bot_nodes?id=eq.${nodeId}&select=*&limit=1`);
+  return rows[0] || null;
+}
+
+async function getActiveContents(nodeId) {
+  return supabase(`bot_contents?node_id=eq.${nodeId}&is_active=eq.true&select=*&order=is_pinned.desc,sort_order.asc,created_at.desc`);
+}
+
+function buttonTitle(node) {
+  return `${node.emoji ? node.emoji + " " : ""}${node.title}`;
+}
+
+async function showHome(chatId, settings) {
+  await clearState(chatId);
+  const roots = await getRootNodes();
+  if (!roots.length) {
+    return sendText(chatId, "لا توجد قوائم مضافة حالياً من لوحة التحكم.");
   }
-  await sendText(chatId, 'مرحباً بك دكتور/ة 👋\n\nبوت اللجنة العلمية المركزية - الطب البشري\n\nاختر السنة:', [
-    ...chunk(years, 2)
-  ]);
+  const rows = chunk(roots.map(buttonTitle), 2);
+  await sendMenu(chatId, settings.welcome_text || "اختر من القائمة:", rows);
 }
 
-async function showTerms(chatId, year) {
-  const files = await getFiles();
-  const terms = uniq(files.filter(f => f.year_name === year), 'term_name');
-  await sendText(chatId, `السنة: ${year}\nاختر الترم:`, [...chunk(terms, 2), ['رجوع للرئيسية']]);
+async function showNode(chatId, node, settings) {
+  const children = await getChildNodes(node.id);
+  const contents = await getActiveContents(node.id);
+
+  const rows = [];
+  if (children.length) rows.push(...chunk(children.map(buttonTitle), 2));
+  if (contents.length) rows.push(["📦 عرض المحتوى"]);
+  rows.push([settings.home_button_text || "رجوع للرئيسية"]);
+
+  const text = `<b>${buttonTitle(node)}</b>\n${node.subtitle || "اختر من القائمة بالأسفل."}`;
+  await sendMenu(chatId, text, rows);
+  await setState(chatId, { current_node_id: node.id, path_titles: [node.title] });
 }
 
-async function showSubjects(chatId, year, term) {
-  const files = await getFiles();
-  const subjects = uniq(files.filter(f => f.year_name === year && f.term_name === term), 'subject_name');
-  await sendText(chatId, `الترم: ${term}\nاختر المادة:`, [...chunk(subjects, 2), ['رجوع للرئيسية']]);
-}
-
-async function showSections(chatId, year, term, subject) {
-  const files = await getFiles();
-  const sections = uniq(files.filter(f => f.year_name === year && f.term_name === term && f.subject_name === subject), 'section_name');
-  await sendText(chatId, `المادة: ${subject}\nاختر القسم:`, [...chunk(sections, 2), ['رجوع للرئيسية']]);
-}
-
-async function incrementView(fileId) {
-  try {
-    const rows = await supabaseRequest(`bot_files?id=eq.${fileId}&select=views_count&limit=1`);
-    const current = Number(rows[0]?.views_count || 0);
-    await supabaseRequest(`bot_files?id=eq.${fileId}`, { method: 'PATCH', body: JSON.stringify({ views_count: current + 1 }) });
-  } catch (_) {}
-}
-
-async function sendSelectedFiles(chatId, state, section) {
-  const files = await getFiles();
-  const selected = files.filter(f =>
-    f.year_name === state.year_name &&
-    f.term_name === state.term_name &&
-    f.subject_name === state.subject_name &&
-    f.section_name === section
-  );
-
-  if (!selected.length) {
-    await sendText(chatId, 'لا يوجد محتوى في هذا القسم حالياً.', [['رجوع للرئيسية']]);
+async function sendContent(chatId, nodeId, settings) {
+  const contents = await getActiveContents(nodeId);
+  if (!contents.length) {
+    await sendText(chatId, settings.empty_text || "لا توجد محتويات حالياً في هذا القسم.");
     return;
   }
 
-  await sendText(chatId, `تم العثور على ${selected.length} عنصر. جاري الإرسال...`);
+  await sendText(chatId, `📦 جاري إرسال ${contents.length} عنصر...`);
 
-  for (const item of selected) {
-    const titleLine = `${item.is_pinned ? '📌 ' : ''}${item.title || 'محتوى'}`;
-    if (item.description) await sendText(chatId, `${titleLine}\n${item.description}`);
-    else await sendText(chatId, titleLine);
+  for (const item of contents) {
+    const header = `<b>${item.title}</b>${item.description ? "\n" + item.description : ""}`;
 
-    if (item.text_content) {
-      await sendText(chatId, item.text_content);
-    }
-
-    if (item.external_url) {
-      await sendText(chatId, `🔗 ${item.external_url}`);
-    }
-
-    if (item.channel_id && item.message_id) {
-      const copied = await telegram('copyMessage', {
+    if (item.source_type === "text" || item.content_type === "text") {
+      await sendText(chatId, header + (item.text_content ? "\n\n" + item.text_content : ""));
+    } else if (item.source_type === "external_link" || item.external_url) {
+      await sendText(chatId, `${header}\n\n🔗 ${item.external_url}`);
+    } else if (item.source_type === "telegram_copy" && item.channel_id && item.message_id) {
+      await sendText(chatId, header);
+      const copied = await telegram("copyMessage", {
         chat_id: chatId,
         from_chat_id: item.channel_id,
-        message_id: Number(item.message_id),
+        message_id: item.message_id,
         protect_content: false
       });
-      if (!copied.ok) await sendText(chatId, `تعذر إرسال: ${item.title}\nالسبب: ${copied.description || 'خطأ غير معروف'}`);
+      if (!copied.ok) {
+        await sendText(chatId, `تعذر إرسال هذا العنصر:\n${copied.description || "Unknown Telegram error"}`);
+      } else {
+        await supabase(`bot_contents?id=eq.${item.id}`, {
+          method: "PATCH",
+          body: JSON.stringify({
+            downloads_count: Number(item.downloads_count || 0) + 1,
+            updated_at: new Date().toISOString()
+          })
+        }).catch(() => null);
+      }
     }
-
-    await incrementView(item.id);
   }
 }
 
 async function handleMessage(message) {
   const chatId = message.chat.id;
-  const text = message.text;
+  const text = (message.text || "").trim();
   if (!text) return;
 
-  await saveUser(message);
+  await upsertUser(message);
+  const settings = await getSettings();
 
-  if (text === '/start' || text === 'رجوع للرئيسية') {
-    await clearState(chatId);
-    await showYears(chatId);
+  if (settings.is_maintenance) {
+    await sendText(chatId, settings.maintenance_text || "البوت تحت الصيانة حالياً.");
     return;
   }
 
-  const files = await getFiles();
+  const homeText = settings.home_button_text || "رجوع للرئيسية";
+
+  if (text === "/start" || text === homeText || text === "الرئيسية" || text === "🏠 الرئيسية") {
+    await logActivity(chatId, "start", { text });
+    return showHome(chatId, settings);
+  }
+
   const state = await getState(chatId);
-  const years = uniq(files, 'year_name');
+  const currentNodeId = state?.current_node_id || null;
 
-  if (years.includes(text)) {
-    await setState(chatId, { year_name: text, term_name: null, subject_name: null, section_name: null });
-    await showTerms(chatId, text);
-    return;
+  if (text === "📦 عرض المحتوى" && currentNodeId) {
+    await logActivity(chatId, "send_content", { node_id: currentNodeId });
+    return sendContent(chatId, currentNodeId, settings);
   }
 
-  if (state?.year_name && !state.term_name) {
-    const terms = uniq(files.filter(f => f.year_name === state.year_name), 'term_name');
-    if (terms.includes(text)) {
-      await setState(chatId, { year_name: state.year_name, term_name: text, subject_name: null, section_name: null });
-      await showSubjects(chatId, state.year_name, text);
-      return;
-    }
+  // Find by displayed title under current parent, then root.
+  const candidates = currentNodeId ? await getChildNodes(currentNodeId) : await getRootNodes();
+  let node = candidates.find(n => buttonTitle(n) === text || n.title === text);
+
+  if (!node) {
+    const roots = await getRootNodes();
+    node = roots.find(n => buttonTitle(n) === text || n.title === text);
   }
 
-  if (state?.year_name && state?.term_name && !state.subject_name) {
-    const subjects = uniq(files.filter(f => f.year_name === state.year_name && f.term_name === state.term_name), 'subject_name');
-    if (subjects.includes(text)) {
-      await setState(chatId, { year_name: state.year_name, term_name: state.term_name, subject_name: text, section_name: null });
-      await showSections(chatId, state.year_name, state.term_name, text);
-      return;
-    }
+  if (node) {
+    await logActivity(chatId, "open_node", { node_id: node.id, title: node.title });
+    return showNode(chatId, node, settings);
   }
 
-  if (state?.year_name && state?.term_name && state?.subject_name && !state.section_name) {
-    const sections = uniq(files.filter(f => f.year_name === state.year_name && f.term_name === state.term_name && f.subject_name === state.subject_name), 'section_name');
-    if (sections.includes(text)) {
-      await setState(chatId, { year_name: state.year_name, term_name: state.term_name, subject_name: state.subject_name, section_name: text });
-      await sendSelectedFiles(chatId, state, text);
-      return;
-    }
-  }
-
-  await sendText(chatId, 'اختر من الأزرار بالأسفل أو اضغط /start للعودة للرئيسية.');
+  await sendText(chatId, "اختر من الأزرار بالأسفل 👇");
 }
 
 module.exports = async function handler(req, res) {
-  if (req.method === 'GET') return res.status(200).send('UST Central Scientific Committee Telegram Bot is running.');
-  if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+  if (req.method === "GET") {
+    return res.status(200).send("UST Central Scientific Committee Telegram Bot is running.");
+  }
 
-  const telegramSecret = req.headers['x-telegram-bot-api-secret-token'];
-  if (SECRET_TOKEN && telegramSecret !== SECRET_TOKEN) return res.status(401).send('Unauthorized');
+  if (req.method !== "POST") {
+    return res.status(405).send("Method Not Allowed");
+  }
+
+  const telegramSecret = req.headers["x-telegram-bot-api-secret-token"];
+  if (SECRET_TOKEN && telegramSecret !== SECRET_TOKEN) {
+    return res.status(401).send("Unauthorized");
+  }
 
   try {
     const update = req.body;
     if (update.message) await handleMessage(update.message);
-    return res.status(200).json({ ok: true });
+    return send(res, 200, { ok: true });
   } catch (error) {
-    console.error('Webhook Error:', error);
-    return res.status(200).json({ ok: false, error: error.message });
+    console.error("Webhook Error:", error);
+    return send(res, 200, { ok: false, error: error.message });
   }
 };
