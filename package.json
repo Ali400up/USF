@@ -1,7 +1,8 @@
 {
-  "name": "ust-medical-committee-bot",
-  "version": "1.0.0",
-  "description": "Telegram bot for UST Medical Committee using Vercel Webhook",
+  "name": "ust-central-scientific-telegram-bot-panel",
+  "version": "3.0.0",
+  "description": "لوحة تحكم بوت اللجنة العلمية المركزية - Telegram + Vercel + Supabase",
+  "main": "api/webhook.js",
   "engines": {
     "node": ">=18"
   }
