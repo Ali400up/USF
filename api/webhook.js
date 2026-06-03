@@ -1,56 +1,12 @@
 // api/webhook.js
 // UST Central Scientific Committee Telegram Bot
 // CommonJS - بدون type: module
-// نسخة محسنة بالـ Cache لتسريع البوت مع Supabase
+// نسخة بدون Cache نهائيًا: كل البيانات تُقرأ مباشرة من Supabase
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const SECRET_TOKEN = process.env.SECRET_TOKEN;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-// مدة حفظ بيانات القوائم والمحتوى في الذاكرة
-// 5 دقائق = أسرع بكثير، لكن أي تعديل من لوحة التحكم قد يحتاج 5 دقائق ليظهر
-const CACHE_TIME = 5 * 60 * 1000;
-
-// مدة حفظ حالة المستخدم في الذاكرة
-const STATE_CACHE_TIME = 10 * 60 * 1000;
-
-// كاش عام
-const cache = {
-  settings: {
-    data: null,
-    time: 0
-  },
-  rootNodes: {
-    data: null,
-    time: 0
-  },
-  childNodes: new Map(),
-  nodes: new Map(),
-  contents: new Map(),
-  states: new Map()
-};
-
-function now() {
-  return Date.now();
-}
-
-function isFresh(time, ttl = CACHE_TIME) {
-  return time && now() - time < ttl;
-}
-
-function clearDataCache() {
-  cache.settings = { data: null, time: 0 };
-  cache.rootNodes = { data: null, time: 0 };
-  cache.childNodes.clear();
-  cache.nodes.clear();
-  cache.contents.clear();
-}
-
-function clearAllCaches() {
-  clearDataCache();
-  cache.states.clear();
-}
 
 function json(res, status, data) {
   return res.status(status).json(data);
@@ -161,147 +117,61 @@ function defaultSettings() {
 }
 
 // =========================
-// Supabase Cached Functions
+// Supabase Direct Functions
+// بدون كاش: كل دالة تقرأ مباشرة من قاعدة البيانات
 // =========================
 
 async function getSettings() {
-  if (cache.settings.data && isFresh(cache.settings.time)) {
-    return cache.settings.data;
-  }
-
   const rows = await supabase("bot_settings?select=*&limit=1");
-  const settings = rows[0] || defaultSettings();
-
-  cache.settings = {
-    data: settings,
-    time: now()
-  };
-
-  return settings;
+  return rows[0] || defaultSettings();
 }
 
 async function getRootNodes() {
-  if (cache.rootNodes.data && isFresh(cache.rootNodes.time)) {
-    return cache.rootNodes.data;
-  }
-
-  const rows = await supabase(
+  return supabase(
     "bot_nodes?parent_id=is.null&is_active=eq.true&select=*&order=sort_order.asc,created_at.asc"
   );
-
-  cache.rootNodes = {
-    data: rows,
-    time: now()
-  };
-
-  return rows;
 }
 
 async function getChildNodes(parentId) {
-  const key = String(parentId);
-  const cached = cache.childNodes.get(key);
-
-  if (cached && isFresh(cached.time)) {
-    return cached.data;
-  }
-
-  const rows = await supabase(
+  return supabase(
     `bot_nodes?parent_id=eq.${parentId}&is_active=eq.true&select=*&order=sort_order.asc,created_at.asc`
   );
-
-  cache.childNodes.set(key, {
-    data: rows,
-    time: now()
-  });
-
-  return rows;
 }
 
 async function getNode(nodeId) {
-  const key = String(nodeId);
-  const cached = cache.nodes.get(key);
-
-  if (cached && isFresh(cached.time)) {
-    return cached.data;
-  }
-
   const rows = await supabase(`bot_nodes?id=eq.${nodeId}&select=*&limit=1`);
-  const node = rows[0] || null;
-
-  cache.nodes.set(key, {
-    data: node,
-    time: now()
-  });
-
-  return node;
+  return rows[0] || null;
 }
 
 async function getActiveContents(nodeId) {
-  const key = String(nodeId);
-  const cached = cache.contents.get(key);
-
-  if (cached && isFresh(cached.time)) {
-    return cached.data;
-  }
-
-  const rows = await supabase(
+  return supabase(
     `bot_contents?node_id=eq.${nodeId}&is_active=eq.true&select=*&order=is_pinned.desc,sort_order.asc,created_at.desc`
   );
-
-  cache.contents.set(key, {
-    data: rows,
-    time: now()
-  });
-
-  return rows;
 }
 
 // =========================
-// User State Cache
+// User State بدون كاش
 // =========================
 
 async function getState(chatId) {
-  const key = String(chatId);
-  const cached = cache.states.get(key);
-
-  if (cached && isFresh(cached.time, STATE_CACHE_TIME)) {
-    return cached.data;
-  }
-
   const rows = await supabase(`bot_user_states?chat_id=eq.${chatId}&select=*&limit=1`);
-  const state = rows[0] || null;
-
-  cache.states.set(key, {
-    data: state,
-    time: now()
-  });
-
-  return state;
+  return rows[0] || null;
 }
 
 async function setState(chatId, data = {}) {
-  const state = {
-    chat_id: chatId,
-    current_node_id: data.current_node_id || null,
-    path_titles: data.path_titles || [],
-    updated_at: new Date().toISOString()
-  };
-
-  cache.states.set(String(chatId), {
-    data: state,
-    time: now()
-  });
-
   return supabase("bot_user_states?on_conflict=chat_id", {
     method: "POST",
     prefer: "resolution=merge-duplicates,return=representation",
-    body: JSON.stringify(state)
+    body: JSON.stringify({
+      chat_id: chatId,
+      current_node_id: data.current_node_id || null,
+      path_titles: data.path_titles || [],
+      updated_at: new Date().toISOString()
+    })
   });
 }
 
 async function clearState(chatId) {
-  cache.states.delete(String(chatId));
-
   return supabase(`bot_user_states?chat_id=eq.${chatId}`, {
     method: "DELETE"
   });
@@ -487,7 +357,6 @@ async function sendContent(chatId, nodeId, settings) {
           `تعذر إرسال هذا العنصر:\n${escapeHtml(copied.description || "Unknown Telegram error")}`
         );
       } else {
-        // تحديث عدد التحميلات بدون تأخير رد البوت
         supabase(`bot_contents?id=eq.${item.id}`, {
           method: "PATCH",
           body: JSON.stringify({
@@ -514,7 +383,6 @@ async function handleMessage(message) {
 
   if (!text) return;
 
-  // لا ننتظر حفظ المستخدم حتى لا يبطئ الرد
   saveUserInBackground(message);
 
   const settings = await getSettings();
@@ -536,10 +404,8 @@ async function handleMessage(message) {
     return showHome(chatId, settings);
   }
 
-  // أمر لتحديث الكاش يدويًا بعد التعديل من لوحة التحكم
   if (text === "/reload" || text === "/refresh") {
-    clearAllCaches();
-    await sendText(chatId, "✅ تم تحديث بيانات البوت من قاعدة البيانات.");
+    await sendText(chatId, "✅ تم تحديث البيانات مباشرة من قاعدة البيانات.\nلا يوجد كاش في هذه النسخة.");
     return showHome(chatId, settings);
   }
 
@@ -559,7 +425,6 @@ async function handleMessage(message) {
     return sendContent(chatId, currentNodeId, settings);
   }
 
-  // نبحث أولًا داخل أبناء القائمة الحالية
   const candidates = currentNodeId
     ? await getChildNodes(currentNodeId)
     : await getRootNodes();
@@ -568,7 +433,6 @@ async function handleMessage(message) {
     return buttonTitle(item) === text || item.title === text;
   });
 
-  // لو لم نجده، نبحث في القوائم الرئيسية
   if (!node) {
     const roots = await getRootNodes();
 
