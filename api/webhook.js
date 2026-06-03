@@ -1,13 +1,13 @@
 // api/webhook.js
 // UST Central Scientific Committee Telegram Bot
 // CommonJS - بدون type: module
-// نسخة محسنة: أزرار دائمة + قائمة رئيسية + بحث + مساعدة + تصميم رسائل أجمل
-// بدون Cache نهائيًا: كل البيانات تُقرأ مباشرة من Supabase
+// نسخة محسنة بدون Cache + أزرار دائمة + مطابقة عربية ذكية
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const SECRET_TOKEN = process.env.SECRET_TOKEN;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const ADMIN_TELEGRAM_ID = process.env.ADMIN_TELEGRAM_ID;
 
 const BUTTONS = {
   HOME: "🏠 الرئيسية",
@@ -35,6 +35,35 @@ function truncate(value, max = 900) {
   const text = String(value || "");
   if (text.length <= max) return text;
   return text.slice(0, max) + "...";
+}
+
+function normalizeArabic(value) {
+  return String(value || "")
+    .replace(/[\u064B-\u065F]/g, "")
+    .replace(/ـ/g, "")
+    .replace(/[أإآ]/g, "ا")
+    .replace(/ة/g, "ه")
+    .replace(/[ًٌٍَُِّْ]/g, "")
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function cleanButtonText(text) {
+  return String(text || "")
+    .replace("🏠 ", "")
+    .replace("📋 ", "")
+    .replace("⬅️ ", "")
+    .replace("📦 ", "")
+    .replace("🔎 ", "")
+    .replace("🆘 ", "")
+    .replace("ℹ️ ", "")
+    .trim();
+}
+
+function sameText(a, b) {
+  return normalizeArabic(cleanButtonText(a)) === normalizeArabic(cleanButtonText(b));
 }
 
 async function telegram(method, data = {}) {
@@ -90,10 +119,43 @@ async function supabase(path, options = {}) {
 }
 
 function replyKeyboard(rows) {
-  const finalRows = [...rows];
+  const finalRows = Array.isArray(rows)
+    ? rows.filter(row => Array.isArray(row) && row.length)
+    : [];
 
-  finalRows.push([BUTTONS.HOME, BUTTONS.MENU]);
-  finalRows.push([BUTTONS.SEARCH, BUTTONS.HELP, BUTTONS.ABOUT]);
+  const allButtons = finalRows.flat();
+
+  const mainRow = [];
+
+  if (!allButtons.includes(BUTTONS.HOME)) {
+    mainRow.push(BUTTONS.HOME);
+  }
+
+  if (!allButtons.includes(BUTTONS.MENU)) {
+    mainRow.push(BUTTONS.MENU);
+  }
+
+  if (mainRow.length) {
+    finalRows.push(mainRow);
+  }
+
+  const toolsRow = [];
+
+  if (!allButtons.includes(BUTTONS.SEARCH)) {
+    toolsRow.push(BUTTONS.SEARCH);
+  }
+
+  if (!allButtons.includes(BUTTONS.HELP)) {
+    toolsRow.push(BUTTONS.HELP);
+  }
+
+  if (!allButtons.includes(BUTTONS.ABOUT)) {
+    toolsRow.push(BUTTONS.ABOUT);
+  }
+
+  if (toolsRow.length) {
+    finalRows.push(toolsRow);
+  }
 
   return {
     keyboard: finalRows.map(row => row.map(text => ({ text }))),
@@ -262,13 +324,6 @@ function logActivityInBackground(chatId, action, details = {}) {
 
 function buttonTitle(node) {
   return `${node.emoji ? node.emoji + " " : ""}${node.title}`;
-}
-
-function cleanButtonText(text) {
-  return String(text || "")
-    .replace("🏠 ", "")
-    .replace("📋 ", "")
-    .trim();
 }
 
 function homeText(settings) {
@@ -642,15 +697,18 @@ async function handleMessage(message) {
   }
 
   if (text === "/setup_commands") {
+    if (ADMIN_TELEGRAM_ID && String(chatId) !== String(ADMIN_TELEGRAM_ID)) {
+      return sendText(chatId, "هذا الأمر خاص بالإدارة فقط.");
+    }
+
     return setupCommands(chatId);
   }
 
   if (
     text === "/start" ||
-    text === BUTTONS.HOME ||
-    text === "الرئيسية" ||
-    text === "🏠 الرئيسية" ||
-    text === homeText(settings)
+    sameText(text, BUTTONS.HOME) ||
+    sameText(text, "الرئيسية") ||
+    sameText(text, homeText(settings))
   ) {
     logActivityInBackground(chatId, "start", { text });
     return showHome(chatId, settings);
@@ -658,9 +716,8 @@ async function handleMessage(message) {
 
   if (
     text === "/menu" ||
-    text === BUTTONS.MENU ||
-    text === "القائمة" ||
-    text === "📋 القائمة"
+    sameText(text, BUTTONS.MENU) ||
+    sameText(text, "القائمة")
   ) {
     logActivityInBackground(chatId, "menu", { text });
     return showMainMenu(chatId, settings);
@@ -668,9 +725,8 @@ async function handleMessage(message) {
 
   if (
     text === "/help" ||
-    text === BUTTONS.HELP ||
-    text === "مساعدة" ||
-    text === "🆘 مساعدة"
+    sameText(text, BUTTONS.HELP) ||
+    sameText(text, "مساعدة")
   ) {
     logActivityInBackground(chatId, "help", {});
     return showHelp(chatId, settings);
@@ -678,18 +734,16 @@ async function handleMessage(message) {
 
   if (
     text === "/about" ||
-    text === BUTTONS.ABOUT ||
-    text === "عن البوت" ||
-    text === "ℹ️ عن البوت"
+    sameText(text, BUTTONS.ABOUT) ||
+    sameText(text, "عن البوت")
   ) {
     logActivityInBackground(chatId, "about", {});
     return showAbout(chatId, settings);
   }
 
   if (
-    text === BUTTONS.SEARCH ||
-    text === "بحث" ||
-    text === "🔎 بحث"
+    sameText(text, BUTTONS.SEARCH) ||
+    sameText(text, "بحث")
   ) {
     logActivityInBackground(chatId, "search_help", {});
     return showSearchInstructions(chatId, settings);
@@ -706,7 +760,10 @@ async function handleMessage(message) {
     return showHome(chatId, settings);
   }
 
-  if (text === BUTTONS.BACK || text === "رجوع" || text === "⬅️ رجوع") {
+  if (
+    sameText(text, BUTTONS.BACK) ||
+    sameText(text, "رجوع")
+  ) {
     logActivityInBackground(chatId, "back", {});
     return goBack(chatId, settings);
   }
@@ -714,7 +771,7 @@ async function handleMessage(message) {
   const state = await getState(chatId);
   const currentNodeId = state?.current_node_id || null;
 
-  if (text === BUTTONS.CONTENT && currentNodeId) {
+  if (sameText(text, BUTTONS.CONTENT) && currentNodeId) {
     logActivityInBackground(chatId, "send_content", {
       node_id: currentNodeId
     });
@@ -727,14 +784,14 @@ async function handleMessage(message) {
     : await getRootNodes();
 
   let node = candidates.find(item => {
-    return buttonTitle(item) === text || item.title === text || item.title === cleanButtonText(text);
+    return sameText(buttonTitle(item), text) || sameText(item.title, text);
   });
 
   if (!node) {
     const roots = await getRootNodes();
 
     node = roots.find(item => {
-      return buttonTitle(item) === text || item.title === text || item.title === cleanButtonText(text);
+      return sameText(buttonTitle(item), text) || sameText(item.title, text);
     });
   }
 
