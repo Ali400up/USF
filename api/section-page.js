@@ -52,6 +52,13 @@ const SECTION_MAP = {
     title: "الفعاليات القادمة | ملتقى الطالب الجامعي",
     description: "المواعيد والفعاليات القادمة بتصميم الفعاليات القادمة في الصفحة الرئيسية."
   },
+
+  join: {
+    id: "join",
+    path: "/join",
+    title: "طلب الانضمام للملتقى | ملتقى الطالب الجامعي",
+    description: "صفحة مخصصة لطلب الانضمام إلى لجان ملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا، عبر تعبئة البيانات واختيار اللجنة المناسبة."
+  },
   issues: {
     id: "issues",
     path: "/issues",
@@ -109,6 +116,21 @@ function injectSeo(html, section) {
   if (!/<meta\s+name=["']robots["']/i.test(html)) {
     html = html.replace("</head>", `  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />\n</head>`);
   }
+
+  const sectionSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": section.title,
+    "description": section.description,
+    "url": canonical,
+    "isPartOf": {
+      "@type": "WebSite",
+      "name": "ملتقى الطالب الجامعي",
+      "url": SITE_URL + "/"
+    }
+  };
+
+  html = html.replace("</head>", `  <script type="application/ld+json">${JSON.stringify(sectionSchema)}</script>\n</head>`);
 
   return html;
 }
@@ -181,6 +203,7 @@ function injectCrop(html, key, section) {
         "#committees":"/committees",
         "#achievements":"/achievements",
         "#initiatives":"/initiatives",
+        "#join":"/join",
         "#issues":"/issues",
         "#timeline":"/events",
         "#goals":"/goals"

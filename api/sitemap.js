@@ -56,12 +56,24 @@ function publicIdFor(key, row = {}) {
   return row.id;
 }
 
+const STATIC_SECTION_PAGES = [
+  { path: "/join", changefreq: "daily", priority: "0.86" },
+  { path: "/issues", changefreq: "daily", priority: "0.82" },
+  { path: "/about", changefreq: "weekly", priority: "0.74" },
+  { path: "/goals", changefreq: "weekly", priority: "0.74" }
+];
+
 module.exports = async function handler(req, res) {
   const urls = [];
   const now = new Date().toISOString();
 
   // الصفحة الرئيسية
   urls.push(urlBlock(`${SITE_URL}/`, isoDate(now), "hourly", "1.00"));
+
+  // صفحات ثابتة مهمة لمحركات البحث مثل /join
+  for (const page of STATIC_SECTION_PAGES) {
+    urls.push(urlBlock(`${SITE_URL}${page.path}`, isoDate(now), page.changefreq, page.priority));
+  }
 
   // الأقسام + عناصر قاعدة البيانات
   for (const [key, section] of Object.entries(SECTIONS)) {
