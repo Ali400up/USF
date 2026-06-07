@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/sitemap.xml",
@@ -63,6 +70,10 @@
     {
       "source": "/events/:id",
       "destination": "/api/seo-page?type=events&id=:id"
+    },
+    {
+      "source": "/join",
+      "destination": "/api/section-page?section=join"
     },
     {
       "source": "/issues",

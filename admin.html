@@ -230,7 +230,7 @@
     }
     @media(max-width:420px){
       .tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.tab{min-height:68px}.tab span{font-size:10.5px}.tab span i{width:32px;height:32px}
-      .stats-grid{grid-template-columns:1fr 1fr}.top-actions .btn[href="index.html"]{display:none}.record-thumb{height:155px}.export-actions{grid-template-columns:1fr 1fr}.icon-grid{grid-template-columns:repeat(3,1fr)}
+      .stats-grid{grid-template-columns:1fr 1fr}.top-actions .btn[href="/"]{display:none}.record-thumb{height:155px}.export-actions{grid-template-columns:1fr 1fr}.icon-grid{grid-template-columns:repeat(3,1fr)}
     }
 
 
@@ -968,7 +968,7 @@
           <div><h1>إدارة ملتقى الطالب الجامعي</h1><p id="userEmail">...</p></div>
         </div>
         <div class="top-actions">
-          <a href="index.html" class="btn btn-soft"><i class="fa-solid fa-eye"></i> عرض الموقع</a>
+          <a href="/" class="btn btn-soft"><i class="fa-solid fa-eye"></i> عرض الموقع</a>
           <button class="btn btn-soft" id="themeBtn" type="button"><i class="fa-solid fa-moon"></i></button>
           <button class="btn btn-danger" id="logoutBtn" type="button"><i class="fa-solid fa-right-from-bracket"></i> خروج</button>
         </div>
@@ -1214,6 +1214,22 @@
           {name:"expected_needs",label:"الاحتياجات المتوقعة",type:"textarea"},
           {name:"suggested_team",label:"الفريق أو الطلاب المقترحون",type:"textarea"},
           {name:"status",label:"الحالة",type:"text",placeholder:"new / reviewing / approved / rejected"},
+          {name:"admin_notes",label:"ملاحظات الإدارة",type:"textarea"}
+        ]
+      },
+
+      student_join_requests: {
+        title:"طلبات الالتحاق بالملتقى", desc:"عرض طلبات الطلاب الراغبين في الانضمام إلى ملتقى الطالب الجامعي، مع متابعة اللجنة المطلوبة والحالة والملاحظات الإدارية.", icon:"fa-user-plus", order:{column:"created_at",ascending:false}, labelField:"student_full_name",
+        fields:[
+          {name:"student_full_name",label:"الاسم الرباعي",type:"text",required:true},
+          {name:"college",label:"الكلية",type:"text",required:true},
+          {name:"specialization",label:"التخصص",type:"text",required:true},
+          {name:"student_level",label:"المستوى",type:"text",required:true},
+          {name:"phone_number",label:"رقم الهاتف",type:"text",required:true,placeholder:"77xxxxxxx"},
+          {name:"requested_committee",label:"اللجنة المراد الانضمام إليها",type:"select",options:["اللجنة العلمية","لجنة المبادرات الطلابية","لجنة الأنشطة الطلابية","اللجنة الإعلامية الطلابية","اللجنة الثقافية الطلابية","لجنة شؤون الطلبة - الإشكالات الطلابية","لجنة التدريب الطلابية - إقامة الدورات العلمية"],placeholder:"اختر اللجنة",required:true},
+          {name:"scientific_department",label:"قسم اللجنة العلمية",type:"select",options:["قسم الملخصات والتسهيل العلمي","قسم الأنشطة العلمية","قسم النماذج","قسم البوتات والداتا العلمية"],placeholder:"اختر القسم إذا كانت اللجنة العلمية"},
+          {name:"notes",label:"ملاحظات الطالب",type:"textarea"},
+          {name:"status",label:"الحالة",type:"select",options:["new","reviewing","accepted","rejected"],placeholder:"new / reviewing / accepted / rejected"},
           {name:"admin_notes",label:"ملاحظات الإدارة",type:"textarea"}
         ]
       },
@@ -1961,9 +1977,9 @@
 
     async function loadStats(){
       if(!assertClient())return;
-      const important=["tv_news","activities","courses","achievements","student_initiatives","student_initiative_suggestions","student_issues"];
-      const labels={tv_news:"أخبار",activities:"أنشطة",courses:"دورات",achievements:"إنجازات",student_initiatives:"مبادرات",student_initiative_suggestions:"مقترحات",student_issues:"شكاوى"};
-      const icons={tv_news:"fa-tv",activities:"fa-calendar-check",courses:"fa-book-open-reader",achievements:"fa-trophy",student_initiatives:"fa-hand-holding-heart",student_initiative_suggestions:"fa-lightbulb",student_issues:"fa-headset"};
+      const important=["tv_news","activities","courses","achievements","student_initiatives","student_initiative_suggestions","student_join_requests","student_issues"];
+      const labels={tv_news:"أخبار",activities:"أنشطة",courses:"دورات",achievements:"إنجازات",student_initiatives:"مبادرات",student_initiative_suggestions:"مقترحات",student_join_requests:"طلبات التحاق",student_issues:"شكاوى"};
+      const icons={tv_news:"fa-tv",activities:"fa-calendar-check",courses:"fa-book-open-reader",achievements:"fa-trophy",student_initiatives:"fa-hand-holding-heart",student_initiative_suggestions:"fa-lightbulb",student_join_requests:"fa-user-plus",student_issues:"fa-headset"};
       let stats=[];
       for(const table of visibleTableKeys()){
         const {count}=await db.from(table).select("*",{count:"exact",head:true});
