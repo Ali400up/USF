@@ -7,7 +7,8 @@ const SUPABASE_URL = (process.env.SUPABASE_URL || "https://bvkcfdagsfmqrhyqspan.
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY || "";
 
 const SITE_NAME = "ملتقى الطالب الجامعي - جامعة العلوم والتكنولوجيا";
-const DEFAULT_DESCRIPTION = "ملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا: أخبار، أنشطة، دورات، لجان، فعاليات، ومتابعة لقضايا الطلاب.";
+const DEFAULT_DESCRIPTION = "ملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا: البوابة الإلكترونية الرسمية للأخبار، الأنشطة الطلابية، الدورات التدريبية، لجان الملتقى، المبادرات، الفعاليات، الشكاوى، وطلب الانضمام لخدمة الطلاب.";
+const DEFAULT_KEYWORDS = "ملتقى الطالب الجامعي, جامعة العلوم والتكنولوجيا, جامعة العلوم والتكنولوجيا اليمن, University of Science and Technology, USF UST, البوابة الإلكترونية للملتقى, أخبار الجامعة, أنشطة طلابية, دورات تدريبية, لجان طلابية, اللجنة العلمية, لجنة المبادرات الطلابية, لجنة الأنشطة الطلابية, اللجنة الإعلامية الطلابية, اللجنة الثقافية الطلابية, لجنة شؤون الطلبة, لجنة التدريب الطلابية, شكاوى الطلاب, مبادرات طلابية";
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
 
 const SECTIONS = {
@@ -21,7 +22,7 @@ const SECTIONS = {
     color: "#0B5ED7",
     gridClass: "activities-grid",
     cardClass: "activity-card",
-    description: "تابع آخر أخبار وإعلانات ملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا.",
+    description: "تابع آخر أخبار وإعلانات ملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا: أخبار الجامعة، التعميمات الطلابية، المستجدات الأكاديمية، الأنشطة، المبادرات، والدورات التي تهم طلاب الجامعة.",
     order: "created_at.desc",
     schema: "NewsArticle",
     titleField: "title",
@@ -41,7 +42,7 @@ const SECTIONS = {
     color: "#0096C7",
     gridClass: "activities-grid",
     cardClass: "activity-card",
-    description: "أنشطة ورحلات وفعاليات طلابية ينظمها ملتقى الطالب الجامعي.",
+    description: "أنشطة ورحلات وفعاليات طلابية ينظمها ملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا، تشمل البرامج العلمية والثقافية والاجتماعية والزيارات الميدانية والخدمات الطلابية.",
     order: "created_at.desc",
     schema: "Event",
     titleField: "title",
@@ -61,7 +62,7 @@ const SECTIONS = {
     color: "#1E88E5",
     gridClass: "courses-grid",
     cardClass: "course-card",
-    description: "دورات تدريبية وتطويرية للطلاب والمهتمين بمختلف المجالات.",
+    description: "دورات تدريبية وعلمية ومهارية يقدمها ملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا لتطوير مهارات الطلاب في المجالات العلمية، التقنية، الإعلامية، الثقافية، والتدريبية.",
     order: "created_at.desc",
     schema: "Course",
     titleField: "title",
@@ -81,7 +82,7 @@ const SECTIONS = {
     color: "#1565C0",
     gridClass: "committees-grid",
     cardClass: "committee-card",
-    description: "تعرف على لجان ملتقى الطالب الجامعي وأدوارها وروابطها.",
+    description: "تعرف على لجان ملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا وأدوارها وروابطها: اللجنة العلمية، الإعلامية، الثقافية، الأنشطة، المبادرات، شؤون الطلبة، والتدريب الطلابي.",
     order: "sort_order.asc",
     schema: "Organization",
     titleField: "name",
@@ -101,7 +102,7 @@ const SECTIONS = {
     color: "#0288D1",
     gridClass: "achievements-grid",
     cardClass: "achievement-story-card",
-    description: "إنجازات ملتقى الطالب الجامعي موثقة بالصور والتفاصيل والتواريخ.",
+    description: "إنجازات وأعمال ملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا موثقة بالصور والتفاصيل والتواريخ، وتشمل الإنجازات العلمية والخدمية والتدريبية والإعلامية والثقافية لصالح الطلاب.",
     order: "sort_order.asc,achievement_date.desc,created_at.desc",
     schema: "Article",
     titleField: "title",
@@ -121,7 +122,7 @@ const SECTIONS = {
     color: "#0B7FAB",
     gridClass: "activities-grid",
     cardClass: "initiative-card",
-    description: "مبادرات طلابية ومقترحات تطوعية وخيرية وتعليمية يديرها ملتقى الطالب الجامعي.",
+    description: "مبادرات طلابية ومقترحات تطوعية وخيرية وتعليمية يديرها ملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا لخدمة الطلاب وتطوير البيئة الجامعية.",
     order: "sort_order.asc,initiative_date.desc,created_at.desc",
     schema: "Article",
     titleField: "title",
@@ -141,7 +142,7 @@ const SECTIONS = {
     color: "#1976D2",
     gridClass: "timeline-wrap",
     cardClass: "timeline-card",
-    description: "جدول الفعاليات القادمة والأنشطة المجدولة للطلاب.",
+    description: "جدول الفعاليات القادمة والأنشطة المجدولة لملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا، ويشمل مواعيد الدورات واللقاءات والبرامج الطلابية.",
     order: "event_date.asc",
     schema: "Event",
     titleField: "title",
@@ -344,6 +345,7 @@ function htmlLayout({ title, description, canonical, image, activePath, body, sc
   const safeDescription = escapeAttr(truncate(description || DEFAULT_DESCRIPTION, 170));
   const safeCanonical = escapeAttr(canonical || SITE_URL + "/");
   const safeImage = escapeAttr(image || DEFAULT_IMAGE);
+  const safeKeywords = escapeAttr(DEFAULT_KEYWORDS);
   const baseWebSiteSchema = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -353,7 +355,14 @@ function htmlLayout({ title, description, canonical, image, activePath, body, sc
       "USF UST",
       "University Student Forum"
     ],
-    "url": SITE_URL + "/"
+    "url": SITE_URL + "/",
+    "inLanguage": "ar",
+    "publisher": { "@type": "Organization", "name": "ملتقى الطالب الجامعي" },
+    "about": [
+      { "@type": "CollegeOrUniversity", "name": "جامعة العلوم والتكنولوجيا" },
+      { "@type": "Thing", "name": "خدمات الطلاب" },
+      { "@type": "Thing", "name": "لجان ملتقى الطالب الجامعي" }
+    ]
   };
   const jsonLd = schema
     ? `<script type="application/ld+json">${JSON.stringify(baseWebSiteSchema)}</script>\n  <script type="application/ld+json">${JSON.stringify(schema)}</script>`
@@ -367,6 +376,7 @@ function htmlLayout({ title, description, canonical, image, activePath, body, sc
   <meta name="theme-color" content="#0B5ED7" />
   <title>${safeTitle}</title>
   <meta name="description" content="${safeDescription}" />
+  <meta name="keywords" content="${safeKeywords}" />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
   <link rel="canonical" href="${safeCanonical}" />
   <!-- Favicons + App Icons -->
@@ -424,7 +434,7 @@ function errorPage(message = "الصفحة غير موجودة") {
 }
 
 module.exports = {
-  SITE_URL, SUPABASE_URL, SUPABASE_KEY, SITE_NAME, DEFAULT_DESCRIPTION, DEFAULT_IMAGE, SECTIONS,
+  SITE_URL, SUPABASE_URL, SUPABASE_KEY, SITE_NAME, DEFAULT_DESCRIPTION, DEFAULT_KEYWORDS, DEFAULT_IMAGE, SECTIONS,
   escapeHtml, escapeAttr, escapeXml, stripHtml, truncate, isoDate, absoluteUrl,
   titleOf, textOf, detailOf, parseImages, imageOf, urlFor,
   responseHeaders, supabaseSelect, htmlLayout, errorPage
