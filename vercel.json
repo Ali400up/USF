@@ -76,6 +76,10 @@
       "destination": "/api/section-page?section=join"
     },
     {
+      "source": "/assistant",
+      "destination": "/api/section-page?section=assistant"
+    },
+    {
       "source": "/issues",
       "destination": "/api/section-page?section=issues"
     },

@@ -2668,6 +2668,22 @@
     .join-note{grid-column:1/-1;display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:18px;background:rgba(11,94,215,.08);border:1px solid rgba(11,94,215,.14);color:var(--muted);font-size:13px;font-weight:900;line-height:1.8}
     .join-note i{margin-top:4px;color:var(--primary)}
 
+    /* Smart assistant */
+    #assistant{--section-color:#087F8C;--section-soft:rgba(8,127,140,.11)}
+    .assistant-shell{display:grid;grid-template-columns:minmax(280px,.72fr) minmax(0,1.28fr);min-height:640px;overflow:hidden;border:1px solid var(--border2);border-radius:32px;background:var(--glass2);box-shadow:var(--shadow2)}
+    .assistant-info{padding:30px;position:relative;overflow:hidden;color:#fff;background:linear-gradient(145deg,#063B8F 0%,#0B5ED7 54%,#087F8C 100%)}
+    .assistant-mark{width:70px;height:70px;margin-bottom:22px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.25);border-radius:24px;background:rgba(255,255,255,.14);font-size:29px;box-shadow:0 18px 45px rgba(0,0,0,.14)}
+    .assistant-info h3{margin-bottom:10px;font-size:30px;line-height:1.45;font-weight:900}.assistant-info>p{color:rgba(255,255,255,.82);line-height:2;font-weight:700}
+    .assistant-capabilities{display:grid;gap:11px;margin-top:26px}.assistant-capability{display:flex;align-items:flex-start;gap:11px;padding:12px;border:1px solid rgba(255,255,255,.14);border-radius:18px;background:rgba(255,255,255,.09);font-size:13px;line-height:1.7;font-weight:800}.assistant-capability i{width:28px;height:28px;flex:0 0 28px;display:grid;place-items:center;border-radius:10px;background:rgba(255,255,255,.15);color:#B8FFF5}
+    .assistant-note{position:relative;z-index:1;margin-top:24px;padding-top:17px;border-top:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.72);font-size:12px;line-height:1.8;font-weight:700}
+    .assistant-chat{min-width:0;display:grid;grid-template-rows:auto minmax(0,1fr) auto;background:linear-gradient(180deg,rgba(238,247,255,.78),rgba(255,255,255,.94))}.dark .assistant-chat{background:linear-gradient(180deg,rgba(10,31,53,.96),rgba(6,21,37,.98))}
+    .assistant-chat-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:18px 22px;border-bottom:1px solid var(--border);background:var(--glass)}.assistant-profile{display:flex;align-items:center;gap:12px;min-width:0}.assistant-avatar{width:48px;height:48px;flex:0 0 48px;display:grid;place-items:center;border-radius:17px;color:#fff;background:linear-gradient(135deg,#087F8C,#0B5ED7);font-size:20px}.assistant-profile strong{display:block;font-size:16px;font-weight:900}.assistant-status{display:flex;align-items:center;gap:7px;margin-top:3px;color:var(--muted);font-size:11px;font-weight:800}.assistant-status::before{content:"";width:8px;height:8px;border-radius:50%;background:#15B77E;box-shadow:0 0 0 4px rgba(21,183,126,.12)}.assistant-clear{width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--border);border-radius:14px;background:var(--glass2);color:var(--muted);cursor:pointer;transition:.25s var(--ease)}.assistant-clear:hover{color:#D92D20;border-color:rgba(217,45,32,.22)}.assistant-clear:disabled{opacity:.45;cursor:not-allowed}
+    .assistant-messages{height:430px;overflow-y:auto;padding:22px;scroll-behavior:smooth}.assistant-message{display:flex;align-items:flex-end;gap:9px;margin-bottom:17px}.assistant-message.user{flex-direction:row-reverse}.assistant-message-icon{width:32px;height:32px;flex:0 0 32px;display:grid;place-items:center;border-radius:11px;color:#fff;background:#087F8C;font-size:12px}.assistant-message.user .assistant-message-icon{background:#0B5ED7}.assistant-bubble{max-width:min(82%,620px);padding:13px 15px;border:1px solid var(--border);border-radius:18px 18px 18px 5px;background:var(--glass2);color:var(--text);font-size:14px;line-height:1.95;font-weight:700;box-shadow:0 10px 30px rgba(11,94,215,.08);overflow-wrap:anywhere}.assistant-message.user .assistant-bubble{border-radius:18px 18px 5px 18px;border-color:transparent;color:#fff;background:linear-gradient(135deg,#0B5ED7,#0752BA)}.assistant-bubble a{color:#087F8C;text-decoration:underline;text-underline-offset:3px;font-weight:900}.assistant-message.user .assistant-bubble a{color:#fff}.assistant-message-time{display:block;margin-top:5px;color:var(--muted);font-size:10px;font-weight:700}.assistant-message.user .assistant-message-time{color:rgba(255,255,255,.7)}
+    .assistant-typing{display:inline-flex;align-items:center;gap:5px;min-width:64px}.assistant-typing span{width:7px;height:7px;border-radius:50%;background:#087F8C;animation:assistantTyping 1s infinite ease-in-out}.assistant-typing span:nth-child(2){animation-delay:.14s}.assistant-typing span:nth-child(3){animation-delay:.28s}@keyframes assistantTyping{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-5px);opacity:1}}
+    .assistant-compose{padding:14px 18px 18px;border-top:1px solid var(--border);background:var(--glass)}.assistant-suggestions{display:flex;gap:7px;margin-bottom:11px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}.assistant-suggestions::-webkit-scrollbar{display:none}.assistant-suggestion{flex:0 0 auto;padding:8px 11px;border:1px solid rgba(8,127,140,.18);border-radius:999px;background:rgba(8,127,140,.07);color:#087F8C;cursor:pointer;font-size:11px;font-weight:900;white-space:nowrap}.dark .assistant-suggestion{color:#72E5E2;background:rgba(8,127,140,.16)}
+    .assistant-form{display:grid;grid-template-columns:minmax(0,1fr) 52px;align-items:end;gap:9px}.assistant-input-wrap{position:relative}.assistant-input{min-height:54px;max-height:130px;padding:14px 15px 22px!important;resize:none!important;border-radius:18px!important;background:var(--glass2)!important;line-height:1.65}.assistant-counter{position:absolute;bottom:5px;left:12px;color:var(--muted);font-size:9px;font-weight:800}.assistant-send{width:52px;height:52px;display:grid;place-items:center;border:0;border-radius:18px;color:#fff;background:linear-gradient(135deg,#087F8C,#0B5ED7);cursor:pointer;font-size:17px;box-shadow:0 12px 30px rgba(11,94,215,.22);transition:.25s var(--ease)}.assistant-send:hover{transform:translateY(-3px)}.assistant-send:disabled{opacity:.55;cursor:not-allowed;transform:none}.assistant-privacy{margin-top:8px;color:var(--muted);font-size:10px;font-weight:700;text-align:center}
+    @media(max-width:860px){.assistant-shell{grid-template-columns:1fr}.assistant-chat{order:-1}.assistant-info{padding:24px}.assistant-capabilities{grid-template-columns:repeat(2,minmax(0,1fr))}.assistant-note{margin-top:18px}.assistant-messages{height:420px}}
+    @media(max-width:560px){.assistant-shell{border-radius:24px}.assistant-info{padding:21px}.assistant-info h3{font-size:25px}.assistant-capabilities{grid-template-columns:1fr}.assistant-chat-head{padding:15px}.assistant-messages{height:390px;padding:16px 12px}.assistant-bubble{max-width:88%;font-size:13px}.assistant-compose{padding:12px}.assistant-suggestions{margin-inline:-2px}}
   </style>
   <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
   <link rel="alternate" type="application/rss+xml" title="آخر أخبار ملتقى الطالب الجامعي" href="/feed.xml" />
@@ -2687,7 +2703,7 @@
     <section class="hero" id="home">
       <div class="container hero-layout">
         <div class="hero-content reveal"><div class="hero-badge"><i class="fa-solid fa-star"></i> ملتقى الطالب الجامعي</div><h1>ملتقى الطالب <span class="gradient-text">الجامعي</span></h1><div class="typed-line"><span id="typedText"></span></div><p>بوابة الطالب إلى أخبار الملتقى، الدورات، الأنشطة، اللجان، الفعاليات، وقنوات التواصل الطلابي.</p>
-          <div class="hero-actions"><a class="btn btn-science" href="#committees"><i class="fa-solid fa-microscope"></i> اللجان العلمية</a><a class="btn btn-dark" href="#activities"><i class="fa-solid fa-bullhorn"></i> استكشف الأنشطة</a><a class="btn btn-light" href="/join"><i class="fa-solid fa-user-plus"></i> الانضمام للملتقى</a></div>
+          <div class="hero-actions"><a class="btn btn-science" href="#committees"><i class="fa-solid fa-microscope"></i> اللجان العلمية</a><a class="btn btn-dark" href="#assistant"><i class="fa-solid fa-robot"></i> اسأل المساعد الذكي</a><a class="btn btn-light" href="/join"><i class="fa-solid fa-user-plus"></i> الانضمام للملتقى</a></div>
           <div class="hero-chips quick-links">
             <a class="quick-card" href="#latest-news"><span class="quick-icon"><i class="fa-solid fa-newspaper"></i></span><span class="quick-text"><strong>آخر الأخبار</strong><small>تابع أخبار الملتقى</small></span><i class="fa-solid fa-arrow-left quick-arrow"></i></a>
             <a class="quick-card" href="#courses"><span class="quick-icon"><i class="fa-solid fa-book-open-reader"></i></span><span class="quick-text"><strong>الدورات</strong><small>تدريب وتأهيل</small></span><i class="fa-solid fa-arrow-left quick-arrow"></i></a>
@@ -2727,6 +2743,50 @@
         </form>
       </div><div class="activities-grid" id="initiativesGrid"><div class="empty-state">جاري عرض المبادرات الطلابية...</div></div><div class="section-more-actions reveal" id="initiativesMoreWrap" style="display:none;"><button class="btn premium-more-btn" id="toggleInitiativesBtn" type="button"><span class="more-icon"><i class="fa-solid fa-hand-holding-heart"></i></span><span class="more-content"><span class="more-text">عرض المزيد من المبادرات</span><span class="more-subtext">استكشف بقية المبادرات الطلابية</span></span><span class="more-arrow"><i class="fa-solid fa-chevron-down"></i></span><span class="more-count">+0</span></button></div></div></section>
 
+    <section id="assistant">
+      <div class="container">
+        <div class="section-header reveal">
+          <div><div class="section-kicker">مساعد الملتقى الذكي</div><h2 class="section-title">اسأل عن الملتقى واحصل على المعلومة المعتمدة</h2></div>
+          <p class="section-desc">إجابات مباشرة عن اللجان، الانضمام، الأنشطة، الدورات، المبادرات، والخدمات الطلابية.</p>
+        </div>
+        <div class="assistant-shell reveal delay-1">
+          <aside class="assistant-info">
+            <div class="assistant-mark"><i class="fa-solid fa-robot"></i></div>
+            <h3>مساعد ملتقى الطالب الجامعي</h3>
+            <p>دليل ذكي يعتمد على المعلومات المحدثة والمعتمدة في موقع ملتقى الطالب الجامعي بجامعة العلوم والتكنولوجيا بصنعاء.</p>
+            <div class="assistant-capabilities">
+              <div class="assistant-capability"><i class="fa-solid fa-user-plus"></i><span>طريقة الانضمام وشروط العضوية</span></div>
+              <div class="assistant-capability"><i class="fa-solid fa-sitemap"></i><span>اللجان ومهام كل لجنة وروابطها</span></div>
+              <div class="assistant-capability"><i class="fa-solid fa-calendar-check"></i><span>الأنشطة والدورات والفعاليات</span></div>
+              <div class="assistant-capability"><i class="fa-solid fa-link"></i><span>الوصول إلى الصفحات والنماذج الرسمية</span></div>
+            </div>
+            <div class="assistant-note"><i class="fa-solid fa-shield-halved"></i> إذا لم تتوفر معلومة معتمدة، سيخبرك المساعد بذلك بدل تقديم إجابة غير مؤكدة.</div>
+          </aside>
+          <div class="assistant-chat">
+            <div class="assistant-chat-head">
+              <div class="assistant-profile"><div class="assistant-avatar"><i class="fa-solid fa-graduation-cap"></i></div><div><strong>مساعد الملتقى</strong><span class="assistant-status" id="assistantStatus">جاهز لاستقبال سؤالك</span></div></div>
+              <button class="assistant-clear" id="assistantClear" type="button" title="مسح المحادثة" aria-label="مسح المحادثة"><i class="fa-solid fa-trash-can"></i></button>
+            </div>
+            <div class="assistant-messages" id="assistantMessages" aria-live="polite">
+              <div class="assistant-message assistant"><div class="assistant-message-icon"><i class="fa-solid fa-robot"></i></div><div class="assistant-bubble">مرحبًا بك. اسألني عن ملتقى الطالب الجامعي، اللجان، شروط الانضمام، الأنشطة، الدورات، أو الخدمات المتاحة.<span class="assistant-message-time">الآن</span></div></div>
+            </div>
+            <div class="assistant-compose">
+              <div class="assistant-suggestions" aria-label="أسئلة مقترحة">
+                <button class="assistant-suggestion" type="button">كيف أنضم إلى الملتقى؟</button>
+                <button class="assistant-suggestion" type="button">ما لجان الملتقى؟</button>
+                <button class="assistant-suggestion" type="button">ما شروط العضوية؟</button>
+                <button class="assistant-suggestion" type="button">ما الدورات المتاحة؟</button>
+              </div>
+              <form class="assistant-form" id="assistantForm">
+                <div class="assistant-input-wrap"><textarea class="assistant-input" id="assistantInput" maxlength="800" rows="1" placeholder="اكتب سؤالك عن الملتقى..." required></textarea><span class="assistant-counter" id="assistantCounter">0 / 800</span></div>
+                <button class="assistant-send" id="assistantSend" type="submit" aria-label="إرسال السؤال"><i class="fa-solid fa-paper-plane"></i></button>
+              </form>
+              <div class="assistant-privacy"><i class="fa-solid fa-lock"></i> لا تُحفظ محادثتك في قاعدة البيانات.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
     <section id="join"><div class="container issues-layout"><div class="issues-panel reveal"><h2>انضم إلى ملتقى الطالب الجامعي</h2><p>إذا لديك رغبة في العمل الطلابي وخدمة زملائك، سجّل بياناتك واختر اللجنة المناسبة، وسيتم التواصل معك عبر الرقم المرسل.</p><div class="steps"><div class="step"><span><i class="fa-solid fa-user-pen"></i></span> املأ بياناتك الأساسية</div><div class="step"><span><i class="fa-solid fa-sitemap"></i></span> اختر اللجنة التي ترغب بها</div><div class="step"><span><i class="fa-solid fa-phone-volume"></i></span> يتم التواصل معك قريبًا</div></div></div><form class="issue-form reveal delay-1" id="joinForm"><div class="form-grid"><div class="field"><label><i class="fa-solid fa-user"></i> الاسم الرباعي</label><input name="student_full_name" type="text" placeholder="اكتب اسمك الرباعي" required /></div><div class="field"><label><i class="fa-solid fa-building-columns"></i> الكلية</label><input name="college" type="text" placeholder="مثال: كلية الطب" required /></div><div class="field"><label><i class="fa-solid fa-graduation-cap"></i> التخصص</label><input name="specialization" type="text" placeholder="مثال: طب بشري" required /></div><div class="field"><label><i class="fa-solid fa-layer-group"></i> المستوى</label><input name="student_level" type="text" placeholder="مثال: المستوى الثالث" required /></div><div class="field"><label><i class="fa-solid fa-hashtag"></i> كود التسجيل</label><input name="registration_code" type="number" inputmode="numeric" min="0" placeholder="اكتب كود التسجيل" required /></div><div class="field phone-field"><label><i class="fa-solid fa-phone"></i> رقم الهاتف</label><input name="phone_number" type="tel" placeholder="77xxxxxxx" required /></div><div class="field"><label><i class="fa-solid fa-sitemap"></i> اللجنة المراد الانضمام إليها</label><select name="requested_committee" id="joinCommitteeSelect" required><option value="">اختر اللجنة</option><option value="اللجنة العلمية">اللجنة العلمية</option><option value="لجنة المبادرات الطلابية">لجنة المبادرات الطلابية</option><option value="لجنة الأنشطة الطلابية">لجنة الأنشطة الطلابية</option><option value="اللجنة الإعلامية الطلابية">اللجنة الإعلامية الطلابية</option><option value="اللجنة الثقافية الطلابية">اللجنة الثقافية الطلابية</option><option value="لجنة شؤون الطلبة - الإشكالات الطلابية">لجنة شؤون الطلبة - الإشكالات الطلابية</option><option value="لجنة التدريب الطلابية - إقامة الدورات العلمية">لجنة التدريب الطلابية - إقامة الدورات العلمية</option></select></div><div class="field full join-scientific-wrap" id="joinScientificWrap"><label><i class="fa-solid fa-microscope"></i> قسم اللجنة العلمية</label><select name="scientific_department" id="joinScientificSubcommittee"><option value="">اختر القسم العلمي</option><option>قسم الملخصات والتسهيل العلمي</option><option>قسم الأنشطة العلمية</option><option>قسم النماذج</option><option>قسم البوتات والداتا العلمية</option></select></div><div class="field full"><label><i class="fa-solid fa-message"></i> ملاحظات اختيارية</label><textarea name="notes" placeholder="اكتب مهارة أو خبرة مختصرة إن وجدت"></textarea></div><div class="join-note"><i class="fa-solid fa-circle-info"></i><span>سوف يتم التواصل معك في أقرب وقت من الملتقى عبر الرقم المرسل.</span></div><div class="field full"><button class="btn btn-dark" type="submit"><i class="fa-solid fa-paper-plane"></i> إرسال طلب الانضمام</button></div></div></form></div></section>
     <section id="issues"><div class="container issues-layout"><div class="issues-panel reveal"><h2>قدّم إشكاليتك أو شكواك بطريقة منظمة</h2><p>اكتب طلبك بوضوح وسيتم استقباله ومتابعته من الجهة المختصة داخل الملتقى.</p><div class="steps"><div class="step"><span><i class="fa-solid fa-list-check"></i></span> اختر نوع الإشكالية</div><div class="step"><span><i class="fa-solid fa-pen-to-square"></i></span> اكتب التفاصيل بوضوح</div><div class="step"><span><i class="fa-solid fa-share-nodes"></i></span> تتم متابعتها من لوحة الأدمن</div></div></div><form class="issue-form reveal delay-1" id="issueForm"><div class="form-grid"><div class="field"><label><i class="fa-solid fa-user"></i> الاسم</label><input name="student_name" placeholder="اكتب اسمك" required type="text" /></div><div class="field phone-field"><label><i class="fa-solid fa-phone"></i> رقم الهاتف</label><input name="phone_number" placeholder="مثال: 77xxxxxxx" required type="tel" /></div><div class="field"><label><i class="fa-solid fa-layer-group"></i> نوع الطلب</label><select name="issue_type" required><option value="">اختر النوع</option><option>إشكالية أكاديمية</option><option>شكوى</option><option>اقتراح</option><option>مشكلة تقنية</option></select></div><div class="field full"><label><i class="fa-solid fa-heading"></i> عنوان الإشكالية</label><input name="title" placeholder="مثال: مشكلة في التسجيل في الدورة" required type="text" /></div><div class="field full"><label><i class="fa-solid fa-message"></i> التفاصيل</label><textarea name="description" placeholder="اشرح المشكلة أو الشكوى بالتفصيل" required></textarea></div><div class="field full"><button class="btn btn-dark" type="submit"><i class="fa-solid fa-paper-plane"></i> إرسال الطلب</button></div></div></form></div></section>
     <section id="timeline"><div class="container"><div class="section-header reveal"><div><div class="section-kicker">الفعاليات القادمة</div><h2 class="section-title">مواعيد وفعاليات قادمة</h2></div><p class="section-desc">كل موعد مهم في مكان واحد، حتى لا يفوت الطالب أي فعالية.</p></div><div class="timeline-wrap" id="eventsTimeline"><div class="empty-state">جاري عرض الفعاليات...</div></div></div></section>
@@ -2741,7 +2801,7 @@
   <div class="committee-links-backdrop" id="committeeLinksBackdrop"><div class="committee-links-sheet"><div class="sheet-handle"></div><div class="sheet-head"><div class="sheet-icon" id="linksSheetIcon"><i class="fa-solid fa-link"></i></div><div><h3 id="linksSheetTitle">روابط اللجنة</h3><p id="linksSheetSubtitle">روابط مهمة مع توضيح لمن كل رابط مخصص</p></div><button class="sheet-close" id="linksSheetClose" type="button"><i class="fa-solid fa-xmark"></i></button></div><div class="links-list" id="committeeLinksList"><div class="links-empty">جاري تحميل الروابط...</div></div></div></div>
   <div class="activity-details-backdrop" id="activityDetailsBackdrop"><div class="activity-details-box"><div class="activity-details-head"><div class="activity-details-icon" id="activityDetailsIcon"><i class="fa-solid fa-images"></i></div><div><h3 id="activityDetailsTitle">تفاصيل النشاط</h3><p id="activityDetailsSubtitle">معرض الصور وتفاصيل النشاط</p></div><button class="activity-details-close" id="activityDetailsClose" type="button"><i class="fa-solid fa-xmark"></i></button></div><div class="activity-details-layout"><div class="activity-details-gallery" id="activityDetailsGallery"></div><div class="activity-details-info"><div class="activity-info-card"><h4><i class="fa-solid fa-circle-info"></i> وصف النشاط</h4><p id="activityDetailsDescription"></p></div><div class="activity-info-card"><h4><i class="fa-solid fa-location-dot"></i> معلومات النشاط</h4><ul id="activityDetailsMeta"></ul></div><div class="activity-info-card"><h4><i class="fa-solid fa-list-check"></i> تفاصيل إضافية</h4><p id="activityDetailsLong"></p></div></div></div></div></div>
   <div class="image-viewer" id="imageViewer"><button id="imageViewerClose" type="button"><i class="fa-solid fa-xmark"></i></button><img alt="صورة النشاط" id="imageViewerImg" src="" /></div>
-  <nav class="bottom-nav"><a href="#home"><i class="fa-solid fa-house"></i>الرئيسية</a><a href="#committees"><i class="fa-solid fa-sitemap"></i>اللجان</a><a href="#courses"><i class="fa-solid fa-book-open-reader"></i>الدورات</a><a href="#initiatives"><i class="fa-solid fa-hand-holding-heart"></i>المبادرات</a><a href="#issues"><i class="fa-solid fa-headset"></i>الشكاوى</a><a href="#timeline"><i class="fa-solid fa-calendar-days"></i>الفعاليات</a></nav>
+  <nav class="bottom-nav"><a href="#home"><i class="fa-solid fa-house"></i>الرئيسية</a><a href="#committees"><i class="fa-solid fa-sitemap"></i>اللجان</a><a href="#courses"><i class="fa-solid fa-book-open-reader"></i>الدورات</a><a href="#assistant"><i class="fa-solid fa-robot"></i>المساعد</a><a href="#issues"><i class="fa-solid fa-headset"></i>الشكاوى</a><a href="#timeline"><i class="fa-solid fa-calendar-days"></i>الفعاليات</a></nav>
   <div class="toast" id="toast"></div>
   <script>
     const SUPABASE_URL="https://bvkcfdagsfmqrhyqspan.supabase.co";
@@ -3492,6 +3552,84 @@ function closeActivityDetails(){activityDetailsBackdrop.classList.remove("show")
 
     function applyCurrentFilter(){const active=document.querySelector(".filter-btn.active")?.dataset.filter||"all";document.querySelectorAll(".course-card").forEach(card=>{const match=active==="all"||card.dataset.category===active;card.style.display=match?"block":"none";card.classList.remove("section-more-hidden");});const selector=active==="all"?".course-card":`.course-card[data-category="${active}"]`;setupPremiumMore("coursesGrid","toggleCoursesBtn",selector,3,"عرض المزيد من الدورات","إخفاء الدورات");}document.querySelectorAll(".filter-btn").forEach(btn=>{btn.onclick=()=>{document.querySelectorAll(".filter-btn").forEach(b=>b.classList.remove("active"));btn.classList.add("active");applyCurrentFilter();};});
     activityDetailsClose.onclick=closeActivityDetails;activityDetailsBackdrop.onclick=e=>{if(e.target===activityDetailsBackdrop)closeActivityDetails();};imageViewerClose.onclick=closeImageViewer;imageViewer.onclick=e=>{if(e.target===imageViewer)closeImageViewer();};
+    const assistantForm=$("assistantForm"),assistantInput=$("assistantInput"),assistantMessages=$("assistantMessages"),assistantSend=$("assistantSend"),assistantClear=$("assistantClear"),assistantStatus=$("assistantStatus"),assistantCounter=$("assistantCounter");
+    const assistantHistory=[];
+    function assistantTime(){return new Intl.DateTimeFormat("ar",{hour:"2-digit",minute:"2-digit"}).format(new Date());}
+    function formatAssistantAnswer(text){
+      const escaped=safeText(text||"");
+      return escaped.replace(/https?:\/\/[^\s<]+/g,url=>{
+        const clean=url.replace(/[.,،؛)\]]+$/g,"");
+        const suffix=url.slice(clean.length);
+        return `<a href="${clean}" target="_blank" rel="noopener">${clean}</a>${suffix}`;
+      }).replace(/\n/g,"<br>");
+    }
+    function addAssistantMessage(text,role="assistant"){
+      if(!assistantMessages)return null;
+      const row=document.createElement("div");
+      row.className=`assistant-message ${role}`;
+      row.innerHTML=`<div class="assistant-message-icon"><i class="fa-solid ${role==="user"?"fa-user":"fa-robot"}"></i></div><div class="assistant-bubble">${formatAssistantAnswer(text)}<span class="assistant-message-time">${assistantTime()}</span></div>`;
+      assistantMessages.appendChild(row);
+      assistantMessages.scrollTop=assistantMessages.scrollHeight;
+      return row;
+    }
+    function addAssistantTyping(){
+      const row=document.createElement("div");
+      row.className="assistant-message assistant";
+      row.id="assistantTyping";
+      row.innerHTML='<div class="assistant-message-icon"><i class="fa-solid fa-robot"></i></div><div class="assistant-bubble"><span class="assistant-typing"><span></span><span></span><span></span></span></div>';
+      assistantMessages.appendChild(row);
+      assistantMessages.scrollTop=assistantMessages.scrollHeight;
+      return row;
+    }
+    function resetAssistantConversation(){
+      assistantHistory.length=0;
+      assistantMessages.innerHTML='<div class="assistant-message assistant"><div class="assistant-message-icon"><i class="fa-solid fa-robot"></i></div><div class="assistant-bubble">مرحبًا بك. اسألني عن ملتقى الطالب الجامعي، اللجان، شروط الانضمام، الأنشطة، الدورات، أو الخدمات المتاحة.<span class="assistant-message-time">الآن</span></div></div>';
+      assistantStatus.textContent="جاهز لاستقبال سؤالك";
+      assistantInput.focus();
+    }
+    function resizeAssistantInput(){
+      assistantInput.style.height="auto";
+      assistantInput.style.height=Math.min(assistantInput.scrollHeight,130)+"px";
+      assistantCounter.textContent=`${assistantInput.value.length} / 800`;
+    }
+    async function askAssistant(question){
+      const previousHistory=assistantHistory.slice(-6);
+      addAssistantMessage(question,"user");
+      assistantHistory.push({role:"user",text:question});
+      const typing=addAssistantTyping();
+      assistantSend.disabled=true;
+      assistantClear.disabled=true;
+      assistantSend.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>';
+      assistantStatus.textContent="يبحث في المعلومات المعتمدة...";
+      try{
+        const response=await fetch("/api/assistant",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({message:question,history:previousHistory})});
+        const data=await response.json().catch(()=>({}));
+        if(!response.ok)throw new Error(data.error||"تعذر الحصول على إجابة الآن.");
+        const answer=String(data.answer||"").trim();
+        if(!answer)throw new Error("لم يصل رد صالح من المساعد.");
+        typing.remove();
+        addAssistantMessage(answer,"assistant");
+        assistantHistory.push({role:"assistant",text:answer.slice(0,1400)});
+        assistantStatus.textContent="جاهز لاستقبال سؤالك";
+      }catch(error){
+        typing.remove();
+        addAssistantMessage(error.message||"حدث خطأ مؤقت. حاول مجددًا.","assistant");
+        assistantStatus.textContent="تعذر الاتصال مؤقتًا";
+      }finally{
+        assistantSend.disabled=false;
+        assistantClear.disabled=false;
+        assistantSend.innerHTML='<i class="fa-solid fa-paper-plane"></i>';
+        assistantInput.focus();
+      }
+    }
+    if(assistantForm){
+      assistantForm.addEventListener("submit",e=>{e.preventDefault();const question=assistantInput.value.trim();if(!question||assistantSend.disabled)return;assistantInput.value="";resizeAssistantInput();askAssistant(question);});
+      assistantInput.addEventListener("input",resizeAssistantInput);
+      assistantInput.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();assistantForm.requestSubmit();}});
+      document.querySelectorAll(".assistant-suggestion").forEach(btn=>btn.addEventListener("click",()=>{assistantInput.value=btn.textContent.trim();resizeAssistantInput();assistantForm.requestSubmit();}));
+      assistantClear.addEventListener("click",resetAssistantConversation);
+      resizeAssistantInput();
+    }
     function setActiveLinks(){const sections=document.querySelectorAll("section[id], .hero[id]"),navItems=document.querySelectorAll(".nav-links a, .bottom-nav a");let current="home";sections.forEach(section=>{if(window.scrollY>=section.offsetTop-150)current=section.id;});navItems.forEach(link=>link.classList.toggle("active",link.getAttribute("href")===`#${current}`));}
     setActiveLinks();loadAll();
   </script>
