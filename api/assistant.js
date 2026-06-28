@@ -3,6 +3,7 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
 const GEMINI_FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || "gemini-2.5-flash";
+const GEMINI_EMBEDDING_MODEL = process.env.GEMINI_EMBEDDING_MODEL || "gemini-embedding-2";
 const SITE_URL = (process.env.SITE_URL || "https://usf-flax.vercel.app").replace(/\/+$/, "");
 
 const requestBuckets = new Map();
@@ -13,6 +14,7 @@ const KNOWLEDGE_CACHE_MS = 90_000;
 const GEMINI_ATTEMPTS = 2;
 let knowledgeCache = { expiresAt: 0, documents: [] };
 let knowledgeLoading = null;
+const semanticCache = new Map();
 
 function send(res, status, data) {
   res.statusCode = status;
@@ -104,7 +106,8 @@ function rankDocuments(documents, question) {
   return documents
     .map((document, index) => {
       const haystack = document.text.toLowerCase();
-      const score = terms.reduce((total, term) => total + (haystack.includes(term) ? 3 : 0), document.core ? 8 : 0);
+      const semanticScore = Number(document.similarity || 0) * 12;
+      const score = terms.reduce((total, term) => total + (haystack.includes(term) ? 3 : 0), (document.core ? 8 : 0) + semanticScore);
       return { ...document, score, index };
     })
     .sort((a, b) => b.score - a.score || a.index - b.index)
@@ -113,7 +116,7 @@ function rankDocuments(documents, question) {
 
 async function fetchKnowledgeDocuments() {
   const queries = [
-    ["ai_knowledge", "title,content,keywords,source_url,category,is_active,sort_order", { active: true, order: "sort_order.asc,created_at.desc", limit: 60 }],
+    ["ai_knowledge", "id,title,content,keywords,source_url,category,is_active,sort_order", { active: true, order: "sort_order.asc,created_at.desc", limit: 60 }],
     ["committees", "name,description,task_one,task_two,task_three,link_text,link_url,is_active", { active: true, order: "sort_order.asc", limit: 20 }],
     ["committee_links", "title,description,url,college,specialization,level,is_featured,is_active", { active: true, order: "sort_order.asc", limit: 60 }],
     ["activities", "title,subtitle,description,details,location,activity_date,category,is_active", { active: true, order: "activity_date.desc", limit: 15 }],
@@ -137,6 +140,7 @@ async function fetchKnowledgeDocuments() {
   const documents = [
     {
       core: true,
+      source: "core",
       text: `روابط الموقع الرسمية: الرئيسية ${SITE_URL}/ | الانضمام ${SITE_URL}/join | المساعد الذكي ${SITE_URL}/assistant | الأنشطة ${SITE_URL}/activities | الدورات ${SITE_URL}/courses | اللجان ${SITE_URL}/committees | الإنجازات ${SITE_URL}/achievements | المبادرات ${SITE_URL}/initiatives | الفعاليات ${SITE_URL}/events | الشكاوى ${SITE_URL}/issues`
     }
   ];
@@ -145,11 +149,80 @@ async function fetchKnowledgeDocuments() {
     for (const row of result.rows) {
       const fields = Object.keys(row).filter(key => !["is_active", "sort_order"].includes(key));
       const text = compactRow(row, fields);
-      if (text) documents.push({ core: result.table === "ai_knowledge", text: `[${result.table}] ${text}` });
+      if (text) documents.push({
+        core: result.table === "ai_knowledge",
+        source: result.table,
+        sourceId: row.id,
+        text: `[${result.table}] ${text}`
+      });
     }
   }
 
   return documents;
+}
+
+async function supabaseRpc(functionName, body) {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) return [];
+  const response = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${functionName}`, {
+    method: "POST",
+    headers: {
+      apikey: SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  });
+  if (!response.ok) throw new Error(`${functionName}: ${response.status}`);
+  const data = await response.json();
+  return Array.isArray(data) ? data : [];
+}
+
+async function createQueryEmbedding(question) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10_000);
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_EMBEDDING_MODEL)}:embedContent`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-goog-api-key": GEMINI_API_KEY
+      },
+      body: JSON.stringify({
+        content: { parts: [{ text: question }] },
+        taskType: "RETRIEVAL_QUERY",
+        outputDimensionality: 768
+      }),
+      signal: controller.signal
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(`Embedding query: ${response.status}`);
+    const values = data?.embedding?.values || data?.embeddings?.[0]?.values || [];
+    if (!Array.isArray(values) || values.length !== 768) throw new Error("Invalid query embedding");
+    return values;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function semanticSearch(question) {
+  const cacheKey = cleanText(question, MAX_QUESTION_LENGTH).toLowerCase();
+  const cached = semanticCache.get(cacheKey);
+  if (cached?.expiresAt > Date.now()) return cached.rows;
+
+  try {
+    const queryEmbedding = await createQueryEmbedding(question);
+    const rows = await supabaseRpc("match_ai_knowledge", {
+      query_embedding: queryEmbedding,
+      match_threshold: 0.28,
+      match_count: 8
+    });
+    if (semanticCache.size > 200) semanticCache.clear();
+    semanticCache.set(cacheKey, { rows, expiresAt: Date.now() + 5 * 60_000 });
+    return rows;
+  } catch (error) {
+    console.warn("Semantic search unavailable; using keyword fallback", error.message);
+    return [];
+  }
 }
 
 async function getKnowledgeDocuments() {
@@ -170,8 +243,23 @@ async function getKnowledgeDocuments() {
 }
 
 async function buildKnowledge(question) {
-  const documents = await getKnowledgeDocuments();
-  return rankDocuments(documents, question)
+  const [documents, semanticRows] = await Promise.all([
+    getKnowledgeDocuments(),
+    semanticSearch(question)
+  ]);
+  const semanticDocuments = semanticRows.map(row => ({
+    core: true,
+    source: "ai_knowledge",
+    sourceId: row.id,
+    similarity: row.similarity,
+    text: `[ai_knowledge] ${compactRow(row, ["title", "content", "keywords", "source_url", "category"])}`
+  }));
+  const merged = new Map();
+  for (const document of [...semanticDocuments, ...documents]) {
+    const key = document.sourceId ? `${document.source}:${document.sourceId}` : document.text;
+    if (!merged.has(key)) merged.set(key, document);
+  }
+  return rankDocuments([...merged.values()], question)
     .map((document, index) => `${index + 1}. ${document.text}`)
     .join("\n")
     .slice(0, 14_000);
