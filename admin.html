@@ -1108,6 +1108,7 @@
           {name:"subtitle",label:"العنوان الداخلي",type:"text"},
           {name:"description",label:"وصف مختصر يظهر في كرت النشاط",type:"textarea"},
           {name:"details",label:"تفاصيل النشاط كاملة تظهر عند الضغط على عرض التفاصيل والصور",type:"textarea"},
+          {name:"image_url",label:"الخلفية الرئيسية للنشاط",type:"single_image_upload",bucket:STORAGE_BUCKET,folder:"activities/covers"},
           {name:"gallery_images",label:"صور النشاط / الرحلة",type:"image_upload",bucket:STORAGE_BUCKET,folder:"activities"},
           {name:"location",label:"مكان النشاط / الرحلة",type:"text"},
           {name:"activity_date",label:"تاريخ النشاط",type:"date"},
@@ -1115,7 +1116,6 @@
           {name:"category",label:"التصنيف",type:"text",placeholder:"trip / activity / event"},
           {name:"tag_one",label:"وسم 1",type:"text",placeholder:"رحلة طلابية"},
           {name:"tag_two",label:"وسم 2",type:"text",placeholder:"معرض صور"},
-          {name:"is_light",label:"كرت فاتح",type:"boolean",default:false},
           {name:"is_active",label:"ظاهر في الموقع",type:"boolean",default:true}
         ]
       },
@@ -1869,23 +1869,27 @@
 
     function renderUploadField(field){
       uploadState[field.name]=uploadState[field.name]||[];
+      const single=field.type==="single_image_upload";
+      const heading=single?field.label:"صور النشاط والمعرض";
+      const isActivityCover=currentTable==="activities"&&field.name==="image_url";
+      const help=isActivityCover?"اختر صورة أفقية واضحة لتظهر كخلفية رئيسية لكرت النشاط في الموقع.":single?"اختر صورة رئيسية واضحة لهذا السجل.":"اختر صور النشاط أو الرحلة لعرضها داخل معرض التفاصيل.";
       return `
         <div class="field full image-upload-field" data-field="${field.name}">
           <label>${field.label}</label>
           <div class="image-uploader">
             <div class="upload-head">
-              <strong><i class="fa-solid fa-images"></i> صور النشاط</strong>
+              <strong><i class="fa-solid ${single?"fa-image":"fa-images"}"></i> ${heading}</strong>
               <div class="upload-actions">
-                <input class="hidden upload-input" type="file" accept="image/*" multiple />
-                <button class="btn btn-primary pick-images-btn" type="button"><i class="fa-solid fa-cloud-arrow-up"></i> رفع صور</button>
-                <button class="btn btn-soft clear-images-btn" type="button"><i class="fa-solid fa-eraser"></i> مسح القائمة</button>
+                <input class="hidden upload-input" type="file" accept="image/*" ${single?"":"multiple"} />
+                <button class="btn btn-primary pick-images-btn" type="button"><i class="fa-solid fa-cloud-arrow-up"></i> ${single?"رفع الصورة":"رفع صور"}</button>
+                <button class="btn btn-soft clear-images-btn" type="button"><i class="fa-solid fa-eraser"></i> ${single?"إزالة الصورة":"مسح القائمة"}</button>
               </div>
             </div>
             <div class="upload-drop">
               <div>
                 <i class="fa-solid fa-cloud-arrow-up"></i>
-                <p>اضغط رفع صور، ثم اختر صور الرحلة أو النشاط. يمكن حذف أي صورة بعد رفعها.</p>
-                <div class="small-note">يتم حفظ الروابط في جدول activities داخل حقل gallery_images.</div>
+                <p>${help}</p>
+                <div class="small-note">${single?"يتم حفظ رابط صورة واحدة فقط.":"يمكن رفع عدة صور وحذف أي صورة قبل الحفظ."}</div>
               </div>
             </div>
             <div class="uploaded-images" data-images="${field.name}"></div>
@@ -2619,7 +2623,7 @@ function getFormPayload(){
     async function deleteStorageFilesFromRow(row){
       if(!row)return;
       let urls=[];
-      if(currentTable==="activities") urls=normalizeImages(row.gallery_images);
+      if(currentTable==="activities") urls=[...new Set([...normalizeImages(row.image_url),...normalizeImages(row.gallery_images)])];
       if(currentTable==="tv_news") urls=normalizeImages(row.image_url);
       if(!urls.length)return;
       if(!urls.length)return;
@@ -2955,7 +2959,7 @@ function getFormPayload(){
     }
 
     async function quickSeedTripActivity(){
-      const row={title:"رحلة طلابية تعليمية وترفيهية",subtitle:"رحلة تجمع المعرفة، الترفيه، وروح الفريق",description:"نظّم ملتقى الطالب الجامعي رحلة طلابية هدفت إلى تعزيز التواصل بين الطلاب وكسر الروتين الدراسي في أجواء منظمة وممتعة.",details:"تضمنت الرحلة فقرات تعريفية، أنشطة جماعية، مسابقات، جلسات تفاعلية، وتوثيقًا للحظات المميزة. كما ساهمت في تقوية العلاقات بين الطلاب وتعزيز روح التعاون والانتماء للملتقى والجامعة.",gallery_images:[],location:"يتم تحديد المكان",activity_date:new Date().toISOString().slice(0,10),icon:"fa-solid fa-bus",category:"trip",tag_one:"رحلة طلابية",tag_two:"معرض صور",is_light:false,is_active:true};
+      const row={title:"رحلة طلابية تعليمية وترفيهية",subtitle:"رحلة تجمع المعرفة، الترفيه، وروح الفريق",description:"نظّم ملتقى الطالب الجامعي رحلة طلابية هدفت إلى تعزيز التواصل بين الطلاب وكسر الروتين الدراسي في أجواء منظمة وممتعة.",details:"تضمنت الرحلة فقرات تعريفية، أنشطة جماعية، مسابقات، جلسات تفاعلية، وتوثيقًا للحظات المميزة. كما ساهمت في تقوية العلاقات بين الطلاب وتعزيز روح التعاون والانتماء للملتقى والجامعة.",image_url:null,gallery_images:[],location:"يتم تحديد المكان",activity_date:new Date().toISOString().slice(0,10),icon:"fa-solid fa-bus",category:"trip",tag_one:"رحلة طلابية",tag_two:"معرض صور",is_active:true};
       const {error}=await db.from("activities").insert(row); if(error)return showToast("خطأ: "+error.message);
       showToast("تمت إضافة نشاط رحلة، افتحه للتعديل وارفع الصور"); quickModal.classList.remove("show"); await loadRows();
     }
