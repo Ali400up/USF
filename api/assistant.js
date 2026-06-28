@@ -8,6 +8,10 @@ const requestBuckets = new Map();
 const MAX_QUESTION_LENGTH = 800;
 const MAX_HISTORY_ITEMS = 6;
 const REQUESTS_PER_MINUTE = 12;
+const KNOWLEDGE_CACHE_MS = 90_000;
+const GEMINI_ATTEMPTS = 2;
+let knowledgeCache = { expiresAt: 0, documents: [] };
+let knowledgeLoading = null;
 
 function send(res, status, data) {
   res.statusCode = status;
@@ -103,21 +107,21 @@ function rankDocuments(documents, question) {
       return { ...document, score, index };
     })
     .sort((a, b) => b.score - a.score || a.index - b.index)
-    .slice(0, 40);
+    .slice(0, 26);
 }
 
-async function buildKnowledge(question) {
+async function fetchKnowledgeDocuments() {
   const queries = [
-    ["ai_knowledge", "title,content,keywords,source_url,category,is_active,sort_order", { active: true, order: "sort_order.asc,created_at.desc", limit: 100 }],
-    ["committees", "name,description,task_one,task_two,task_three,link_text,link_url,is_active", { active: true, order: "sort_order.asc", limit: 30 }],
-    ["committee_links", "title,description,url,college,specialization,level,is_featured,is_active", { active: true, order: "sort_order.asc", limit: 100 }],
-    ["activities", "title,subtitle,description,details,location,activity_date,category,is_active", { active: true, order: "activity_date.desc", limit: 25 }],
-    ["courses", "title,description,details,category,status,seats_total,seats_taken,is_active", { active: true, order: "created_at.desc", limit: 20 }],
-    ["achievements", "title,description,details,achievement_date,category,is_active", { active: true, order: "achievement_date.desc", limit: 20 }],
-    ["student_initiatives", "title,description,details,initiative_date,category,status,organizer,target_group,is_active", { active: true, order: "initiative_date.desc", limit: 20 }],
-    ["events", "title,location,event_date,status,is_active", { active: true, order: "event_date.desc", limit: 20 }],
-    ["tv_news", "category,title,description,ticker,is_active", { active: true, order: "sort_order.asc", limit: 20 }],
-    ["announcements", "title,is_active", { active: true, order: "created_at.desc", limit: 20 }]
+    ["ai_knowledge", "title,content,keywords,source_url,category,is_active,sort_order", { active: true, order: "sort_order.asc,created_at.desc", limit: 60 }],
+    ["committees", "name,description,task_one,task_two,task_three,link_text,link_url,is_active", { active: true, order: "sort_order.asc", limit: 20 }],
+    ["committee_links", "title,description,url,college,specialization,level,is_featured,is_active", { active: true, order: "sort_order.asc", limit: 60 }],
+    ["activities", "title,subtitle,description,details,location,activity_date,category,is_active", { active: true, order: "activity_date.desc", limit: 15 }],
+    ["courses", "title,description,details,category,status,seats_total,seats_taken,is_active", { active: true, order: "created_at.desc", limit: 12 }],
+    ["achievements", "title,description,details,achievement_date,category,is_active", { active: true, order: "achievement_date.desc", limit: 12 }],
+    ["student_initiatives", "title,description,details,initiative_date,category,status,organizer,target_group,is_active", { active: true, order: "initiative_date.desc", limit: 12 }],
+    ["events", "title,location,event_date,status,is_active", { active: true, order: "event_date.desc", limit: 12 }],
+    ["tv_news", "category,title,description,ticker,is_active", { active: true, order: "sort_order.asc", limit: 12 }],
+    ["announcements", "title,is_active", { active: true, order: "created_at.desc", limit: 12 }]
   ];
 
   const results = await Promise.all(queries.map(async ([table, select, options]) => {
@@ -144,10 +148,32 @@ async function buildKnowledge(question) {
     }
   }
 
+  return documents;
+}
+
+async function getKnowledgeDocuments() {
+  if (knowledgeCache.documents.length && knowledgeCache.expiresAt > Date.now()) {
+    return knowledgeCache.documents;
+  }
+
+  if (!knowledgeLoading) {
+    knowledgeLoading = fetchKnowledgeDocuments()
+      .then(documents => {
+        knowledgeCache = { documents, expiresAt: Date.now() + KNOWLEDGE_CACHE_MS };
+        return documents;
+      })
+      .finally(() => { knowledgeLoading = null; });
+  }
+
+  return knowledgeLoading;
+}
+
+async function buildKnowledge(question) {
+  const documents = await getKnowledgeDocuments();
   return rankDocuments(documents, question)
     .map((document, index) => `${index + 1}. ${document.text}`)
     .join("\n")
-    .slice(0, 48_000);
+    .slice(0, 28_000);
 }
 
 function buildHistory(history) {
@@ -165,6 +191,49 @@ function buildHistory(history) {
 function extractAnswer(data) {
   const parts = data?.candidates?.[0]?.content?.parts || [];
   return parts.map(part => part.text || "").join("\n").trim();
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function requestGemini(payload) {
+  let lastResult = { status: 502, data: {}, error: null };
+
+  for (let attempt = 0; attempt < GEMINI_ATTEMPTS; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 16_000);
+
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": GEMINI_API_KEY
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
+      const data = await response.json().catch(() => ({}));
+      const answer = response.ok ? extractAnswer(data) : "";
+      if (response.ok && answer) return { ok: true, status: response.status, data, answer };
+
+      lastResult = { status: response.status, data, error: null };
+      const retryable = response.ok || [408, 429, 500, 502, 503, 504].includes(response.status);
+      if (!retryable || attempt === GEMINI_ATTEMPTS - 1) break;
+      console.warn("Gemini temporary response, retrying", response.status, attempt + 1);
+    } catch (error) {
+      lastResult = { status: error.name === "AbortError" ? 504 : 502, data: {}, error };
+      if (attempt === GEMINI_ATTEMPTS - 1) break;
+      console.warn("Gemini temporary error, retrying", error.message, attempt + 1);
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    await sleep(1200 * (attempt + 1));
+  }
+
+  return { ok: false, ...lastResult };
 }
 
 module.exports = async function handler(req, res) {
@@ -200,40 +269,22 @@ ${question}
 
 أجب من المعلومات المعتمدة فقط. اجعل الإجابة من فقرتين قصيرتين كحد أقصى، واستخدم قائمة قصيرة عند الحاجة.`;
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 22_000);
-    let geminiResponse;
-    try {
-      geminiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": GEMINI_API_KEY
-        },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemInstruction }] },
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 700, temperature: 0.2 }
-        }),
-        signal: controller.signal
-      });
-    } finally {
-      clearTimeout(timeout);
-    }
+    const gemini = await requestGemini({
+      system_instruction: { parts: [{ text: systemInstruction }] },
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: 500, temperature: 0.15 }
+    });
 
-    const data = await geminiResponse.json().catch(() => ({}));
-    if (!geminiResponse.ok) {
-      console.error("Gemini API error", geminiResponse.status, data?.error?.message || "Unknown error");
-      const status = geminiResponse.status === 429 ? 429 : 502;
+    if (!gemini.ok) {
+      console.error("Gemini API failed after retry", gemini.status, gemini.data?.error?.message || gemini.error?.message || "Unknown error");
+      const status = gemini.status === 429 ? 429 : 502;
       const message = status === 429
-        ? "المساعد مشغول حاليًا. حاول مجددًا بعد قليل."
-        : "تعذر الحصول على إجابة الآن. حاول مجددًا لاحقًا.";
+        ? "يوجد ضغط مؤقت على المساعد. انتظر لحظات ثم أعد الإرسال."
+        : "تعذر الاتصال بخدمة الذكاء الاصطناعي بعد محاولتين. أعد الإرسال بعد قليل.";
       return send(res, status, { error: message });
     }
 
-    const answer = extractAnswer(data);
-    if (!answer) return send(res, 502, { error: "لم يصل رد صالح من المساعد. حاول مجددًا." });
-    return send(res, 200, { answer });
+    return send(res, 200, { answer: gemini.answer });
   } catch (error) {
     console.error("Assistant handler failed", error.message);
     const message = error.name === "AbortError"
