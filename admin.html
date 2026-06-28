@@ -2617,7 +2617,63 @@ function getFormPayload(){
         showToast("لم يتم تعديل السجل. قد تكون الصلاحيات أو رقم السجل غير صحيحة.");
         return;
       }
-      showToast(id?"تم التعديل بنجاح":"تمت الإضافة بنجاح"); resetForm(); await loadRows();
+      const savedRow=Array.isArray(result.data)?result.data[0]:null;
+      if(currentTable==="ai_knowledge"&&savedRow?.id){
+        showToast((id?"تم التعديل":"تمت الإضافة")+"، جارٍ تجهيز البحث الذكي...");
+        const syncResult=await syncAiKnowledgeRecord(savedRow.id);
+        if(syncResult.ok)showToast("تم الحفظ وتجهيز المعلومة للبحث الذكي");
+        else showToast("تم الحفظ، لكن تعذر تجهيز البحث الذكي: "+syncResult.error);
+      }else{
+        showToast(id?"تم التعديل بنجاح":"تمت الإضافة بنجاح");
+      }
+      resetForm(); await loadRows();
+    }
+
+    async function callKnowledgeSync(body){
+      try{
+        const {data:{session}}=await db.auth.getSession();
+        if(!session?.access_token)return {ok:false,error:"انتهت جلسة الدخول"};
+        const response=await fetch("/api/assistant-knowledge",{
+          method:"POST",
+          headers:{"Content-Type":"application/json",Authorization:`Bearer ${session.access_token}`},
+          body:JSON.stringify(body)
+        });
+        const data=await response.json().catch(()=>({}));
+        if(!response.ok)return {ok:false,error:data.error||`خطأ ${response.status}`};
+        return {ok:true,...data};
+      }catch(error){
+        return {ok:false,error:"تعذر الاتصال بخادم المزامنة"};
+      }
+    }
+
+    async function syncAiKnowledgeRecord(id){
+      return callKnowledgeSync({action:"embed_one",id});
+    }
+
+    async function syncAllAiKnowledge(){
+      const button=document.getElementById("syncAiKnowledgeBtn");
+      const status=document.getElementById("syncAiKnowledgeStatus");
+      if(button)button.disabled=true;
+      let processed=0, failed=0, batches=0, hasMore=true;
+      while(hasMore&&batches<50){
+        if(status)status.textContent=`تجهيز المعلومات القديمة... تم إنجاز ${processed} سجل`;
+        const result=await callKnowledgeSync({action:"sync_missing",limit:20});
+        if(!result.ok){
+          if(status)status.textContent=`توقفت المزامنة: ${result.error}`;
+          if(button)button.disabled=false;
+          return;
+        }
+        processed+=Number(result.processed||0);
+        failed+=Number(result.failed||0);
+        hasMore=result.has_more===true;
+        batches+=1;
+        if(hasMore)await new Promise(resolve=>setTimeout(resolve,700));
+      }
+      if(status)status.textContent=failed
+        ? `اكتملت المزامنة: ${processed} ناجح، ${failed} تعذر تجهيزه.`
+        : `اكتملت المزامنة. تم تجهيز ${processed} سجل للبحث الذكي.`;
+      if(button)button.disabled=false;
+      await loadRows();
     }
 
     async function deleteStorageFilesFromRow(row){
@@ -2948,7 +3004,9 @@ function getFormPayload(){
 
     function openQuickAdd(){
       let html="";
-      if(currentTable==="activities"){
+      if(currentTable==="ai_knowledge"){
+        html=`<div class="warning">استخدم هذا الزر مرة واحدة بعد تشغيل ملف البحث المتجهي، أو بعد استيراد عدد كبير من المعلومات. السجلات الجديدة والمعدلة تُجهّز تلقائيًا عند الحفظ.</div><button class="btn btn-primary" id="syncAiKnowledgeBtn" onclick="syncAllAiKnowledge()"><i class="fa-solid fa-arrows-rotate"></i> مزامنة المعلومات القديمة</button><div id="syncAiKnowledgeStatus" class="empty" style="margin-top:14px">سيتم تجهيز السجلات التي لا تملك بصمة بحث فقط.</div>`;
+      } else if(currentTable==="activities"){
         html=`<div class="warning">إضافة نموذج نشاط رحلة. بعد الإضافة اضغط تعديل ثم ارفع الصور من خانة صور النشاط.</div><button class="btn btn-primary" onclick="quickSeedTripActivity()"><i class="fa-solid fa-bus"></i> إضافة نشاط رحلة</button>`;
       } else if(currentTable==="committees"){
         html=`<div class="warning">إضافة سريعة للجان الأساسية.</div><button class="btn btn-primary" onclick="quickSeedCommittees()"><i class="fa-solid fa-sitemap"></i> إضافة اللجان الأساسية</button>`;
@@ -2992,7 +3050,7 @@ function getFormPayload(){
       showToast("تمت إضافة روابط افتراضية"); quickModal.classList.remove("show"); await loadRows();
     }
 
-    window.quickSeedCommittees=quickSeedCommittees; window.quickSeedCommitteeLinks=quickSeedCommitteeLinks; window.quickSeedTripActivity=quickSeedTripActivity;
+    window.quickSeedCommittees=quickSeedCommittees; window.quickSeedCommitteeLinks=quickSeedCommitteeLinks; window.quickSeedTripActivity=quickSeedTripActivity; window.syncAllAiKnowledge=syncAllAiKnowledge;
 
     dataForm.onsubmit=e=>{e.preventDefault();saveRecord(getFormPayload())};
     newBtn.onclick=resetForm; deleteBtn.onclick=()=>deleteRecord(); refreshBtn.onclick=loadRows;
