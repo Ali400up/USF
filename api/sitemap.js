@@ -58,6 +58,7 @@ function publicIdFor(key, row = {}) {
 
 const STATIC_SECTION_PAGES = [
   { path: "/join", changefreq: "daily", priority: "0.86" },
+  { path: "/assistant", changefreq: "daily", priority: "0.88" },
   { path: "/issues", changefreq: "daily", priority: "0.82" },
   { path: "/about", changefreq: "weekly", priority: "0.74" },
   { path: "/goals", changefreq: "weekly", priority: "0.74" }
