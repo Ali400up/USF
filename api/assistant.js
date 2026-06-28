@@ -2,6 +2,7 @@ const SUPABASE_URL = (process.env.SUPABASE_URL || "").replace(/\/+$/, "");
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "";
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
+const GEMINI_FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || "gemini-2.5-flash";
 const SITE_URL = (process.env.SITE_URL || "https://usf-flax.vercel.app").replace(/\/+$/, "");
 
 const requestBuckets = new Map();
@@ -107,7 +108,7 @@ function rankDocuments(documents, question) {
       return { ...document, score, index };
     })
     .sort((a, b) => b.score - a.score || a.index - b.index)
-    .slice(0, 26);
+    .slice(0, 14);
 }
 
 async function fetchKnowledgeDocuments() {
@@ -173,7 +174,7 @@ async function buildKnowledge(question) {
   return rankDocuments(documents, question)
     .map((document, index) => `${index + 1}. ${document.text}`)
     .join("\n")
-    .slice(0, 28_000);
+    .slice(0, 14_000);
 }
 
 function buildHistory(history) {
@@ -197,15 +198,15 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function requestGemini(payload) {
+async function requestGemini(payload, model = GEMINI_MODEL, attempts = GEMINI_ATTEMPTS) {
   let lastResult = { status: 502, data: {}, error: null };
 
-  for (let attempt = 0; attempt < GEMINI_ATTEMPTS; attempt += 1) {
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 16_000);
 
     try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(GEMINI_MODEL)}:generateContent`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -216,16 +217,16 @@ async function requestGemini(payload) {
       });
       const data = await response.json().catch(() => ({}));
       const answer = response.ok ? extractAnswer(data) : "";
-      if (response.ok && answer) return { ok: true, status: response.status, data, answer };
+      if (response.ok && answer) return { ok: true, status: response.status, data, answer, model };
 
-      lastResult = { status: response.status, data, error: null };
-      const retryable = response.ok || [408, 429, 500, 502, 503, 504].includes(response.status);
-      if (!retryable || attempt === GEMINI_ATTEMPTS - 1) break;
-      console.warn("Gemini temporary response, retrying", response.status, attempt + 1);
+      lastResult = { status: response.status, data, error: null, model };
+      const retryable = response.ok || [408, 500, 502, 503, 504].includes(response.status);
+      if (!retryable || attempt === attempts - 1) break;
+      console.warn("Gemini temporary response, retrying", model, response.status, attempt + 1);
     } catch (error) {
       lastResult = { status: error.name === "AbortError" ? 504 : 502, data: {}, error };
-      if (attempt === GEMINI_ATTEMPTS - 1) break;
-      console.warn("Gemini temporary error, retrying", error.message, attempt + 1);
+      if (attempt === attempts - 1) break;
+      console.warn("Gemini temporary error, retrying", model, error.message, attempt + 1);
     } finally {
       clearTimeout(timeout);
     }
@@ -269,18 +270,32 @@ ${question}
 
 أجب من المعلومات المعتمدة فقط. اجعل الإجابة من فقرتين قصيرتين كحد أقصى، واستخدم قائمة قصيرة عند الحاجة.`;
 
-    const gemini = await requestGemini({
+    const geminiPayload = {
       system_instruction: { parts: [{ text: systemInstruction }] },
       contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { maxOutputTokens: 500, temperature: 0.15 }
-    });
+      generationConfig: {
+        maxOutputTokens: 420,
+        temperature: 0.15,
+        thinkingConfig: { thinkingBudget: 0 }
+      }
+    };
+
+    let gemini = await requestGemini(geminiPayload, GEMINI_MODEL);
+    if (!gemini.ok && [429, 503, 504].includes(gemini.status) && GEMINI_FALLBACK_MODEL !== GEMINI_MODEL) {
+      console.warn("Primary Gemini model unavailable; trying fallback", GEMINI_MODEL, GEMINI_FALLBACK_MODEL);
+      gemini = await requestGemini(geminiPayload, GEMINI_FALLBACK_MODEL, 1);
+    }
 
     if (!gemini.ok) {
       console.error("Gemini API failed after retry", gemini.status, gemini.data?.error?.message || gemini.error?.message || "Unknown error");
-      const status = gemini.status === 429 ? 429 : 502;
-      const message = status === 429
-        ? "يوجد ضغط مؤقت على المساعد. انتظر لحظات ثم أعد الإرسال."
-        : "تعذر الاتصال بخدمة الذكاء الاصطناعي بعد محاولتين. أعد الإرسال بعد قليل.";
+      const quotaError = gemini.status === 429;
+      const keyError = [401, 403].includes(gemini.status);
+      const status = quotaError ? 429 : keyError ? 503 : 502;
+      const message = quotaError
+        ? "حصة Gemini الخاصة بالمشروع مستنفدة حاليًا. تحقّق من حدود الاستخدام والفوترة في Google AI Studio، أو استخدم مفتاحًا من مشروع لديه حصة متاحة."
+        : keyError
+          ? "مفتاح Gemini غير صالح أو لا يملك صلاحية الاستخدام. أنشئ مفتاحًا جديدًا ثم حدّث GEMINI_API_KEY في Vercel."
+          : "تعذر الاتصال بخدمة الذكاء الاصطناعي بعد المحاولات التلقائية. أعد الإرسال بعد قليل.";
       return send(res, status, { error: message });
     }
 
